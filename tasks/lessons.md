@@ -12,6 +12,10 @@
   not only checking the application's string formatter. Chart libraries can
   retain their own two-decimal default; test the rendered series price format
   and keep chart labels, source prices, and opportunity prices consistent.
+- For browser-visible static asset changes, verifying source and formatter
+  tests is insufficient when the HTTP path has no cache policy. Version the
+  subresource URLs, set an explicit cache policy for development, and verify
+  the headers from the running server after restart.
 - The user explicitly does not want separate specs or approval gates for small,
   obvious changes. For those tasks, keep the plan concise in `tasks/todo.md`,
   apply TDD where code behavior changes, and proceed directly to implementation.

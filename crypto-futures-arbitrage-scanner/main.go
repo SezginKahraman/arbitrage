@@ -339,6 +339,14 @@ func (s *FuturesScanner) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+func newStaticHandler(directory string) http.Handler {
+	fileServer := http.FileServer(http.Dir(directory))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		fileServer.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -371,7 +379,7 @@ func main() {
 	go scanner.broadcastPrices()
 
 	http.HandleFunc("/ws", scanner.handleWebSocket)
-	http.Handle("/", http.FileServer(http.Dir("./static/")))
+	http.Handle("/", newStaticHandler("./static/"))
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -148,6 +148,21 @@ and Hummingbot remains deliberately running without trading configuration.
 - The browser was reopened with a cache-busting page query at
   `http://localhost:8082/?precision=8`.
 
+## Price Chart Cache Fix
+
+- [x] Reproduce the stale unversioned UI asset path.
+- [x] Version the price formatter and application script URLs.
+- [x] Disable browser caching for scanner static responses.
+- [x] Restart the scanner and verify HTTP headers plus live COTI sources.
+
+### Cache Fix Review
+
+- The live server now returns `Cache-Control: no-store`, and the served page
+  loads `price-format.js?v=8-decimal` before `app.js?v=8-decimal`.
+- Go tests, vet, build, Node formatter tests, and diff checks pass.
+- After the container restart, the COTI stream again supplied Binance spot,
+  Binance futures, Bybit futures, Gate.io futures, and Kraken futures prices.
+
 ## GitHub Publication
 
 - [x] Initialize `arbitrage` as an independent Git repository on `main`.
