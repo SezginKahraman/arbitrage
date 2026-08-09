@@ -56,12 +56,13 @@ type ParadexMarketSummaryEvent struct {
 	} `json:"params"`
 }
 
-func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData) {
+func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	wsURL := "wss://ws.api.prod.paradex.trade/v1"
 
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
 			log.Printf("Paradex connection error: %v", err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -81,12 +82,18 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 		}
 
 		if err := conn.WriteJSON(subscribeReq); err != nil {
+			publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
+			_ = conn.Close()
+			time.Sleep(5 * time.Second)
+			continue
 		}
+		publishConnectionStatus(statusChan, "paradex_futures", true, symbols)
 
 		// Read messages
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
+				publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
 				log.Printf("Paradex read error: %v", err)
 				break
 			}
@@ -99,9 +106,9 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 
 			// Try to parse as market summary event
 			var marketEvent ParadexMarketSummaryEvent
-			if err := json.Unmarshal(message, &marketEvent); err == nil && 
-			   marketEvent.Method == "subscription" && marketEvent.Params.Channel == "markets_summary" {
-				
+			if err := json.Unmarshal(message, &marketEvent); err == nil &&
+				marketEvent.Method == "subscription" && marketEvent.Params.Channel == "markets_summary" {
+
 				symbol := convertFromParadexSymbol(marketEvent.Params.Data.Symbol)
 				if symbol == "" {
 					continue // Skip unsupported symbols
@@ -110,7 +117,7 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 				// Parse bid and ask prices
 				bidPrice, err1 := strconv.ParseFloat(marketEvent.Params.Data.Bid, 64)
 				askPrice, err2 := strconv.ParseFloat(marketEvent.Params.Data.Ask, 64)
-				
+
 				if err1 != nil || err2 != nil {
 					continue
 				}

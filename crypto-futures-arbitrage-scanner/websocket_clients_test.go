@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -66,6 +67,52 @@ func TestBroadcastQueuesMessagesAndDisconnectsSlowClientsWithoutBlocking(t *test
 	}
 	if _, exists := scanner.wsClients[slow]; exists {
 		t.Fatal("slow client remained registered")
+	}
+}
+
+func TestSourceConnectionStateIsBroadcastAndSeededForNewClients(t *testing.T) {
+	scanner := NewFuturesScanner()
+	status := exchanges.ConnectionStatus{
+		Source: "gate_spot", Connected: true, Symbols: []string{"BTCUSDT", "COTIUSDT"}, Timestamp: 20_000,
+	}
+	scanner.updateConnectionStatus(status)
+
+	client := scanner.registerClient(nil)
+	foundSnapshot := false
+	for len(client.send) > 0 {
+		message, ok := (<-client.send).(sourceStatusMessage)
+		if ok && message.Type == "source_status" && message.Version == 1 && reflect.DeepEqual(message.Status, status) {
+			foundSnapshot = true
+		}
+	}
+	if !foundSnapshot {
+		t.Fatal("new client did not receive the current source connection state")
+	}
+
+	scanner.updateConnectionStatus(exchanges.ConnectionStatus{
+		Source: "gate_spot", Connected: false, Symbols: status.Symbols, Timestamp: 25_000,
+	})
+	message, ok := (<-client.send).(sourceStatusMessage)
+	if !ok || message.Status.Connected || message.Status.Timestamp != 25_000 {
+		t.Fatalf("disconnect message = %+v", message)
+	}
+}
+
+func TestDuplicateSourceConnectionStateDoesNotFloodClients(t *testing.T) {
+	scanner := NewFuturesScanner()
+	client := scanner.registerClient(nil)
+	status := exchanges.ConnectionStatus{
+		Source: "kucoin_futures", Connected: true, Symbols: []string{"COTIUSDT"}, Timestamp: 20_000,
+	}
+	scanner.updateConnectionStatus(status)
+	if len(client.send) != 1 {
+		t.Fatalf("first status queued messages = %d, want 1", len(client.send))
+	}
+	<-client.send
+	status.Timestamp = 21_000
+	scanner.updateConnectionStatus(status)
+	if len(client.send) != 0 {
+		t.Fatalf("duplicate status queued %d messages", len(client.send))
 	}
 }
 

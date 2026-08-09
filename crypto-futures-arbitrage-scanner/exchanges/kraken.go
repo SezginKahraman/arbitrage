@@ -55,7 +55,7 @@ func processKrakenOrderbook(productID string, orderBook *KrakenOrderBook, orderb
 	orderbookChan <- orderbookData
 }
 
-func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData) {
+func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	wsURL := "wss://futures.kraken.com/ws/v1"
 
 	// Maintain orderbooks for each symbol
@@ -64,6 +64,7 @@ func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderboo
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, "kraken_futures", false, symbols)
 			log.Printf("Kraken connection error: %v", err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -94,11 +95,13 @@ func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderboo
 				Asks: make([]KrakenOrderBookEntry, 0),
 			}
 		}
+		publishConnectionStatus(statusChan, "kraken_futures", true, symbols)
 
 		for {
 			var rawMessage map[string]interface{}
 			err := conn.ReadJSON(&rawMessage)
 			if err != nil {
+				publishConnectionStatus(statusChan, "kraken_futures", false, symbols)
 				log.Printf("Kraken read error: %v", err)
 				conn.Close()
 				break

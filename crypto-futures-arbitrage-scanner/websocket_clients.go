@@ -18,10 +18,14 @@ type wsClient struct {
 func (s *FuturesScanner) registerClient(conn *websocket.Conn) *wsClient {
 	client := &wsClient{conn: conn, send: make(chan any, clientQueueCapacity)}
 	now := time.Now()
+	connectionSnapshot := s.connectionSnapshot()
 	s.quotesMutex.RLock()
 	s.opportunityMutex.RLock()
 	s.clientsMutex.Lock()
 	s.wsClients[client] = struct{}{}
+	for _, message := range connectionSnapshot {
+		client.send <- message
+	}
 	quoteSymbols := make([]string, 0, len(s.quotes))
 	for symbol := range s.quotes {
 		quoteSymbols = append(quoteSymbols, symbol)

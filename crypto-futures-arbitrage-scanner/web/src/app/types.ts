@@ -18,6 +18,7 @@ export interface UiPreferences {
   comparisonMode: ComparisonMode;
   dashboardLayout: DashboardLayout;
   opportunitiesCollapsed: boolean;
+  feedTerminalCollapsed: boolean;
   navigationCollapsed: boolean;
 }
 
@@ -39,6 +40,32 @@ export interface MarketQuote {
   bestBid: number;
   bestAsk: number;
   timestamp: number;
+}
+
+export interface SourceConnection {
+  source: string;
+  connected: boolean;
+  symbols: SymbolName[];
+  updatedAt: number;
+}
+
+export type FeedEventKind = 'connection' | 'quote' | 'price' | 'opportunity' | 'alert';
+
+export interface FeedEvent {
+  id: string;
+  kind: FeedEventKind;
+  source?: string;
+  symbol?: SymbolName;
+  symbols?: SymbolName[];
+  timestamp: number;
+  receivedAt: number;
+  connected?: boolean;
+  bestBid?: number;
+  bestAsk?: number;
+  price?: number;
+  profitPct?: number;
+  buySource?: string;
+  sellSource?: string;
 }
 
 export interface ArbitrageOpportunity {
@@ -98,5 +125,7 @@ export interface ScannerState {
   history: Record<string, Record<string, PricePoint[]>>;
   opportunities: ArbitrageOpportunity[];
   alertTriggers: AlertTrigger[];
+  connections: Record<string, SourceConnection>;
+  feedEvents: FeedEvent[];
   lastUpdatedAt: number | null;
 }

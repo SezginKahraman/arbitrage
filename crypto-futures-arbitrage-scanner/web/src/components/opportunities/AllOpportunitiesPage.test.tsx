@@ -12,6 +12,8 @@ const state: ScannerState = {
   spreads: {},
   history: {},
   alertTriggers: [],
+  connections: {},
+  feedEvents: [],
   opportunities: [
     {
       id: 'coti-spot', symbol: 'COTIUSDT', buySource: 'kucoin_spot', sellSource: 'binance_spot',

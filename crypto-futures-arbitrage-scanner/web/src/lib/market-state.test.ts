@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   countFreshSources,
+  countSourceConnections,
   createInitialScannerState,
   reduceScannerMessage,
   selectBestOpportunity,
@@ -277,5 +278,36 @@ describe('market state', () => {
 
     expect(repeated.alertTriggers).toHaveLength(1);
     expect(repeated.alertTriggers[0]).toMatchObject({ id: 7, ruleName: 'COTI gap', grossSpreadPct: 0.82 });
+  });
+
+  it('separates feed connection state from fresh book activity', () => {
+    const connected = reduceScannerMessage(
+      createInitialScannerState(),
+      {
+        type: 'source_status', version: 1,
+        status: { source: 'gate_spot', connected: true, symbols: ['BTCUSDT', 'COTIUSDT'], timestamp: 5_000 },
+      },
+      5_000,
+    );
+    const withSilentBook = reduceScannerMessage(
+      connected,
+      {
+        type: 'quote_update', version: 1,
+        quote: { symbol: 'COTIUSDT', source: 'gate_spot', best_bid: 0.011, best_ask: 0.012, timestamp: 5_000 },
+      },
+      5_000,
+    );
+
+    expect(countSourceConnections(withSilentBook, 'COTIUSDT', { gate_spot: true })).toEqual({ connected: 1, total: 1 });
+    expect(countFreshSources(withSilentBook, 'COTIUSDT', 21_000, { gate_spot: true })).toBe(0);
+    expect(withSilentBook.feedEvents.map((event) => event.kind)).toEqual(['quote', 'connection']);
+  });
+
+  it('ignores malformed source status frames', () => {
+    const state = createInitialScannerState();
+    expect(reduceScannerMessage(state, {
+      type: 'source_status', version: 1,
+      status: { source: '', connected: 'yes', symbols: ['COTIUSDT'], timestamp: 5_000 },
+    }, 5_000)).toBe(state);
   });
 });

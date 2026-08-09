@@ -323,3 +323,14 @@ Review: KuCoin is now a first-class Spot and Futures source for BTC, ETH, XRP, S
 - The in-app browser runtime had no available browser, so a new pixel-level
   screenshot review could not be captured. Component semantics, responsive
   source behavior, live HTTP, and WebSocket behavior were verified instead.
+
+## Feed Health And Live Terminal
+
+- [x] Add explicit exchange feed connection events and seed reconnecting dashboard clients with current states.
+- [x] Separate connected-feed counts from fresh executable-book counts for the selected pair and market mode.
+- [x] Capture bounded quote, connection, opportunity, and alert events in the client market state.
+- [x] Build a persisted collapsible live-feed terminal with selected-pair filtering and clear controls.
+- [x] Run frontend and Go RED-GREEN tests, race/vet/build checks, and production build.
+- [x] Replace only the scanner container and verify connection events, terminal data, and Hummingbot isolation live.
+
+Review: Every public exchange connector now reports explicit connected/disconnected state with its subscribed symbols. New browser sessions receive a deterministic 13-source status snapshot before live updates, while duplicate states are suppressed. The dashboard separates true feed connectivity from 15-second executable-book freshness, so quiet markets no longer make the connection count flicker. A bounded selected-pair terminal records connection, quote, reference-price, opportunity, and alert activity; it can be cleared or collapsed and its collapsed state persists. RED tests failed on the missing protocol/state/UI and all targeted tests passed after implementation. The final suite passed with 13 frontend files / 67 tests, TypeScript + Vite production build, Go tests, race detector, vet, build, and diff checks. A temporary `18082` smoke container returned HTTP 200 and streamed 13 source states plus COTI quotes before only `arbitrage-scanner` was replaced. The live scanner returned HTTP 200, reported 13/13 connected feeds, streamed COTI data, and remained at zero restarts; Hummingbot retained its exact running container ID. The temporary smoke and stopped rollback containers were removed; the persistent scanner data volume was preserved.

@@ -47,12 +47,13 @@ type OKXSubscribeMessage struct {
 	} `json:"args"`
 }
 
-func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData) {
+func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	wsURL := "wss://ws.okx.com:8443/ws/v5/public"
 
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 			log.Printf("OKX connection error: %v", err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -69,7 +70,7 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 		for _, symbol := range symbols {
 			// Convert symbol format (BTCUSDT -> BTC-USDT-SWAP for perpetual futures)
 			okxSymbol := convertToOKXSymbol(symbol)
-			
+
 			// Subscribe to trades
 			subscribeArgs = append(subscribeArgs, struct {
 				Channel string `json:"channel"`
@@ -78,7 +79,7 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 				Channel: "trades",
 				InstID:  okxSymbol,
 			})
-			
+
 			// Subscribe to orderbooks (books5 for top 5 levels)
 			subscribeArgs = append(subscribeArgs, struct {
 				Channel string `json:"channel"`
@@ -96,16 +97,19 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 
 		err = conn.WriteJSON(subscribeMsg)
 		if err != nil {
+			publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 			log.Printf("OKX subscription error: %v", err)
 			conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
+		publishConnectionStatus(statusChan, "okx_futures", true, symbols)
 
 		for {
 			var message json.RawMessage
 			err := conn.ReadJSON(&message)
 			if err != nil {
+				publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 				log.Printf("OKX read error: %v", err)
 				conn.Close()
 				break

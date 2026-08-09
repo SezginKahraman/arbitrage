@@ -44,6 +44,7 @@ describe('scanner preferences', () => {
       comparisonMode: 'spot',
       dashboardLayout: 'split',
       opportunitiesCollapsed: false,
+      feedTerminalCollapsed: false,
     });
   });
 
@@ -83,6 +84,7 @@ describe('scanner preferences', () => {
       comparisonMode: 'futures' as const,
       dashboardLayout: 'stacked' as const,
       opportunitiesCollapsed: true,
+      feedTerminalCollapsed: true,
     };
 
     savePreferences(localStorage, preferences);

@@ -40,6 +40,13 @@ const state: ScannerState = {
     },
   },
   alertTriggers: [],
+  connections: {
+    gate_futures: { source: 'gate_futures', connected: true, symbols: ['COTIUSDT'], updatedAt: 20_000 },
+    binance_futures: { source: 'binance_futures', connected: true, symbols: ['COTIUSDT'], updatedAt: 20_000 },
+    gate_spot: { source: 'gate_spot', connected: true, symbols: ['COTIUSDT'], updatedAt: 20_000 },
+    binance_spot: { source: 'binance_spot', connected: true, symbols: ['COTIUSDT'], updatedAt: 20_000 },
+  },
+  feedEvents: [],
   opportunities: [
     {
       id: 'coti-spot-route',
@@ -118,7 +125,8 @@ describe('ScannerDashboard', () => {
     expect(screen.getAllByText('Binance Spot').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+0.86%').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Transfer route unverified').length).toBeGreaterThan(0);
-    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 of 2 feeds connected')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 of 2 books fresh')).toBeInTheDocument();
     expect(screen.getAllByText(/0\.01140723/).length).toBeGreaterThan(0);
   });
 
@@ -238,7 +246,8 @@ describe('ScannerDashboard', () => {
       enabledSources: { ...DEFAULT_PREFERENCES.enabledSources, gate_spot: false },
     });
 
-    expect(screen.getByText('1 / 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('1 of 1 feeds connected')).toBeInTheDocument();
+    expect(screen.getByLabelText('1 of 1 books fresh')).toBeInTheDocument();
   });
 
   it('marks silent sources stale without requiring another socket frame', () => {
@@ -252,10 +261,12 @@ describe('ScannerDashboard', () => {
         state={state}
       />,
     );
-    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 of 2 feeds connected')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 of 2 books fresh')).toBeInTheDocument();
 
     act(() => vi.advanceTimersByTime(16_000));
-    expect(screen.getByText('0 / 2')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 of 2 feeds connected')).toBeInTheDocument();
+    expect(screen.getByLabelText('0 of 2 books fresh')).toBeInTheDocument();
   });
 
   it('persists accessible table sort changes', () => {

@@ -21,6 +21,7 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   comparisonMode: 'spot',
   dashboardLayout: 'split',
   opportunitiesCollapsed: false,
+  feedTerminalCollapsed: false,
   navigationCollapsed: false,
 };
 
@@ -86,6 +87,10 @@ function normalizePreferences(value: Record<string, unknown> | null): UiPreferen
       typeof value?.opportunitiesCollapsed === 'boolean'
         ? value.opportunitiesCollapsed
         : DEFAULT_PREFERENCES.opportunitiesCollapsed,
+    feedTerminalCollapsed:
+      typeof value?.feedTerminalCollapsed === 'boolean'
+        ? value.feedTerminalCollapsed
+        : DEFAULT_PREFERENCES.feedTerminalCollapsed,
     navigationCollapsed:
       typeof value?.navigationCollapsed === 'boolean'
         ? value.navigationCollapsed

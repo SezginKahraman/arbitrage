@@ -96,12 +96,13 @@ type GateSubscribeMessage struct {
 	Payload []string `json:"payload"`
 }
 
-func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData) {
+func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	wsURL := "wss://fx-ws.gateio.ws/v4/ws/usdt"
 
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, "gate_futures", false, symbols)
 			log.Printf("Gate.io connection error: %v", err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -125,11 +126,13 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 
 		err = conn.WriteJSON(bookTickerSubscribeMsg)
 		if err != nil {
+			publishConnectionStatus(statusChan, "gate_futures", false, symbols)
 			log.Printf("Gate.io book ticker subscription error: %v", err)
 			conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
+		publishConnectionStatus(statusChan, "gate_futures", true, symbols)
 
 		if err != nil {
 			continue
@@ -139,6 +142,7 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 			var message json.RawMessage
 			err := conn.ReadJSON(&message)
 			if err != nil {
+				publishConnectionStatus(statusChan, "gate_futures", false, symbols)
 				log.Printf("Gate.io read error: %v", err)
 				conn.Close()
 				break
@@ -233,12 +237,13 @@ func parseGateSpotBookTicker(message []byte) (OrderbookData, bool) {
 }
 
 // ConnectGateSpot streams public best-bid/best-ask updates. It does not use API credentials.
-func ConnectGateSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData) {
+func ConnectGateSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	const wsURL = "wss://api.gateio.ws/ws/v4/"
 
 	for {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, "gate_spot", false, symbols)
 			log.Printf("Gate.io spot connection error: %v", err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -256,15 +261,18 @@ func ConnectGateSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- 
 			Payload: gateSymbols,
 		}
 		if err := conn.WriteJSON(subscription); err != nil {
+			publishConnectionStatus(statusChan, "gate_spot", false, symbols)
 			log.Printf("Gate.io spot subscription error: %v", err)
 			_ = conn.Close()
 			time.Sleep(5 * time.Second)
 			continue
 		}
+		publishConnectionStatus(statusChan, "gate_spot", true, symbols)
 
 		for {
 			var message json.RawMessage
 			if err := conn.ReadJSON(&message); err != nil {
+				publishConnectionStatus(statusChan, "gate_spot", false, symbols)
 				log.Printf("Gate.io spot read error: %v", err)
 				_ = conn.Close()
 				break

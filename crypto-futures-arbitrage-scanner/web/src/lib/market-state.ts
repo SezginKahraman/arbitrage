@@ -2,6 +2,7 @@ import {
   SYMBOLS,
   type ArbitrageOpportunity,
   type AlertTrigger,
+  type FeedEvent,
   type MarketQuote,
   type PricePoint,
   type ScannerState,
@@ -10,6 +11,7 @@ import {
 
 const OPPORTUNITY_LIMIT = 250;
 const ALERT_TRIGGER_LIMIT = 100;
+const FEED_EVENT_LIMIT = 120;
 const HISTORY_WINDOW_MS = 4 * 60 * 60 * 1_000;
 const HISTORY_BUCKET_MS = 5_000;
 export const FRESHNESS_WINDOW_MS = 15_000;
@@ -35,8 +37,32 @@ export function createInitialScannerState(): ScannerState {
     history: {},
     opportunities: [],
     alertTriggers: [],
+    connections: {},
+    feedEvents: [],
     lastUpdatedAt: null,
   };
+}
+
+function parseSourceStatus(value: unknown): {
+  source: string;
+  connected: boolean;
+  symbols: SymbolName[];
+  timestamp: number;
+} | null {
+  if (!isRecord(value) || typeof value.source !== 'string' || !value.source) return null;
+  if (typeof value.connected !== 'boolean' || !Array.isArray(value.symbols)) return null;
+  if (typeof value.timestamp !== 'number' || !Number.isFinite(value.timestamp)) return null;
+  if (!value.symbols.every(isSymbol)) return null;
+  return {
+    source: value.source,
+    connected: value.connected,
+    symbols: value.symbols as SymbolName[],
+    timestamp: value.timestamp,
+  };
+}
+
+function appendFeedEvent(state: ScannerState, event: FeedEvent): FeedEvent[] {
+  return [event, ...state.feedEvents].slice(0, FEED_EVENT_LIMIT);
 }
 
 function parseQuote(value: unknown): MarketQuote | null {
@@ -229,7 +255,16 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
 
   if (message.type === 'price_update' && message.version === 1) {
     const price = parsePriceUpdate(message.price);
-    return price ? reduceSourcePrice(state, price.symbol, price.source, price.price, price.timestamp, now) : state;
+    if (!price) return state;
+    const next = reduceSourcePrice(state, price.symbol, price.source, price.price, price.timestamp, now);
+    return {
+      ...next,
+      feedEvents: appendFeedEvent(next, {
+        id: `price:${price.source}:${price.symbol}:${price.timestamp}:${now}`,
+        kind: 'price', source: price.source, symbol: price.symbol, price: price.price,
+        timestamp: price.timestamp, receivedAt: now,
+      }),
+    };
   }
 
   if (message.type === 'quote_update' && message.version === 1) {
@@ -249,6 +284,31 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
         ...state.quotes,
         [quote.symbol]: { ...(state.quotes[quote.symbol] ?? {}), [quote.source]: quote },
       },
+      feedEvents: appendFeedEvent(withPrice, {
+        id: `quote:${quote.source}:${quote.symbol}:${quote.timestamp}:${now}`,
+        kind: 'quote', source: quote.source, symbol: quote.symbol,
+        bestBid: quote.bestBid, bestAsk: quote.bestAsk, timestamp: quote.timestamp, receivedAt: now,
+      }),
+    };
+  }
+
+  if (message.type === 'source_status' && message.version === 1) {
+    const status = parseSourceStatus(message.status);
+    if (!status) return state;
+    return {
+      ...state,
+      connections: {
+        ...state.connections,
+        [status.source]: {
+          source: status.source, connected: status.connected, symbols: status.symbols, updatedAt: status.timestamp,
+        },
+      },
+      feedEvents: appendFeedEvent(state, {
+        id: `connection:${status.source}:${status.connected}:${status.timestamp}`,
+        kind: 'connection', source: status.source, symbols: status.symbols, connected: status.connected,
+        timestamp: status.timestamp, receivedAt: now,
+      }),
+      lastUpdatedAt: now,
     };
   }
 
@@ -274,7 +334,17 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
           item.sellSource !== opportunity.sellSource,
       ),
     ].slice(0, OPPORTUNITY_LIMIT);
-    return { ...state, opportunities, lastUpdatedAt: now };
+    return {
+      ...state,
+      opportunities,
+      feedEvents: appendFeedEvent(state, {
+        id: `opportunity:${opportunity.id}:${now}`,
+        kind: 'opportunity', symbol: opportunity.symbol, buySource: opportunity.buySource,
+        sellSource: opportunity.sellSource, profitPct: opportunity.profitPct,
+        timestamp: opportunity.timestamp, receivedAt: now,
+      }),
+      lastUpdatedAt: now,
+    };
   }
 
   if (message.type === 'opportunities_snapshot' && message.version === 1 && isSymbol(message.symbol)) {
@@ -297,6 +367,11 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
     return {
       ...state,
       alertTriggers: [trigger, ...state.alertTriggers.filter((item) => item.id !== trigger.id)].slice(0, ALERT_TRIGGER_LIMIT),
+      feedEvents: appendFeedEvent(state, {
+        id: `alert:${trigger.id}:${now}`, kind: 'alert', symbol: trigger.symbol,
+        buySource: trigger.buySource, sellSource: trigger.sellSource, profitPct: trigger.grossSpreadPct,
+        timestamp: trigger.triggeredAtMS, receivedAt: now,
+      }),
       lastUpdatedAt: now,
     };
   }
@@ -338,4 +413,18 @@ export function countFreshSources(
       return enabledSources?.[source] !== false && age >= 0 && age <= FRESHNESS_WINDOW_MS;
     },
   ).length;
+}
+
+export function countSourceConnections(
+  state: ScannerState,
+  symbol: string,
+  enabledSources?: Record<string, boolean>,
+): { connected: number; total: number } {
+  const matching = Object.values(state.connections ?? {}).filter(
+    (connection) => connection.symbols.includes(symbol as SymbolName) && enabledSources?.[connection.source] !== false,
+  );
+  return {
+    connected: matching.filter((connection) => connection.connected).length,
+    total: matching.length,
+  };
 }

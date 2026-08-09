@@ -256,17 +256,20 @@ func initializeKuCoinConnection(
 
 func connectKuCoinPublic(
 	name string,
+	source string,
 	bulletURL string,
 	symbols []string,
 	topicForSymbol kuCoinTopicBuilder,
 	parseTicker kuCoinTickerParser,
 	orderbookChan chan<- OrderbookData,
+	statusChan chan<- ConnectionStatus,
 ) {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	for {
 		config, err := requestKuCoinWebSocketConfig(context.Background(), client, bulletURL)
 		if err != nil {
+			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s public token error: %v", name, err)
 			time.Sleep(5 * time.Second)
 			continue
@@ -275,24 +278,28 @@ func connectKuCoinPublic(
 		connectID := strconv.FormatInt(time.Now().UnixNano(), 10)
 		webSocketURL, err := kuCoinWebSocketURL(config, connectID)
 		if err != nil {
+			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s WebSocket URL error: %v", name, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 		conn, _, err := websocket.DefaultDialer.Dial(webSocketURL, nil)
 		if err != nil {
+			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s connection error: %v", name, err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 
 		if err := initializeKuCoinConnection(conn, connectID, symbols, topicForSymbol, 10*time.Second); err != nil {
+			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s initialization error: %v", name, err)
 			_ = conn.Close()
 			time.Sleep(2 * time.Second)
 			continue
 		}
 		log.Printf("Connected to %s WebSocket", name)
+		publishConnectionStatus(statusChan, source, true, symbols)
 
 		heartbeatDone := make(chan struct{})
 		go keepKuCoinConnectionAlive(conn, connectID, config, heartbeatDone, name)
@@ -309,6 +316,7 @@ func connectKuCoinPublic(
 		}
 
 		close(heartbeatDone)
+		publishConnectionStatus(statusChan, source, false, symbols)
 		_ = conn.Close()
 		time.Sleep(2 * time.Second)
 	}
@@ -346,19 +354,19 @@ func keepKuCoinConnectionAlive(
 }
 
 // ConnectKuCoinSpot streams public best-bid/best-ask updates. It does not use API credentials.
-func ConnectKuCoinSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData) {
+func ConnectKuCoinSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	connectKuCoinPublic(
-		"KuCoin spot", kuCoinSpotBulletURL, symbols,
+		"KuCoin spot", "kucoin_spot", kuCoinSpotBulletURL, symbols,
 		func(symbol string) string { return "/market/ticker:" + toKuCoinSpotSymbol(symbol) },
-		parseKuCoinSpotTicker, orderbookChan,
+		parseKuCoinSpotTicker, orderbookChan, statusChan,
 	)
 }
 
 // ConnectKuCoinFutures streams public best-bid/best-ask updates. It does not use API credentials.
-func ConnectKuCoinFutures(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData) {
+func ConnectKuCoinFutures(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
 	connectKuCoinPublic(
-		"KuCoin futures", kuCoinFuturesBulletURL, symbols,
+		"KuCoin futures", "kucoin_futures", kuCoinFuturesBulletURL, symbols,
 		func(symbol string) string { return "/contractMarket/tickerV2:" + toKuCoinFuturesSymbol(symbol) },
-		parseKuCoinFuturesTicker, orderbookChan,
+		parseKuCoinFuturesTicker, orderbookChan, statusChan,
 	)
 }

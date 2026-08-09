@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetState
 import type { ArbitrageOpportunity, OpportunitySortField, ScannerState, UiPreferences } from '../../app/types';
 import type { AppPage } from '../../app/navigation';
 import type { OpportunityHistoryState } from '../../hooks/useOpportunityHistory';
-import { countFreshSources, FRESHNESS_WINDOW_MS } from '../../lib/market-state';
+import { countFreshSources, countSourceConnections, FRESHNESS_WINDOW_MS } from '../../lib/market-state';
 import { routeMatchesComparisonMode, sourceMatchesComparisonMode } from '../../lib/sources';
 import { AppShell } from '../layout/AppShell';
 import { TopBar } from '../layout/TopBar';
@@ -11,6 +11,7 @@ import { SettingsDrawer } from '../settings/SettingsDrawer';
 import { ExecutionChecks } from './ExecutionChecks';
 import { MetricStrip } from './MetricStrip';
 import { MarketControls } from './MarketControls';
+import { LiveFeedTerminal } from './LiveFeedTerminal';
 import { OpportunitiesTable } from './OpportunitiesTable';
 import { OpportunityRoute } from './OpportunityRoute';
 import { PriceComparisonChart } from './PriceComparisonChart';
@@ -128,8 +129,8 @@ export function ScannerDashboard({
       },
     }));
   };
-  const totalSources = Object.keys(state.prices[preferences.symbol] ?? {}).filter(sourceIsVisible).length;
-  const freshSources = countFreshSources(state, preferences.symbol, currentNow, visibleSources);
+  const feedConnections = countSourceConnections(state, preferences.symbol, visibleSources);
+  const freshBooks = countFreshSources(state, preferences.symbol, currentNow, visibleSources);
 
   return (
     <AppShell
@@ -161,9 +162,11 @@ export function ScannerDashboard({
       <MetricStrip
         activeOpportunities={filteredLiveOpportunities.length}
         bestSpread={opportunity?.profitPct ?? null}
-        freshSources={freshSources}
+        connectedFeeds={feedConnections.connected}
+        freshBooks={freshBooks}
         minSpread={preferences.minSpread}
-        totalSources={totalSources}
+        totalBooks={feedConnections.total}
+        totalFeeds={feedConnections.total}
       />
 
       <div className={`grid gap-4 ${preferences.dashboardLayout === 'split' ? 'xl:grid-cols-[minmax(0,1.05fr)_minmax(520px,0.95fr)]' : 'grid-cols-1'}`}>
@@ -190,6 +193,16 @@ export function ScannerDashboard({
           <ExecutionChecks />
         </div>
       </div>
+
+      <LiveFeedTerminal
+        collapsed={preferences.feedTerminalCollapsed}
+        events={state.feedEvents ?? []}
+        onCollapsedChange={(feedTerminalCollapsed) => onPreferencesChange((current) => ({
+          ...current,
+          feedTerminalCollapsed,
+        }))}
+        symbol={preferences.symbol}
+      />
 
       <SettingsDrawer
         onClose={closeSettings}

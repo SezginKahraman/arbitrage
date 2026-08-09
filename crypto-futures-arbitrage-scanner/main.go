@@ -62,6 +62,9 @@ type FuturesScanner struct {
 	priceChan        chan exchanges.PriceData
 	orderbookChan    chan exchanges.OrderbookData
 	tradeChan        chan exchanges.TradeData
+	connectionChan   chan exchanges.ConnectionStatus
+	connections      map[string]exchanges.ConnectionStatus
+	connectionMutex  sync.RWMutex
 	lastOpportunity  map[string]time.Time // Track last alert per symbol
 	lastRouteTime    map[string]int64
 	currentRoutes    map[string]map[string]ArbitrageOpportunity
@@ -77,6 +80,8 @@ func NewFuturesScanner() *FuturesScanner {
 		priceChan:       make(chan exchanges.PriceData, 1000),
 		orderbookChan:   make(chan exchanges.OrderbookData, 1000),
 		tradeChan:       make(chan exchanges.TradeData, 1000),
+		connectionChan:  make(chan exchanges.ConnectionStatus, 128),
+		connections:     make(map[string]exchanges.ConnectionStatus),
 		lastOpportunity: make(map[string]time.Time),
 		lastRouteTime:   make(map[string]int64),
 		currentRoutes:   make(map[string]map[string]ArbitrageOpportunity),
@@ -119,6 +124,12 @@ func (s *FuturesScanner) processOrderbooks() {
 func (s *FuturesScanner) processTrades() {
 	for range s.tradeChan {
 		// Keep trade data for future use but don't use for pricing
+	}
+}
+
+func (s *FuturesScanner) processConnections() {
+	for status := range s.connectionChan {
+		s.updateConnectionStatus(status)
 	}
 }
 
@@ -407,25 +418,32 @@ func run() error {
 	go scanner.processPrices()
 	go scanner.processOrderbooks()
 	go scanner.processTrades()
+	go scanner.processConnections()
+
+	for _, source := range configuredSources {
+		scanner.updateConnectionStatus(exchanges.ConnectionStatus{
+			Source: source, Connected: false, Symbols: symbolsForSource(source), Timestamp: time.Now().UnixMilli(),
+		})
+	}
 
 	// Start exchange connections with orderbook feeds
-	go exchanges.ConnectBinanceFutures(symbolsForSource(sourceBinanceFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectBybitFutures(symbolsForSource(sourceBybitFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectHyperliquidFutures(symbolsForSource(sourceHyperliquidFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectKrakenFutures(symbolsForSource(sourceKrakenFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectOKXFutures(symbolsForSource(sourceOKXFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectGateFutures(symbolsForSource(sourceGateFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectKuCoinFutures(symbolsForSource(sourceKuCoinFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectParadexFutures(symbolsForSource(sourceParadexFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectBinanceFutures(symbolsForSource(sourceBinanceFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectBybitFutures(symbolsForSource(sourceBybitFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectHyperliquidFutures(symbolsForSource(sourceHyperliquidFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectKrakenFutures(symbolsForSource(sourceKrakenFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectOKXFutures(symbolsForSource(sourceOKXFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectGateFutures(symbolsForSource(sourceGateFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectKuCoinFutures(symbolsForSource(sourceKuCoinFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectParadexFutures(symbolsForSource(sourceParadexFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 
 	// Start spot exchange connections with orderbook feeds
-	go exchanges.ConnectBinanceSpot(symbolsForSource(sourceBinanceSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
-	go exchanges.ConnectKuCoinSpot(symbolsForSource(sourceKuCoinSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectBinanceSpot(symbolsForSource(sourceBinanceSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	go exchanges.ConnectKuCoinSpot(symbolsForSource(sourceKuCoinSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 
 	// Start Pyth price feed connection
-	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", scanner.handleWebSocket)
