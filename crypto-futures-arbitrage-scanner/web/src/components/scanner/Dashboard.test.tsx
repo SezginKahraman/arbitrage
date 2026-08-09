@@ -39,6 +39,7 @@ const state: ScannerState = {
       binance_futures: [{ time: 20_000, value: 0.01135 }],
     },
   },
+  alertTriggers: [],
   opportunities: [
     {
       id: 'coti-spot-route',

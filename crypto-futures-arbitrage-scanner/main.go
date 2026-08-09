@@ -67,6 +67,7 @@ type FuturesScanner struct {
 	currentRoutes    map[string]map[string]ArbitrageOpportunity
 	opportunityMutex sync.RWMutex
 	history          *opportunityHistory
+	alerts           storage.AlertStore
 }
 
 func NewFuturesScanner() *FuturesScanner {
@@ -276,6 +277,23 @@ func (s *FuturesScanner) broadcastOpportunity(opportunity ArbitrageOpportunity) 
 		"type":        "arbitrage",
 		"opportunity": opportunity,
 	})
+	if s.alerts == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	triggers, err := s.alerts.EvaluateAlerts(ctx, storage.AlertObservation{
+		Symbol: opportunity.Symbol, BuySource: opportunity.BuySource, SellSource: opportunity.SellSource,
+		BuyPrice: opportunity.BuyPrice, SellPrice: opportunity.SellPrice,
+		GrossSpreadPct: opportunity.ProfitPct, ObservedAtMS: opportunity.Timestamp,
+	})
+	if err != nil {
+		log.Printf("Alert evaluation unavailable for %s: %v", opportunity.Symbol, err)
+		return
+	}
+	for _, trigger := range triggers {
+		s.broadcastMessage(map[string]any{"type": "alert_trigger", "version": 1, "trigger": trigger})
+	}
 }
 
 func (s *FuturesScanner) handleWebSocket(w http.ResponseWriter, r *http.Request) {
@@ -371,15 +389,19 @@ func run() error {
 		databasePath = "./data/scanner.db"
 	}
 	var opportunityStore storage.OpportunityStore
+	var alertStore storage.AlertStore
 	sqliteStore, err := storage.OpenSQLite(databasePath)
 	if err != nil {
 		log.Printf("SQLite history unavailable; live scanner will continue: %v", err)
 		opportunityStore = storage.NewUnavailable(err)
+		alertStore = storage.NewUnavailableAlerts(err)
 	} else {
 		opportunityStore = sqliteStore
+		alertStore = sqliteStore
 		log.Printf("Opportunity history ready")
 	}
 	scanner.history = newOpportunityHistory(opportunityStore, 512)
+	scanner.alerts = alertStore
 
 	// Start processing goroutines
 	go scanner.processPrices()
@@ -407,7 +429,7 @@ func run() error {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", scanner.handleWebSocket)
-	mux.Handle("/api/", newAPIHandler(opportunityStore, scanner.IsLive))
+	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive))
 	mux.Handle("/", newSPAHandler("./web/dist"))
 
 	port := os.Getenv("PORT")

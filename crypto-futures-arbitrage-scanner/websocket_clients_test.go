@@ -5,7 +5,40 @@ import (
 	"time"
 
 	"futures-arbitrage-scanner/exchanges"
+	"futures-arbitrage-scanner/storage"
 )
+
+func TestPublishedOpportunityEvaluatesAndBroadcastsAlertTriggers(t *testing.T) {
+	now := time.UnixMilli(100_000)
+	alerts := &fakeAlertStore{triggered: []storage.AlertTrigger{{
+		ID: 7, RuleID: 3, RuleName: "COTI gap", Symbol: "COTIUSDT", TriggeredAtMS: now.UnixMilli(),
+	}}}
+	scanner := NewFuturesScanner()
+	scanner.alerts = alerts
+	client := &wsClient{send: make(chan any, 32)}
+	scanner.wsClients[client] = struct{}{}
+	scanner.quotes["COTIUSDT"] = map[string]Quote{
+		"gate_spot":    {Symbol: "COTIUSDT", Source: "gate_spot", BestBid: 99, BestAsk: 100, Timestamp: now.UnixMilli()},
+		"binance_spot": {Symbol: "COTIUSDT", Source: "binance_spot", BestBid: 101, BestAsk: 102, Timestamp: now.UnixMilli()},
+	}
+
+	scanner.checkArbitrageAt("COTIUSDT", now)
+
+	if len(alerts.evaluated) != 1 || alerts.evaluated[0].GrossSpreadPct != 1 {
+		t.Fatalf("evaluated observations = %+v", alerts.evaluated)
+	}
+	found := false
+	for len(client.send) > 0 {
+		message, ok := (<-client.send).(map[string]any)
+		if ok && message["type"] == "alert_trigger" && message["version"] == 1 {
+			trigger := message["trigger"].(storage.AlertTrigger)
+			found = trigger.ID == 7
+		}
+	}
+	if !found {
+		t.Fatal("alert trigger was not broadcast")
+	}
+}
 
 func TestBroadcastQueuesMessagesAndDisconnectsSlowClientsWithoutBlocking(t *testing.T) {
 	scanner := NewFuturesScanner()

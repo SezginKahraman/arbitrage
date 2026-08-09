@@ -56,6 +56,40 @@ export interface ArbitrageOpportunity {
   historical?: boolean;
 }
 
+export type AlertMarketMode = 'all' | 'spot' | 'mixed' | 'futures';
+
+export interface AlertRuleInput {
+  name: string;
+  symbol: SymbolName | '';
+  marketMode: AlertMarketMode;
+  buySource: string;
+  sellSource: string;
+  minSpreadPct: number;
+  cooldownSeconds: number;
+  enabled: boolean;
+  browserEnabled: boolean;
+}
+
+export interface AlertRule extends AlertRuleInput {
+  id: number;
+  createdAtMS: number;
+  updatedAtMS: number;
+  lastTriggeredAtMS: number | null;
+}
+
+export interface AlertTrigger {
+  id: number;
+  ruleID: number;
+  ruleName: string;
+  symbol: SymbolName;
+  buySource: string;
+  sellSource: string;
+  buyPrice: number;
+  sellPrice: number;
+  grossSpreadPct: number;
+  triggeredAtMS: number;
+}
+
 export interface ScannerState {
   connection: ConnectionStatus;
   prices: Record<string, Record<string, SourcePrice>>;
@@ -63,5 +97,6 @@ export interface ScannerState {
   spreads: Record<string, Record<string, Record<string, number>>>;
   history: Record<string, Record<string, PricePoint[]>>;
   opportunities: ArbitrageOpportunity[];
+  alertTriggers: AlertTrigger[];
   lastUpdatedAt: number | null;
 }

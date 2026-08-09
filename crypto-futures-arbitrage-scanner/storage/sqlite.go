@@ -70,6 +70,38 @@ func (s *SQLiteStore) initialize(ctx context.Context) error {
 			ON opportunities(last_seen_at_ms DESC)`,
 		`CREATE INDEX IF NOT EXISTS opportunities_symbol_peak
 			ON opportunities(symbol, peak_spread_pct DESC)`,
+		`CREATE TABLE IF NOT EXISTS alert_rules (
+			id INTEGER PRIMARY KEY,
+			name TEXT NOT NULL,
+			symbol TEXT NOT NULL DEFAULT '',
+			market_mode TEXT NOT NULL,
+			buy_source TEXT NOT NULL DEFAULT '',
+			sell_source TEXT NOT NULL DEFAULT '',
+			min_spread_pct REAL NOT NULL,
+			cooldown_seconds INTEGER NOT NULL,
+			enabled INTEGER NOT NULL,
+			browser_enabled INTEGER NOT NULL,
+			created_at_ms INTEGER NOT NULL,
+			updated_at_ms INTEGER NOT NULL,
+			last_triggered_at_ms INTEGER
+		)`,
+		`CREATE INDEX IF NOT EXISTS alert_rules_enabled
+			ON alert_rules(enabled, symbol, min_spread_pct)`,
+		`CREATE TABLE IF NOT EXISTS alert_triggers (
+			id INTEGER PRIMARY KEY,
+			rule_id INTEGER NOT NULL,
+			rule_name TEXT NOT NULL,
+			symbol TEXT NOT NULL,
+			buy_source TEXT NOT NULL,
+			sell_source TEXT NOT NULL,
+			buy_price REAL NOT NULL,
+			sell_price REAL NOT NULL,
+			gross_spread_pct REAL NOT NULL,
+			triggered_at_ms INTEGER NOT NULL,
+			FOREIGN KEY(rule_id) REFERENCES alert_rules(id)
+		)`,
+		`CREATE INDEX IF NOT EXISTS alert_triggers_recent
+			ON alert_triggers(triggered_at_ms DESC, id DESC)`,
 		`UPDATE opportunities SET ended_at_ms = last_seen_at_ms WHERE ended_at_ms IS NULL`,
 	}
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 
 import type { ArbitrageOpportunity, OpportunitySortField, ScannerState, UiPreferences } from '../../app/types';
+import type { AppPage } from '../../app/navigation';
 import type { OpportunityHistoryState } from '../../hooks/useOpportunityHistory';
 import { countFreshSources, FRESHNESS_WINDOW_MS } from '../../lib/market-state';
 import { routeMatchesComparisonMode, sourceMatchesComparisonMode } from '../../lib/sources';
@@ -20,6 +21,7 @@ interface ScannerDashboardProps {
   history: OpportunityHistoryState;
   onPreferencesChange: Dispatch<SetStateAction<UiPreferences>>;
   now?: number;
+  onNavigate?: (page: AppPage) => void;
 }
 
 function routeKey(opportunity: ScannerState['opportunities'][number]): string {
@@ -59,6 +61,7 @@ export function ScannerDashboard({
   history,
   onPreferencesChange,
   now,
+  onNavigate,
 }: ScannerDashboardProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
@@ -130,6 +133,8 @@ export function ScannerDashboard({
 
   return (
     <AppShell
+      activePage="scanner"
+      onNavigate={onNavigate}
       onOpenSettings={openSettings}
       topBar={
         <TopBar

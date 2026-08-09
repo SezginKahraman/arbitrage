@@ -280,3 +280,46 @@ Review: Binance Spot `bookTicker` messages without an event-time field now use t
 - [x] Deploy only the scanner and verify live KuCoin Spot/Futures COTI quotes and UI source counts.
 
 Review: KuCoin is now a first-class Spot and Futures source for BTC, ETH, XRP, SOL, and COTI. Both feeds use KuCoin's classic public bullet-token WebSockets, wait for the welcome frame before subscribing, maintain application heartbeats, and reconnect with a fresh public token. Live verification after multiple heartbeat intervals returned current COTI quotes from both sources in 163 ms; the dashboard had 3 fresh Spot and 5 fresh Futures COTI sources. The initial live test exposed that KuCoin Spot's `time` field is the last-trade time rather than BBO receipt time, so Spot freshness now uses the local WebSocket receipt time under a red/green regression test. Go race/vet/build, 54 frontend tests, TypeScript, production build, HTTP 200, scanner restart count, SQLite WAL size, and Hummingbot isolation were verified.
+
+## Opportunities And Alerts Pages
+
+- [x] Add application navigation for Scanner, Opportunities, and Alerts without losing the live socket state.
+- [x] Build the all-pair Opportunities page with live-only data, market/exchange/search/spread filters, sorting, and pagination.
+- [x] Add SQLite alert-rule and trigger storage with validation, cooldown, and live opportunity evaluation.
+- [x] Expose alert-rule and recent-trigger APIs and broadcast new triggers to connected clients.
+- [x] Build the Alerts page with rule creation, enable/mute controls, browser delivery, and recent triggers.
+- [x] Verify responsive/accessibility behavior, full Go/React suites, and production build.
+- [x] Deploy only the scanner and verify all three pages plus a real alert trigger end to end.
+
+### Opportunities And Alerts Review
+
+- The shared App-level WebSocket remains mounted while the pathname switches
+  between Scanner, Opportunities, and Alerts. Desktop sidebar navigation
+  becomes a persistent mobile bottom bar on smaller screens.
+- Opportunities renders every fresh route across all five tracked pairs and
+  supports search, market type, exchange, minimum gross spread, accessible
+  sorting, and pagination. Rows expire locally after the 15-second quote
+  freshness window; the UI does not invent fee, liquidity, or transfer-ready
+  claims.
+- SQLite stores validated alert rules and immutable trigger snapshots. Rules
+  match symbol, market type, buy/sell source, gross-spread threshold, enabled
+  status, and transactional cooldown state. The API supports list/create/full
+  update and recent-trigger reads; new triggers are also versioned WebSocket
+  messages.
+- Alerts can create and mute persisted rules, request browser permission from a
+  user gesture, merge live and stored trigger history without duplicates, and
+  labels delivery honestly as in-app/browser only. Email and webhook delivery
+  are not presented as configured.
+- React completed with 12 test files and 63 passing tests plus strict TypeScript
+  and Vite production build. Go tests, race detector, vet, build, and diff
+  checks passed.
+- The production image was first exercised on an isolated port and temporary
+  SQLite volume. A real COTI route created stored alert triggers end to end;
+  the exact temporary container and volume were then removed. Only the scanner
+  was replaced on `127.0.0.1:8082`, all three SPA routes returned HTTP 200, the
+  database/scanner health was healthy, and live WebSocket data included KuCoin
+  Spot/Futures plus opportunities for multiple symbols. Hummingbot retained
+  its original running container ID.
+- The in-app browser runtime had no available browser, so a new pixel-level
+  screenshot review could not be captured. Component semantics, responsive
+  source behavior, live HTTP, and WebSocket behavior were verified instead.

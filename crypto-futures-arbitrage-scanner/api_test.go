@@ -33,7 +33,7 @@ func TestAPIListsFilteredOpportunitiesWithStableEnvelope(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/api/opportunities?symbol=COTIUSDT&minSpread=0.5&limit=900", nil)
 	response := httptest.NewRecorder()
 
-	newAPIHandler(store, func() bool { return true }).ServeHTTP(response, request)
+	newAPIHandler(store, &fakeAlertStore{}, func() bool { return true }).ServeHTTP(response, request)
 
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200: %s", response.Code, response.Body.String())
@@ -63,7 +63,7 @@ func TestAPIRejectsInvalidOpportunityFilters(t *testing.T) {
 	} {
 		request := httptest.NewRequest(http.MethodGet, target, nil)
 		response := httptest.NewRecorder()
-		newAPIHandler(&fakeOpportunityStore{}, func() bool { return true }).ServeHTTP(response, request)
+		newAPIHandler(&fakeOpportunityStore{}, &fakeAlertStore{}, func() bool { return true }).ServeHTTP(response, request)
 		if response.Code != http.StatusBadRequest {
 			t.Fatalf("%s status = %d, want 400", target, response.Code)
 		}
@@ -75,7 +75,7 @@ func TestAPIHealthReportsDatabaseDegradationWithoutInternalError(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	response := httptest.NewRecorder()
 
-	newAPIHandler(store, func() bool { return true }).ServeHTTP(response, request)
+	newAPIHandler(store, &fakeAlertStore{}, func() bool { return true }).ServeHTTP(response, request)
 
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", response.Code)
@@ -89,7 +89,7 @@ func TestAPIHealthReportsStaleScanner(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	response := httptest.NewRecorder()
 
-	newAPIHandler(&fakeOpportunityStore{}, func() bool { return false }).ServeHTTP(response, request)
+	newAPIHandler(&fakeOpportunityStore{}, &fakeAlertStore{}, func() bool { return false }).ServeHTTP(response, request)
 
 	if response.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", response.Code)
@@ -103,7 +103,7 @@ func TestAPIRejectsMutationMethods(t *testing.T) {
 	request := httptest.NewRequest(http.MethodPost, "/api/opportunities", nil)
 	response := httptest.NewRecorder()
 
-	newAPIHandler(&fakeOpportunityStore{}, func() bool { return true }).ServeHTTP(response, request)
+	newAPIHandler(&fakeOpportunityStore{}, &fakeAlertStore{}, func() bool { return true }).ServeHTTP(response, request)
 
 	if response.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d, want 405", response.Code)

@@ -23,6 +23,8 @@
   it as a loop or task variable. Use a scoped name such as `repo_file` and run
   multi-assertion verification scripts with fail-fast enabled so a missing
   command cannot masquerade as a passing negative check.
+- In zsh, `status` is also a read-only special parameter. Use task-specific
+  names such as `health_code` or `response_code` in verification loops.
 - Docker Desktop's CLI and `docker-credential-desktop` must be discoverable in
   the same execution environment. A login shell can expose `docker` while
   omitting its credential helper; diagnose both paths first, then use the exact

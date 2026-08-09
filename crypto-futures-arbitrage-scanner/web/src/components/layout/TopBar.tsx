@@ -9,6 +9,7 @@ interface TopBarProps {
   preferences: UiPreferences;
   onPreferencesChange: Dispatch<SetStateAction<UiPreferences>>;
   onOpenSettings: () => void;
+  showPairSelector?: boolean;
 }
 
 const connectionCopy: Record<ConnectionStatus, string> = {
@@ -24,6 +25,7 @@ export function TopBar({
   preferences,
   onPreferencesChange,
   onOpenSettings,
+  showPairSelector = true,
 }: TopBarProps) {
   return (
     <header className="flex min-h-20 flex-wrap items-center gap-4 border-b border-terminal-line px-4 py-3 md:px-7">
@@ -34,7 +36,7 @@ export function TopBar({
         <h1 className="font-display text-xl font-semibold">Arbitrage Scanner</h1>
       </div>
 
-      <label className="relative order-3 flex min-w-56 flex-1 items-center md:order-none md:ml-auto md:max-w-md">
+      {showPairSelector ? <label className="relative order-3 flex min-w-56 flex-1 items-center md:order-none md:ml-auto md:max-w-md">
         <span className="sr-only">Selected trading pair</span>
         <Search aria-hidden="true" className="pointer-events-none absolute left-4 text-slate-500" size={18} />
         <select
@@ -51,7 +53,7 @@ export function TopBar({
             </option>
           ))}
         </select>
-      </label>
+      </label> : <div className="hidden flex-1 md:block" />}
 
       <div
         aria-label="Live market connection"

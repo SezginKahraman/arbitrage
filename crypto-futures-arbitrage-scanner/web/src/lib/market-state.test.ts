@@ -254,4 +254,28 @@ describe('market state', () => {
     expect(countFreshSources(state, 'COTIUSDT', 24_999, { binance_spot: true, gate_futures: false })).toBe(1);
     expect(countFreshSources(state, 'COTIUSDT', 25_001)).toBe(0);
   });
+
+  it('stores recent versioned alert triggers without duplicating websocket retries', () => {
+    const message = {
+      type: 'alert_trigger',
+      version: 1,
+      trigger: {
+        id: 7,
+        rule_id: 3,
+        rule_name: 'COTI gap',
+        symbol: 'COTIUSDT',
+        buy_source: 'gate_spot',
+        sell_source: 'binance_spot',
+        buy_price: 0.011,
+        sell_price: 0.012,
+        gross_spread_pct: 0.82,
+        triggered_at_ms: 20_000,
+      },
+    };
+    const first = reduceScannerMessage(createInitialScannerState(), message, 20_000);
+    const repeated = reduceScannerMessage(first, message, 21_000);
+
+    expect(repeated.alertTriggers).toHaveLength(1);
+    expect(repeated.alertTriggers[0]).toMatchObject({ id: 7, ruleName: 'COTI gap', grossSpreadPct: 0.82 });
+  });
 });

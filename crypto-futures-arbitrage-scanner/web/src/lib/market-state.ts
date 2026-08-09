@@ -1,6 +1,7 @@
 import {
   SYMBOLS,
   type ArbitrageOpportunity,
+  type AlertTrigger,
   type MarketQuote,
   type PricePoint,
   type ScannerState,
@@ -8,6 +9,7 @@ import {
 } from '../app/types';
 
 const OPPORTUNITY_LIMIT = 250;
+const ALERT_TRIGGER_LIMIT = 100;
 const HISTORY_WINDOW_MS = 4 * 60 * 60 * 1_000;
 const HISTORY_BUCKET_MS = 5_000;
 export const FRESHNESS_WINDOW_MS = 15_000;
@@ -32,6 +34,7 @@ export function createInitialScannerState(): ScannerState {
     spreads: {},
     history: {},
     opportunities: [],
+    alertTriggers: [],
     lastUpdatedAt: null,
   };
 }
@@ -120,6 +123,38 @@ function parseOpportunity(value: unknown): ArbitrageOpportunity | null {
     sellPrice: value.sell_price,
     profitPct,
     timestamp,
+  };
+}
+
+function parseAlertTrigger(value: unknown): AlertTrigger | null {
+  if (!isRecord(value) || !isSymbol(value.symbol)) return null;
+  if (
+    !Number.isInteger(value.id) ||
+    !Number.isInteger(value.rule_id) ||
+    typeof value.rule_name !== 'string' ||
+    !value.rule_name ||
+    typeof value.buy_source !== 'string' ||
+    !value.buy_source ||
+    typeof value.sell_source !== 'string' ||
+    !value.sell_source ||
+    !isFinitePositive(value.buy_price) ||
+    !isFinitePositive(value.sell_price) ||
+    typeof value.gross_spread_pct !== 'number' ||
+    !Number.isFinite(value.gross_spread_pct) ||
+    typeof value.triggered_at_ms !== 'number' ||
+    !Number.isFinite(value.triggered_at_ms)
+  ) return null;
+  return {
+    id: value.id as number,
+    ruleID: value.rule_id as number,
+    ruleName: value.rule_name,
+    symbol: value.symbol,
+    buySource: value.buy_source,
+    sellSource: value.sell_source,
+    buyPrice: value.buy_price,
+    sellPrice: value.sell_price,
+    grossSpreadPct: value.gross_spread_pct,
+    triggeredAtMS: value.triggered_at_ms,
   };
 }
 
@@ -252,6 +287,16 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
         ...(opportunities as ArbitrageOpportunity[]),
         ...state.opportunities.filter((item) => item.symbol !== message.symbol),
       ].slice(0, OPPORTUNITY_LIMIT),
+      lastUpdatedAt: now,
+    };
+  }
+
+  if (message.type === 'alert_trigger' && message.version === 1) {
+    const trigger = parseAlertTrigger(message.trigger);
+    if (!trigger) return state;
+    return {
+      ...state,
+      alertTriggers: [trigger, ...state.alertTriggers.filter((item) => item.id !== trigger.id)].slice(0, ALERT_TRIGGER_LIMIT),
       lastUpdatedAt: now,
     };
   }
