@@ -50,12 +50,15 @@ type opportunitiesSnapshot struct {
 const (
 	opportunityAlertInterval        = 10 * time.Second
 	opportunityRevalidationInterval = time.Second
+	quoteClientPublishInterval      = time.Second
 	routeRefreshMargin              = 5 * time.Second
 )
 
 type FuturesScanner struct {
 	quotes           map[string]map[string]Quote
 	quotesMutex      sync.RWMutex
+	quoteBroadcastAt map[string]time.Time
+	quoteBroadcastMu sync.Mutex
 	wsClients        map[*wsClient]struct{}
 	clientsMutex     sync.RWMutex
 	upgrader         websocket.Upgrader
@@ -75,16 +78,17 @@ type FuturesScanner struct {
 
 func NewFuturesScanner() *FuturesScanner {
 	return &FuturesScanner{
-		quotes:          make(map[string]map[string]Quote),
-		wsClients:       make(map[*wsClient]struct{}),
-		priceChan:       make(chan exchanges.PriceData, 1000),
-		orderbookChan:   make(chan exchanges.OrderbookData, 1000),
-		tradeChan:       make(chan exchanges.TradeData, 1000),
-		connectionChan:  make(chan exchanges.ConnectionStatus, 128),
-		connections:     make(map[string]exchanges.ConnectionStatus),
-		lastOpportunity: make(map[string]time.Time),
-		lastRouteTime:   make(map[string]int64),
-		currentRoutes:   make(map[string]map[string]ArbitrageOpportunity),
+		quotes:           make(map[string]map[string]Quote),
+		quoteBroadcastAt: make(map[string]time.Time),
+		wsClients:        make(map[*wsClient]struct{}),
+		priceChan:        make(chan exchanges.PriceData, 1000),
+		orderbookChan:    make(chan exchanges.OrderbookData, 1000),
+		tradeChan:        make(chan exchanges.TradeData, 1000),
+		connectionChan:   make(chan exchanges.ConnectionStatus, 128),
+		connections:      make(map[string]exchanges.ConnectionStatus),
+		lastOpportunity:  make(map[string]time.Time),
+		lastRouteTime:    make(map[string]int64),
+		currentRoutes:    make(map[string]map[string]ArbitrageOpportunity),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
@@ -272,6 +276,19 @@ func (s *FuturesScanner) IsLive() bool {
 }
 
 func (s *FuturesScanner) broadcastQuote(quote Quote) {
+	s.broadcastQuoteAt(quote, time.Now())
+}
+
+func (s *FuturesScanner) broadcastQuoteAt(quote Quote, now time.Time) {
+	key := quote.Symbol + "\x00" + quote.Source
+	s.quoteBroadcastMu.Lock()
+	lastPublished, exists := s.quoteBroadcastAt[key]
+	if exists && now.Sub(lastPublished) < quoteClientPublishInterval {
+		s.quoteBroadcastMu.Unlock()
+		return
+	}
+	s.quoteBroadcastAt[key] = now
+	s.quoteBroadcastMu.Unlock()
 	s.broadcastMessage(quoteUpdateMessage(quote))
 }
 
@@ -441,6 +458,14 @@ func run() error {
 	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 	go exchanges.ConnectKuCoinSpot(symbolsForSource(sourceKuCoinSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+	spotRESTContext, stopSpotRESTFallbacks := context.WithCancel(context.Background())
+	defer stopSpotRESTFallbacks()
+	exchanges.StartSpotRESTFallbacks(spotRESTContext, map[string][]string{
+		sourceBinanceSpot: symbolsForSource(sourceBinanceSpot),
+		sourceBybitSpot:   symbolsForSource(sourceBybitSpot),
+		sourceGateSpot:    symbolsForSource(sourceGateSpot),
+		sourceKuCoinSpot:  symbolsForSource(sourceKuCoinSpot),
+	}, scanner.orderbookChan)
 
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)

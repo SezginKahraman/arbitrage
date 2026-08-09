@@ -161,7 +161,14 @@ export function ScannerDashboard({
           enabledSources: { ...current.enabledSources, [source]: current.enabledSources[source] === false },
         }))}
       />
-      <OpportunityRoute connection={state.connection} opportunity={opportunity} symbol={preferences.symbol} />
+      <OpportunityRoute
+        connection={state.connection}
+        freshBooks={freshBooks}
+        minSpread={preferences.minSpread}
+        opportunity={opportunity}
+        symbol={preferences.symbol}
+        totalBooks={feedConnections.total}
+      />
       <MetricStrip
         activeOpportunities={filteredLiveOpportunities.length}
         bestSpread={opportunity?.profitPct ?? null}

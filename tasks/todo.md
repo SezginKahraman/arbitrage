@@ -344,3 +344,32 @@ Review: Every public exchange connector now reports explicit connected/disconnec
 - [x] Verify live terminal activity, scanner stability, and Hummingbot isolation.
 
 Review: The unstable disappear/reappear behavior came from one global 120-row cap shared by every symbol. Terminal events now expire by browser receipt time after five minutes, retain more than 120 in-window events, and use a 5,000-row defensive ceiling. High-frequency quote/reference streams add one row per source and symbol in each five-second bucket; intermediate ticks continue updating scanner prices without rebuilding the terminal list. The terminal is memoized and explicitly labels its five-minute buffer. Regression tests failed against the row cap, missing TTL, unsampled quotes, and missing label before implementation. The final frontend suite passed 70 tests across 13 files and the strict TypeScript/Vite production build passed. An isolated `18082` image check confirmed HTTP 200, the new asset label, and 13/13 source states before only the scanner was replaced. Live `8082` serves the new hashed asset, reports 13/13 connected sources with COTI quotes, and has zero restarts; Hummingbot retained its exact running container ID. Temporary smoke and rollback containers were removed while the scanner data volume was preserved.
+
+## Quiet Spot Book Validation
+
+- [x] Add RED tests for public Spot REST BBO normalization and quiet-book refresh.
+- [x] Refresh Binance, Gate.io, KuCoin, and Bybit Spot BBOs every five seconds.
+- [x] Distinguish insufficient fresh books from a below-threshold market in the route banner.
+- [x] Explain the transfer verification warning with the exact missing checks.
+- [x] Rate-limit browser quote delivery without slowing the server-side arbitrage calculation.
+- [x] Run full Go/frontend verification and production build.
+- [x] Deploy only the scanner and verify persistent COTI Spot coverage and Hummingbot isolation.
+
+Review: Quiet event-driven Spot WebSockets were aging otherwise valid books out
+after 15 seconds. Public, unauthenticated REST top-of-book validation now refreshes
+Binance, Bybit, Gate.io, and KuCoin Spot quotes every five seconds while the
+WebSockets remain the primary feed. Live smoke testing also exposed roughly 2,900
+quote frames in under two seconds, which filled the per-client queue and caused
+browser reconnects; UI quote delivery is now capped per source/pair at one frame
+per second while every raw quote still reaches server-side opportunity evaluation.
+The route banner separately reports missing fresh books versus a market below the
+configured spread threshold. Transfer routes remain honestly unverified and now
+name the missing deposit/withdraw, common-network, and transfer-fee checks.
+
+The final frontend suite passed 72 tests and the production build; Go tests, race,
+vet, and build passed. An isolated 35-second WebSocket check kept all Binance,
+Gate.io, and KuCoin COTI Spot books fresh and retained a Spot route without a
+disconnect. Production repeated the check for 25 seconds with quote ages of 5.4,
+3.6, and 0.8 seconds, HTTP 200, zero scanner restarts, and the persistent SQLite
+volume preserved. Only `arbitrage-scanner` was replaced; Hummingbot retained its
+exact running container ID.

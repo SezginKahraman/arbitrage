@@ -84,6 +84,7 @@ const state: ScannerState = {
 function renderDashboard(
   preferences: UiPreferences = DEFAULT_PREFERENCES,
   history: Parameters<typeof ScannerDashboard>[0]['history'] = { items: [], status: 'ready', retry: vi.fn() },
+  scannerState: ScannerState = state,
 ) {
   const onPreferencesChange = vi.fn();
   render(
@@ -92,7 +93,7 @@ function renderDashboard(
       now={20_000}
       onPreferencesChange={onPreferencesChange}
       preferences={preferences}
-      state={state}
+      state={scannerState}
     />,
   );
   return onPreferencesChange;
@@ -125,9 +126,35 @@ describe('ScannerDashboard', () => {
     expect(screen.getAllByText('Binance Spot').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+0.86%').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Transfer route unverified').length).toBeGreaterThan(0);
+    expect(screen.getByText('Deposit/withdraw status, common network, and transfer fees are not checked yet.')).toBeInTheDocument();
     expect(screen.getByLabelText('2 of 2 feeds connected')).toBeInTheDocument();
     expect(screen.getByLabelText('2 of 2 books fresh')).toBeInTheDocument();
     expect(screen.getAllByText(/0\.01140723/).length).toBeGreaterThan(0);
+  });
+
+  it('explains when fewer than two selected order books are fresh', () => {
+    renderDashboard(DEFAULT_PREFERENCES, undefined, {
+      ...state,
+      opportunities: [],
+      prices: { COTIUSDT: { gate_spot: { price: 0.01088, updatedAt: 20_000 } } },
+    });
+
+    expect(screen.getByText('Waiting for fresh order books — 1 / 2 available.')).toBeInTheDocument();
+  });
+
+  it('shows the selected threshold only when enough fresh books have no qualifying route', () => {
+    renderDashboard(DEFAULT_PREFERENCES, undefined, {
+      ...state,
+      opportunities: [],
+      prices: {
+        COTIUSDT: {
+          gate_spot: { price: 0.01088, updatedAt: 20_000 },
+          binance_spot: { price: 0.01089, updatedAt: 20_000 },
+        },
+      },
+    });
+
+    expect(screen.getByText('No executable route currently clears the 0.05% threshold.')).toBeInTheDocument();
   });
 
   it('filters opportunities by the persisted minimum spread', () => {

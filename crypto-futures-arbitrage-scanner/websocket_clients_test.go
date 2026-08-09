@@ -70,6 +70,30 @@ func TestBroadcastQueuesMessagesAndDisconnectsSlowClientsWithoutBlocking(t *test
 	}
 }
 
+func TestQuoteBroadcastsAreRateLimitedPerMarketSource(t *testing.T) {
+	scanner := NewFuturesScanner()
+	client := &wsClient{send: make(chan any, 8)}
+	scanner.wsClients[client] = struct{}{}
+	start := time.Unix(100, 0)
+	quote := Quote{
+		Symbol: "COTIUSDT", Source: "binance_spot", BestBid: 0.01217, BestAsk: 0.01218,
+		Timestamp: start.UnixMilli(),
+	}
+
+	scanner.broadcastQuoteAt(quote, start)
+	quote.BestBid = 0.01218
+	quote.BestAsk = 0.01219
+	scanner.broadcastQuoteAt(quote, start.Add(500*time.Millisecond))
+	otherSource := quote
+	otherSource.Source = "gate_spot"
+	scanner.broadcastQuoteAt(otherSource, start.Add(500*time.Millisecond))
+	scanner.broadcastQuoteAt(quote, start.Add(time.Second))
+
+	if got := len(client.send); got != 3 {
+		t.Fatalf("queued quote messages = %d, want 3", got)
+	}
+}
+
 func TestSourceConnectionStateIsBroadcastAndSeededForNewClients(t *testing.T) {
 	scanner := NewFuturesScanner()
 	status := exchanges.ConnectionStatus{

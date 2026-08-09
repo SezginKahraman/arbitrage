@@ -9,6 +9,9 @@ interface OpportunityRouteProps {
   opportunity: ArbitrageOpportunity | null;
   connection: ConnectionStatus;
   symbol: SymbolName;
+  freshBooks: number;
+  totalBooks: number;
+  minSpread: number;
 }
 
 function pairLabel(symbol: string): string {
@@ -19,10 +22,15 @@ const emptyCopy: Record<ConnectionStatus, string> = {
   connecting: 'Connecting to live market feeds…',
   reconnecting: 'Market connection interrupted; reconnecting…',
   offline: 'Market connection is offline.',
-  live: 'No executable route currently clears the selected threshold.',
+  live: '',
 };
 
-export function OpportunityRoute({ connection, opportunity, symbol }: OpportunityRouteProps) {
+export function OpportunityRoute({ connection, opportunity, symbol, freshBooks, totalBooks, minSpread }: OpportunityRouteProps) {
+  const liveEmptyCopy = freshBooks < 2
+    ? `Waiting for fresh order books — ${freshBooks} / ${totalBooks} available.`
+    : `No executable route currently clears the ${minSpread.toFixed(2)}% threshold.`;
+  const routeEmptyCopy = connection === 'live' ? liveEmptyCopy : emptyCopy[connection];
+
   return (
     <section className="overflow-hidden rounded-2xl border border-signal-mint/55 bg-[linear-gradient(115deg,rgba(39,229,140,0.055),rgba(12,23,29,0.88)_34%,rgba(12,23,29,0.98))] shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
       <div className="grid min-h-40 items-center gap-6 p-5 lg:grid-cols-[minmax(220px,1.05fr)_minmax(180px,0.8fr)_auto_minmax(180px,0.8fr)_minmax(190px,0.85fr)] lg:p-6">
@@ -73,14 +81,14 @@ export function OpportunityRoute({ connection, opportunity, symbol }: Opportunit
               <TriangleAlert aria-hidden="true" className="shrink-0" size={28} />
               <div>
                 <p className="font-medium">Transfer route unverified</p>
-                <p className="mt-1 text-xs text-slate-500">Network compatibility is not available yet.</p>
+                <p className="mt-1 text-xs text-slate-500">Deposit/withdraw status, common network, and transfer fees are not checked yet.</p>
               </div>
             </div>
           </>
         ) : (
           <div className="flex items-center gap-3 text-slate-400 lg:col-span-4">
             <CircleDollarSign aria-hidden="true" />
-            {emptyCopy[connection]}
+            {routeEmptyCopy}
           </div>
         )}
       </div>

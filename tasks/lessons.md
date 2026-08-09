@@ -65,3 +65,10 @@
   row count shared by unrelated symbols. High-frequency markets can evict a
   quiet selected pair almost immediately; combine a clear TTL with per-stream
   sampling and a high defensive memory cap.
+- Event-driven book-ticker silence is not proof that a book is invalid. Track
+  quote validation separately from quote changes and use a rate-limited public
+  REST refresh before expiring a quiet but still executable market.
+- A healthy backend feed can still look unstable when browser delivery is
+  unbounded. Preserve full-rate server-side calculations, but cap/coalesce UI
+  quote publications per source and pair and verify the WebSocket stays open
+  beyond the client freshness window.
