@@ -393,12 +393,14 @@ func run() error {
 	go exchanges.ConnectKrakenFutures(symbolsForSource(sourceKrakenFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectOKXFutures(symbolsForSource(sourceOKXFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectGateFutures(symbolsForSource(sourceGateFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectKuCoinFutures(symbolsForSource(sourceKuCoinFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectParadexFutures(symbolsForSource(sourceParadexFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 
 	// Start spot exchange connections with orderbook feeds
 	go exchanges.ConnectBinanceSpot(symbolsForSource(sourceBinanceSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectKuCoinSpot(symbolsForSource(sourceKuCoinSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)

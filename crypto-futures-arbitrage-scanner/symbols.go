@@ -11,6 +11,8 @@ const (
 	sourceParadexFutures     = "paradex_futures"
 	sourceBinanceSpot        = "binance_spot"
 	sourceBybitSpot          = "bybit_spot"
+	sourceKuCoinFutures      = "kucoin_futures"
+	sourceKuCoinSpot         = "kucoin_spot"
 	sourcePyth               = "pyth"
 )
 
@@ -23,6 +25,8 @@ var cotiSources = map[string]struct{}{
 	sourceGateFutures:    {},
 	sourceGateSpot:       {},
 	sourceBinanceSpot:    {},
+	sourceKuCoinFutures:  {},
+	sourceKuCoinSpot:     {},
 }
 
 func symbolsForSource(source string) []string {

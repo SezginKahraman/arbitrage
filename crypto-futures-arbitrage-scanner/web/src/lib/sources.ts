@@ -15,6 +15,8 @@ export const SOURCES: readonly SourceMeta[] = [
   { key: 'bybit_spot', label: 'Bybit Spot', shortLabel: 'BYB-S', market: 'spot', color: '#fb923c' },
   { key: 'gate_futures', label: 'Gate.io Futures', shortLabel: 'GAT-F', market: 'futures', color: '#3b82f6' },
   { key: 'gate_spot', label: 'Gate.io Spot', shortLabel: 'GAT-S', market: 'spot', color: '#38bdf8' },
+  { key: 'kucoin_futures', label: 'KuCoin Futures', shortLabel: 'KUC-F', market: 'futures', color: '#14b8a6' },
+  { key: 'kucoin_spot', label: 'KuCoin Spot', shortLabel: 'KUC-S', market: 'spot', color: '#22c55e' },
   { key: 'kraken_futures', label: 'Kraken Futures', shortLabel: 'KRK-F', market: 'futures', color: '#7c6cff' },
   { key: 'hyperliquid_futures', label: 'Hyperliquid Futures', shortLabel: 'HYP-F', market: 'futures', color: '#6ee7d2' },
   { key: 'okx_futures', label: 'OKX Futures', shortLabel: 'OKX-F', market: 'futures', color: '#60a5fa' },

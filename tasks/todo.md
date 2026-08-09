@@ -270,3 +270,13 @@ and Hummingbot remains deliberately running without trading configuration.
 - [x] Run full verification and confirm the live COTI Spot source count and route.
 
 Review: Binance Spot `bookTicker` messages without an event-time field now use their local receive time, so executable quotes remain fresh. A reconnecting browser receives all current valid quote snapshots before opportunity snapshots; two consecutive live WebSocket connections received Binance Spot and Gate Spot COTI quotes within 46 ms and 9 ms, respectively, together with the Gate Spot → Binance Spot route. Go race/vet/build, 52 frontend tests, TypeScript checks, production build, HTTP 200, container identity, database size, and Hummingbot isolation were verified.
+
+## KuCoin Market Integration
+
+- [x] Add failing backend tests for KuCoin symbol routing and Spot/Futures BBO parsing.
+- [x] Implement authenticated-free KuCoin public Spot/Futures WebSocket feeds with token refresh, heartbeat, and reconnect.
+- [x] Add KuCoin Spot/Futures to every UI market selector, filter, chart, and persisted preference.
+- [x] Run the full backend/frontend verification suite.
+- [x] Deploy only the scanner and verify live KuCoin Spot/Futures COTI quotes and UI source counts.
+
+Review: KuCoin is now a first-class Spot and Futures source for BTC, ETH, XRP, SOL, and COTI. Both feeds use KuCoin's classic public bullet-token WebSockets, wait for the welcome frame before subscribing, maintain application heartbeats, and reconnect with a fresh public token. Live verification after multiple heartbeat intervals returned current COTI quotes from both sources in 163 ms; the dashboard had 3 fresh Spot and 5 fresh Futures COTI sources. The initial live test exposed that KuCoin Spot's `time` field is the last-trade time rather than BBO receipt time, so Spot freshness now uses the local WebSocket receipt time under a red/green regression test. Go race/vet/build, 54 frontend tests, TypeScript, production build, HTTP 200, scanner restart count, SQLite WAL size, and Hummingbot isolation were verified.
