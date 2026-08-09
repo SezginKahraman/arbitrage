@@ -1,0 +1,54 @@
+
+# You shouldn't edit these files, as they're generated automatically from ccxt.js by build scripts.
+# Please read https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md#multilanguage-support for details.
+#
+.vs
+.vscode
+# Safety net: setuptools intermediate output. Primary fix is build_base=python/build
+# in pyproject.toml / setup.cfg so this path is never written.
+build/lib/
+build/bdist.*/
+build/temp.*/
+build/ccxt.wiki
+node_modules/
+npm-debug.log
+.DS_Store
+config.js
+config.py
+config.php
+ccxt.egg-info/
+tmp/
+*.pyc
+.tox/
+coverage
+.nyc_output
+travis-keys.sh
+exchanges.json
+ccxt.sublime-workspace
+.idea
+yarn.lock
+keys.local.json
+nbproject/
+vendor/
+.php-cs-fixer.cache
+python/build/
+python/dist/
+python/package-lock.json
+python/package.json
+python/keys.json
+python/LICENSE.txt
+__pycache__
+.env
+*.swp
+.cache
+*.log
+*.un~
+*.pyc
+bin/
+obj/
+__debug*
+*.o
+.custom_gitignore
+go/main
+go/tests/main
+go/cli/cli
