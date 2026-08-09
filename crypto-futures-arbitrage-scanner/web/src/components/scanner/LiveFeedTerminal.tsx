@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Circle, Radio, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
 import type { FeedEvent, SymbolName } from '../../app/types';
 import { formatPrice } from '../../lib/format';
@@ -55,7 +55,7 @@ function formatEventTime(timestamp: number): string {
   });
 }
 
-export function LiveFeedTerminal({ collapsed, events, onCollapsedChange, symbol }: LiveFeedTerminalProps) {
+export const LiveFeedTerminal = memo(function LiveFeedTerminal({ collapsed, events, onCollapsedChange, symbol }: LiveFeedTerminalProps) {
   const [hiddenEventIDs, setHiddenEventIDs] = useState<Set<string>>(() => new Set());
   const visibleEvents = useMemo(
     () => events.filter((event) => eventMatchesSymbol(event, symbol) && !hiddenEventIDs.has(event.id)),
@@ -76,7 +76,7 @@ export function LiveFeedTerminal({ collapsed, events, onCollapsedChange, symbol 
                 <Circle className="fill-current" size={7} /> streaming
               </span>
             </div>
-            <p className="truncate font-data text-[11px] text-slate-500">{symbol.replace('USDT', '/USDT')} · public market-data activity</p>
+            <p className="truncate font-data text-[11px] text-slate-500">5-minute buffer · {symbol.replace('USDT', '/USDT')} · public market-data activity</p>
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -124,4 +124,4 @@ export function LiveFeedTerminal({ collapsed, events, onCollapsedChange, symbol 
       )}
     </section>
   );
-}
+});

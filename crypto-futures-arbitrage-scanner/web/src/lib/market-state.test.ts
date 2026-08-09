@@ -310,4 +310,51 @@ describe('market state', () => {
       status: { source: '', connected: 'yes', symbols: ['COTIUSDT'], timestamp: 5_000 },
     }, 5_000)).toBe(state);
   });
+
+  it('keeps more than 120 terminal events while they are inside the five-minute window', () => {
+    let state = createInitialScannerState();
+    for (let index = 0; index < 150; index += 1) {
+      state = reduceScannerMessage(state, {
+        type: 'source_status', version: 1,
+        status: { source: `source_${index}`, connected: true, symbols: ['COTIUSDT'], timestamp: index * 1_000 },
+      }, index * 1_000);
+    }
+
+    expect(state.feedEvents).toHaveLength(150);
+    expect(state.feedEvents.at(-1)?.id).toBe('connection:source_0:true:0');
+  });
+
+  it('removes terminal events only after their five-minute retention window expires', () => {
+    const initial = reduceScannerMessage(createInitialScannerState(), {
+      type: 'source_status', version: 1,
+      status: { source: 'gate_spot', connected: true, symbols: ['COTIUSDT'], timestamp: 0 },
+    }, 0);
+    const retained = reduceScannerMessage(initial, {
+      type: 'source_status', version: 1,
+      status: { source: 'kucoin_spot', connected: true, symbols: ['COTIUSDT'], timestamp: 300_000 },
+    }, 300_000);
+    const expired = reduceScannerMessage(retained, {
+      type: 'source_status', version: 1,
+      status: { source: 'binance_spot', connected: true, symbols: ['COTIUSDT'], timestamp: 300_001 },
+    }, 300_001);
+
+    expect(retained.feedEvents.map((event) => event.source)).toEqual(['kucoin_spot', 'gate_spot']);
+    expect(expired.feedEvents.map((event) => event.source)).toEqual(['binance_spot', 'kucoin_spot']);
+  });
+
+  it('samples repeated quotes once per five-second source and symbol bucket', () => {
+    let state = createInitialScannerState();
+    for (const [receivedAt, bestBid] of [[0, 0.011], [1_000, 0.0111], [5_000, 0.0112]] as const) {
+      state = reduceScannerMessage(state, {
+        type: 'quote_update', version: 1,
+        quote: {
+          symbol: 'COTIUSDT', source: 'gate_spot', best_bid: bestBid,
+          best_ask: bestBid + 0.00001, timestamp: receivedAt,
+        },
+      }, receivedAt);
+    }
+
+    expect(state.feedEvents).toHaveLength(2);
+    expect(state.feedEvents.map((event) => event.bestBid)).toEqual([0.0112, 0.011]);
+  });
 });

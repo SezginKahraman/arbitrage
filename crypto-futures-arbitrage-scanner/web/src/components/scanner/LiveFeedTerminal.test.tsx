@@ -23,6 +23,7 @@ describe('LiveFeedTerminal', () => {
     expect(screen.getByText('Gate.io Spot')).toBeInTheDocument();
     expect(screen.getByText('KuCoin Spot')).toBeInTheDocument();
     expect(screen.getByText(/bid 0\.01103200/)).toBeInTheDocument();
+    expect(screen.getByText(/5-minute buffer/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Collapse live feed terminal' }));
     expect(onCollapsedChange).toHaveBeenCalledWith(true);
   });

@@ -11,7 +11,9 @@ import {
 
 const OPPORTUNITY_LIMIT = 250;
 const ALERT_TRIGGER_LIMIT = 100;
-const FEED_EVENT_LIMIT = 120;
+const FEED_EVENT_RETENTION_MS = 5 * 60 * 1_000;
+const FEED_MARKET_SAMPLE_MS = 5_000;
+const FEED_EVENT_SAFETY_LIMIT = 5_000;
 const HISTORY_WINDOW_MS = 4 * 60 * 60 * 1_000;
 const HISTORY_BUCKET_MS = 5_000;
 export const FRESHNESS_WINDOW_MS = 15_000;
@@ -62,7 +64,22 @@ function parseSourceStatus(value: unknown): {
 }
 
 function appendFeedEvent(state: ScannerState, event: FeedEvent): FeedEvent[] {
-  return [event, ...state.feedEvents].slice(0, FEED_EVENT_LIMIT);
+  const cutoff = event.receivedAt - FEED_EVENT_RETENTION_MS;
+  const current = state.feedEvents ?? [];
+  let retainedCount = current.length;
+  while (retainedCount > 0 && current[retainedCount - 1].receivedAt < cutoff) retainedCount -= 1;
+  const retained = retainedCount === current.length ? current : current.slice(0, retainedCount);
+
+  if (event.kind === 'quote' || event.kind === 'price') {
+    const sampleBucket = Math.floor(event.receivedAt / FEED_MARKET_SAMPLE_MS);
+    for (const item of retained) {
+      const itemBucket = Math.floor(item.receivedAt / FEED_MARKET_SAMPLE_MS);
+      if (itemBucket < sampleBucket) break;
+      if (item.kind === event.kind && item.source === event.source && item.symbol === event.symbol) return retained;
+    }
+  }
+
+  return [event, ...retained].slice(0, FEED_EVENT_SAFETY_LIMIT);
 }
 
 function parseQuote(value: unknown): MarketQuote | null {

@@ -67,6 +67,9 @@ export function ScannerDashboard({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
   const closeSettings = useCallback(() => setSettingsOpen(false), []);
+  const setFeedTerminalCollapsed = useCallback((feedTerminalCollapsed: boolean) => {
+    onPreferencesChange((current) => ({ ...current, feedTerminalCollapsed }));
+  }, [onPreferencesChange]);
   const [liveNow, setLiveNow] = useState(() => now ?? Date.now());
   useEffect(() => {
     if (now !== undefined) return;
@@ -197,10 +200,7 @@ export function ScannerDashboard({
       <LiveFeedTerminal
         collapsed={preferences.feedTerminalCollapsed}
         events={state.feedEvents ?? []}
-        onCollapsedChange={(feedTerminalCollapsed) => onPreferencesChange((current) => ({
-          ...current,
-          feedTerminalCollapsed,
-        }))}
+        onCollapsedChange={setFeedTerminalCollapsed}
         symbol={preferences.symbol}
       />
 

@@ -61,3 +61,7 @@
   proves a bug but the turn only authorizes diagnosis, say explicitly that the
   running code is still unchanged; on the follow-up fix, verify the exact user-
   visible metric rather than only the lower-level data feed.
+- A user-visible log retention promise must be time-based, not a small global
+  row count shared by unrelated symbols. High-frequency markets can evict a
+  quiet selected pair almost immediately; combine a clear TTL with per-stream
+  sampling and a high defensive memory cap.
