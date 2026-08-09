@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terminal-ink: #071015;
+  --color-terminal-panel: #0c171d;
+  --color-terminal-line: #1b2b33;
+  --color-terminal-text: #e7eef2;
+  --color-signal-mint: #27e58c;
+  --color-signal-amber: #f4b72a;
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: var(--font-display);
+  background: var(--color-terminal-ink);
+  color: var(--color-terminal-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 78% 8%, rgba(39, 229, 140, 0.055), transparent 24rem),
+    var(--color-terminal-ink);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal-mint);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-signal-mint) 32%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"path"
+	"path/filepath"
+	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"futures-arbitrage-scanner/exchanges"
+	"futures-arbitrage-scanner/storage"
 
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
@@ -24,24 +32,31 @@ type ArbitrageOpportunity struct {
 	Timestamp  int64   `json:"timestamp"`
 }
 
+type MarketPrice struct {
+	Symbol    string  `json:"symbol"`
+	Source    string  `json:"source"`
+	Price     float64 `json:"price"`
+	Timestamp int64   `json:"timestamp"`
+}
+
 type FuturesScanner struct {
-	prices           map[string]map[string]float64
-	pricesMutex      sync.RWMutex
-	wsClients        map[*websocket.Conn]bool
+	quotes           map[string]map[string]Quote
+	quotesMutex      sync.RWMutex
+	wsClients        map[*wsClient]struct{}
 	clientsMutex     sync.RWMutex
-	wsWriteMutex     sync.Mutex // Protects WebSocket writes
 	upgrader         websocket.Upgrader
 	priceChan        chan exchanges.PriceData
 	orderbookChan    chan exchanges.OrderbookData
 	tradeChan        chan exchanges.TradeData
 	lastOpportunity  map[string]time.Time // Track last alert per symbol
 	opportunityMutex sync.RWMutex
+	history          *opportunityHistory
 }
 
 func NewFuturesScanner() *FuturesScanner {
 	return &FuturesScanner{
-		prices:          make(map[string]map[string]float64),
-		wsClients:       make(map[*websocket.Conn]bool),
+		quotes:          make(map[string]map[string]Quote),
+		wsClients:       make(map[*wsClient]struct{}),
 		priceChan:       make(chan exchanges.PriceData, 1000),
 		orderbookChan:   make(chan exchanges.OrderbookData, 1000),
 		tradeChan:       make(chan exchanges.TradeData, 1000),
@@ -62,17 +77,13 @@ func (s *FuturesScanner) processPrices() {
 
 func (s *FuturesScanner) processOrderbooks() {
 	for orderbookData := range s.orderbookChan {
-		// Calculate mid price from best bid and best ask
-		midPrice := (orderbookData.BestBid + orderbookData.BestAsk) / 2
-
-		priceData := exchanges.PriceData{
+		s.updateQuote(Quote{
 			Symbol:    orderbookData.Symbol,
 			Source:    orderbookData.Source,
-			Price:     midPrice,
+			BestBid:   orderbookData.BestBid,
+			BestAsk:   orderbookData.BestAsk,
 			Timestamp: orderbookData.Timestamp,
-		}
-
-		s.updatePrice(priceData)
+		})
 	}
 }
 
@@ -83,60 +94,46 @@ func (s *FuturesScanner) processTrades() {
 }
 
 func (s *FuturesScanner) updatePrice(data exchanges.PriceData) {
-	s.pricesMutex.Lock()
-	if s.prices[data.Symbol] == nil {
-		s.prices[data.Symbol] = make(map[string]float64)
-	}
-	s.prices[data.Symbol][data.Source] = data.Price
-	s.pricesMutex.Unlock()
+	s.broadcastMessage(map[string]any{
+		"type":    "price_update",
+		"version": 1,
+		"price": MarketPrice{
+			Symbol: data.Symbol, Source: data.Source, Price: data.Price, Timestamp: data.Timestamp,
+		},
+	})
+}
 
-	s.checkArbitrage(data.Symbol)
+func (s *FuturesScanner) updateQuote(quote Quote) {
+	s.quotesMutex.Lock()
+	if s.quotes[quote.Symbol] == nil {
+		s.quotes[quote.Symbol] = make(map[string]Quote)
+	}
+	s.quotes[quote.Symbol][quote.Source] = quote
+	s.quotesMutex.Unlock()
+
+	s.broadcastQuote(quote)
+	s.checkArbitrage(quote.Symbol)
 }
 
 func (s *FuturesScanner) checkArbitrage(symbol string) {
-	s.pricesMutex.RLock()
-	sourcePrices, exists := s.prices[symbol]
-	if !exists || len(sourcePrices) < 2 {
-		s.pricesMutex.RUnlock()
+	s.quotesMutex.RLock()
+	sourceQuotes, exists := s.quotes[symbol]
+	quotesCopy := make(map[string]Quote, len(sourceQuotes))
+	for source, quote := range sourceQuotes {
+		quotesCopy[source] = quote
+	}
+	s.quotesMutex.RUnlock()
+
+	if !exists || len(quotesCopy) < 2 {
 		return
 	}
 
-	// Create a copy of the prices map to avoid race conditions
-	pricesCopy := make(map[string]float64)
-	for source, price := range sourcePrices {
-		pricesCopy[source] = price
-	}
-	s.pricesMutex.RUnlock()
-
-	var minPrice, maxPrice float64
-	var minSource, maxSource string
-	first := true
-
-	for source, price := range pricesCopy {
-		if first {
-			minPrice = price
-			maxPrice = price
-			minSource = source
-			maxSource = source
-			first = false
-			continue
+	opportunity, found := FindBestOpportunity(symbol, quotesCopy)
+	if found {
+		if s.history != nil && !s.history.Observe(opportunity) {
+			log.Printf("Opportunity history closed; skipping %s %s -> %s", opportunity.Symbol, opportunity.BuySource, opportunity.SellSource)
 		}
-
-		if price < minPrice {
-			minPrice = price
-			minSource = source
-		}
-		if price > maxPrice {
-			maxPrice = price
-			maxSource = source
-		}
-	}
-
-	profitPct := ((maxPrice - minPrice) / minPrice) * 100
-
-	// Only alert if profit is significant (>0.05%) and we haven't alerted recently
-	if profitPct > 0.05 {
-		opportunityKey := fmt.Sprintf("%s_%s_%s", symbol, minSource, maxSource)
+		opportunityKey := fmt.Sprintf("%s_%s_%s", symbol, opportunity.BuySource, opportunity.SellSource)
 
 		s.opportunityMutex.RLock()
 		lastAlert, exists := s.lastOpportunity[opportunityKey]
@@ -150,161 +147,46 @@ func (s *FuturesScanner) checkArbitrage(symbol string) {
 			s.lastOpportunity[opportunityKey] = now
 			s.opportunityMutex.Unlock()
 
-			opportunity := ArbitrageOpportunity{
-				Symbol:     symbol,
-				BuySource:  minSource,
-				SellSource: maxSource,
-				BuyPrice:   minPrice,
-				SellPrice:  maxPrice,
-				ProfitPct:  profitPct,
-				Timestamp:  now.UnixMilli(),
-			}
-
 			s.broadcastOpportunity(opportunity)
 		}
 	}
+}
 
-	// Always broadcast current spreads for the spread matrix using the copy
-	s.broadcastSpreads(symbol, pricesCopy)
+func (s *FuturesScanner) IsLiveAt(now time.Time) bool {
+	s.quotesMutex.RLock()
+	defer s.quotesMutex.RUnlock()
+
+	for symbol, sourceQuotes := range s.quotes {
+		freshSources := 0
+		for _, quote := range sourceQuotes {
+			if validQuote(symbol, quote, now) {
+				freshSources++
+				if freshSources >= 2 {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (s *FuturesScanner) IsLive() bool {
+	return s.IsLiveAt(time.Now())
+}
+
+func (s *FuturesScanner) broadcastQuote(quote Quote) {
+	s.broadcastMessage(map[string]interface{}{
+		"type":    "quote_update",
+		"version": 1,
+		"quote":   quote,
+	})
 }
 
 func (s *FuturesScanner) broadcastOpportunity(opportunity ArbitrageOpportunity) {
-	s.clientsMutex.RLock()
-	clients := make([]*websocket.Conn, 0, len(s.wsClients))
-	for client := range s.wsClients {
-		clients = append(clients, client)
-	}
-	s.clientsMutex.RUnlock()
-
-	message := map[string]interface{}{
+	s.broadcastMessage(map[string]interface{}{
 		"type":        "arbitrage",
 		"opportunity": opportunity,
-	}
-
-	s.wsWriteMutex.Lock()
-	defer s.wsWriteMutex.Unlock()
-
-	var toRemove []*websocket.Conn
-	for _, client := range clients {
-		err := client.WriteJSON(message)
-		if err != nil {
-			log.Printf("WebSocket write error: %v", err)
-			client.Close()
-			toRemove = append(toRemove, client)
-		}
-	}
-
-	// Remove failed clients
-	if len(toRemove) > 0 {
-		s.clientsMutex.Lock()
-		for _, client := range toRemove {
-			delete(s.wsClients, client)
-		}
-		s.clientsMutex.Unlock()
-	}
-}
-
-func (s *FuturesScanner) broadcastSpreads(symbol string, sourcePrices map[string]float64) {
-	s.clientsMutex.RLock()
-	clients := make([]*websocket.Conn, 0, len(s.wsClients))
-	for client := range s.wsClients {
-		clients = append(clients, client)
-	}
-	s.clientsMutex.RUnlock()
-
-	// Calculate all pairwise spreads
-	spreads := make(map[string]map[string]float64)
-
-	for buySource, buyPrice := range sourcePrices {
-		spreads[buySource] = make(map[string]float64)
-		for sellSource, sellPrice := range sourcePrices {
-			if buySource != sellSource {
-				spreadPct := ((sellPrice - buyPrice) / buyPrice) * 100
-				spreads[buySource][sellSource] = spreadPct
-			}
-		}
-	}
-
-	message := map[string]interface{}{
-		"type":    "spreads",
-		"symbol":  symbol,
-		"spreads": spreads,
-		"prices":  sourcePrices,
-	}
-
-	s.wsWriteMutex.Lock()
-	defer s.wsWriteMutex.Unlock()
-
-	var toRemove []*websocket.Conn
-	for _, client := range clients {
-		err := client.WriteJSON(message)
-		if err != nil {
-			log.Printf("WebSocket write error: %v", err)
-			client.Close()
-			toRemove = append(toRemove, client)
-		}
-	}
-
-	// Remove failed clients
-	if len(toRemove) > 0 {
-		s.clientsMutex.Lock()
-		for _, client := range toRemove {
-			delete(s.wsClients, client)
-		}
-		s.clientsMutex.Unlock()
-	}
-}
-
-func (s *FuturesScanner) broadcastPrices() {
-	ticker := time.NewTicker(200 * time.Millisecond)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		s.pricesMutex.RLock()
-		pricesCopy := make(map[string]map[string]float64)
-		for symbol, prices := range s.prices {
-			pricesCopy[symbol] = make(map[string]float64)
-			for exchange, price := range prices {
-				pricesCopy[symbol][exchange] = price
-			}
-		}
-		s.pricesMutex.RUnlock()
-
-		if len(pricesCopy) > 0 {
-			message := map[string]interface{}{
-				"type":   "prices",
-				"prices": pricesCopy,
-			}
-
-			s.clientsMutex.RLock()
-			clients := make([]*websocket.Conn, 0, len(s.wsClients))
-			for client := range s.wsClients {
-				clients = append(clients, client)
-			}
-			s.clientsMutex.RUnlock()
-
-			s.wsWriteMutex.Lock()
-			var toRemove []*websocket.Conn
-			for _, client := range clients {
-				err := client.WriteJSON(message)
-				if err != nil {
-					log.Printf("WebSocket write error: %v", err)
-					client.Close()
-					toRemove = append(toRemove, client)
-				}
-			}
-			s.wsWriteMutex.Unlock()
-
-			// Remove failed clients
-			if len(toRemove) > 0 {
-				s.clientsMutex.Lock()
-				for _, client := range toRemove {
-					delete(s.wsClients, client)
-				}
-				s.clientsMutex.Unlock()
-			}
-		}
-	}
+	})
 }
 
 func (s *FuturesScanner) handleWebSocket(w http.ResponseWriter, r *http.Request) {
@@ -315,45 +197,100 @@ func (s *FuturesScanner) handleWebSocket(w http.ResponseWriter, r *http.Request)
 		log.Printf("WebSocket upgrade error from %s: %v", r.RemoteAddr, err)
 		return
 	}
-	defer conn.Close()
-
-	s.clientsMutex.Lock()
-	s.wsClients[conn] = true
+	client := s.registerClient(conn)
+	s.clientsMutex.RLock()
 	clientCount := len(s.wsClients)
-	s.clientsMutex.Unlock()
+	s.clientsMutex.RUnlock()
 
 	log.Printf("WebSocket client connected from %s. Total clients: %d", r.RemoteAddr, clientCount)
 
 	defer func() {
-		s.clientsMutex.Lock()
-		delete(s.wsClients, conn)
-		log.Printf("WebSocket client disconnected. Total clients: %d", len(s.wsClients))
-		s.clientsMutex.Unlock()
+		_ = conn.Close()
+		log.Printf("WebSocket client disconnected. Total clients: %d", s.removeClient(client))
+	}()
+
+	readDone := make(chan struct{})
+	go func() {
+		defer close(readDone)
+		for {
+			if _, _, err := conn.ReadMessage(); err != nil {
+				return
+			}
+		}
 	}()
 
 	for {
-		_, _, err := conn.ReadMessage()
-		if err != nil {
-			break
+		select {
+		case <-readDone:
+			return
+		case message := <-client.send:
+			if err := conn.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+				return
+			}
+			if err := conn.WriteJSON(message); err != nil {
+				log.Printf("WebSocket write error: %v", err)
+				return
+			}
 		}
 	}
 }
 
-func newStaticHandler(directory string) http.Handler {
+func newSPAHandler(directory string) http.Handler {
 	fileServer := http.FileServer(http.Dir(directory))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cleanPath := path.Clean("/" + r.URL.Path)
+		relativePath := strings.TrimPrefix(cleanPath, "/")
+		filePath := filepath.Join(directory, filepath.FromSlash(relativePath))
+
+		if info, err := os.Stat(filePath); err == nil && !info.IsDir() {
+			if strings.HasPrefix(cleanPath, "/assets/") {
+				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			} else {
+				w.Header().Set("Cache-Control", "no-store")
+			}
+			fileServer.ServeHTTP(w, cloneRequestPath(r, cleanPath))
+			return
+		}
+
+		if cleanPath != "/" && filepath.Ext(cleanPath) != "" {
+			http.NotFound(w, r)
+			return
+		}
+
 		w.Header().Set("Cache-Control", "no-store")
-		fileServer.ServeHTTP(w, r)
+		fileServer.ServeHTTP(w, cloneRequestPath(r, "/"))
 	})
 }
 
-func main() {
+func cloneRequestPath(r *http.Request, requestPath string) *http.Request {
+	clone := r.Clone(r.Context())
+	urlCopy := *r.URL
+	urlCopy.Path = requestPath
+	clone.URL = &urlCopy
+	return clone
+}
+
+func run() error {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("No .env file found, using system environment variables")
 	}
 
 	scanner := NewFuturesScanner()
+	databasePath := os.Getenv("SCANNER_DB_PATH")
+	if databasePath == "" {
+		databasePath = "./data/scanner.db"
+	}
+	var opportunityStore storage.OpportunityStore
+	sqliteStore, err := storage.OpenSQLite(databasePath)
+	if err != nil {
+		log.Printf("SQLite history unavailable; live scanner will continue: %v", err)
+		opportunityStore = storage.NewUnavailable(err)
+	} else {
+		opportunityStore = sqliteStore
+		log.Printf("Opportunity history ready")
+	}
+	scanner.history = newOpportunityHistory(opportunityStore, 512)
 
 	// Start processing goroutines
 	go scanner.processPrices()
@@ -376,16 +313,55 @@ func main() {
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 
-	go scanner.broadcastPrices()
-
-	http.HandleFunc("/ws", scanner.handleWebSocket)
-	http.Handle("/", newStaticHandler("./static/"))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/ws", scanner.handleWebSocket)
+	mux.Handle("/api/", newAPIHandler(opportunityStore, scanner.IsLive))
+	mux.Handle("/", newSPAHandler("./web/dist"))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8082"
 	}
 
-	log.Printf("Server starting on http://localhost:%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	server := &http.Server{
+		Addr:              ":" + port,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	serverErrors := make(chan error, 1)
+	go func() {
+		log.Printf("Server starting on http://localhost:%s", port)
+		serverErrors <- server.ListenAndServe()
+	}()
+
+	shutdownSignal, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	select {
+	case err := <-serverErrors:
+		closeContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		closeErr := scanner.history.Close(closeContext)
+		if errors.Is(err, http.ErrServerClosed) {
+			return closeErr
+		}
+		if closeErr != nil {
+			log.Printf("Opportunity history close failed: %v", closeErr)
+		}
+		return err
+	case <-shutdownSignal.Done():
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		serverErr := server.Shutdown(shutdownContext)
+		historyErr := scanner.history.Close(shutdownContext)
+		if serverErr != nil {
+			return serverErr
+		}
+		return historyErr
+	}
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }

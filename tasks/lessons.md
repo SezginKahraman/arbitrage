@@ -23,3 +23,23 @@
   it as a loop or task variable. Use a scoped name such as `repo_file` and run
   multi-assertion verification scripts with fail-fast enabled so a missing
   command cannot masquerade as a passing negative check.
+- Docker Desktop's CLI and `docker-credential-desktop` must be discoverable in
+  the same execution environment. A login shell can expose `docker` while
+  omitting its credential helper; diagnose both paths first, then use the exact
+  Docker Desktop resource directory for builds instead of changing project
+  configuration.
+- After flattening nested repositories into a monorepo, re-audit every `.env`
+  path against the outer index. A nested repository's ignore behavior does not
+  undo files already tracked by the wrapper; remove them from the outer index
+  while preserving the user's local file.
+- A scanner health signal must describe executable market coverage, not generic
+  data activity. Reference-price ticks and a single order book can be fresh
+  while no cross-source route is computable; require two distinct, valid, fresh
+  books for the same symbol.
+- A non-blocking persistence queue must preserve the semantic first, peak, and
+  latest observations when coalescing. On shutdown, cancel any in-flight batch,
+  requeue unfinished routes, drain everything under one overall deadline, and
+  always attempt to close the store.
+- High-frequency chart state needs both bounded retention and bounded update
+  frequency. Coarse time buckets plus stable state references prevent React
+  effects from rebuilding entire multi-hour series on every order-book tick.

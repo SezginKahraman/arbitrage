@@ -185,3 +185,43 @@ and Hummingbot remains deliberately running without trading configuration.
 - The configured Binance, Gate.io, and KuCoin key, secret, and passphrase
   values were not found in the committed content; root `.env` is absent from
   GitHub.
+
+## React Scanner Dashboard
+
+- [x] Replace the legacy static UI with a typed React 19, Vite, and Tailwind 4 application.
+- [x] Persist pair, source, threshold, chart-range, and navigation preferences in browser storage.
+- [x] Normalize live WebSocket state and render eight-decimal low-price charts.
+- [x] Calculate executable cross-source routes from best ask to best bid.
+- [x] Store bounded opportunity sessions in SQLite and expose read-only history/health APIs.
+- [x] Merge live and historical opportunities without hiding live data when history is unavailable.
+- [x] Ship a multi-stage production image and replace only the scanner container on port 8082.
+- [x] Run component, type, build, race, vet, Docker, HTTP, API, and live COTI WebSocket checks.
+- [ ] Complete a browser screenshot/pixel review when an automation browser is available.
+
+### React Dashboard Review
+
+- React verification passed with 9 test files and 40 tests, strict TypeScript
+  typecheck, and a Vite production build.
+- Go verification passed with `go test -race ./...`, `go vet ./...`, and
+  `go build ./...`. SPA tests cover production index serving, client-route
+  fallback, immutable hashed assets, and missing-file behavior.
+- The production Docker image built successfully and the exact prior scanner
+  container was replaced by `arbitrage-scanner:local` using the named
+  `arbitrage-scanner-data` volume. `GET /`, `/api/health`, and filtered
+  `/api/opportunities` returned successful responses; SQLite reported healthy
+  and persisted a real COTI opportunity session.
+- A bounded live WebSocket check received versioned best-bid/best-ask COTI
+  quotes from Binance futures, Binance spot, Bybit futures, Gate.io futures,
+  and Kraken futures. Hummingbot remained running and unchanged.
+- Final review hardening moved every WebSocket client to a bounded non-blocking
+  queue, made scanner health require two fresh executable books for one symbol,
+  preserved first/peak/latest observations during SQLite coalescing, and passed
+  one ten-second shutdown context through the full history drain. Five-second
+  chart buckets cap four-hour history at about 2,881 points per source while
+  preserving the history reference between buckets. The focused race tests
+  passed 100 consecutive runs, and the independent final review returned PASS
+  with no Critical or Important findings.
+- The in-app browser runtime reported no available browser, so a screenshot and
+  pixel-level desktop/mobile review could not be automated in this session.
+  Semantic component tests and responsive/focus source review passed; the live
+  dashboard remains available at `http://127.0.0.1:8082` for manual inspection.
