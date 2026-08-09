@@ -55,3 +55,7 @@
   `wal_checkpoint` can return `busy=1` without a SQL error; scan all three result
   columns, fail explicitly when blocked, and cap the journal so an old high-water
   mark cannot turn every restart into a multi-gigabyte replay.
+- Never let a successful diagnosis sound like a deployed fix. When live evidence
+  proves a bug but the turn only authorizes diagnosis, say explicitly that the
+  running code is still unchanged; on the follow-up fix, verify the exact user-
+  visible metric rather than only the lower-level data feed.

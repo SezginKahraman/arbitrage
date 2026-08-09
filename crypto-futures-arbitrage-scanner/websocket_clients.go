@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"sort"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -16,9 +17,29 @@ type wsClient struct {
 
 func (s *FuturesScanner) registerClient(conn *websocket.Conn) *wsClient {
 	client := &wsClient{conn: conn, send: make(chan any, clientQueueCapacity)}
+	now := time.Now()
+	s.quotesMutex.RLock()
 	s.opportunityMutex.RLock()
 	s.clientsMutex.Lock()
 	s.wsClients[client] = struct{}{}
+	quoteSymbols := make([]string, 0, len(s.quotes))
+	for symbol := range s.quotes {
+		quoteSymbols = append(quoteSymbols, symbol)
+	}
+	sort.Strings(quoteSymbols)
+	for _, symbol := range quoteSymbols {
+		sources := make([]string, 0, len(s.quotes[symbol]))
+		for source := range s.quotes[symbol] {
+			sources = append(sources, source)
+		}
+		sort.Strings(sources)
+		for _, source := range sources {
+			quote := s.quotes[symbol][source]
+			if validQuote(symbol, quote, now) {
+				client.send <- quoteUpdateMessage(quote)
+			}
+		}
+	}
 	symbols := make([]string, 0, len(s.currentRoutes))
 	for symbol := range s.currentRoutes {
 		symbols = append(symbols, symbol)
@@ -39,6 +60,7 @@ func (s *FuturesScanner) registerClient(conn *websocket.Conn) *wsClient {
 	}
 	s.clientsMutex.Unlock()
 	s.opportunityMutex.RUnlock()
+	s.quotesMutex.RUnlock()
 	return client
 }
 

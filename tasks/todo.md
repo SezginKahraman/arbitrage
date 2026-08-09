@@ -261,3 +261,12 @@ and Hummingbot remains deliberately running without trading configuration.
   journal limit and explicitly validates the three-column TRUNCATE checkpoint
   result. The final restart was immediately healthy and the WAL remained below
   the configured limit.
+
+## Binance Spot Freshness Fix
+
+- [x] Add a regression test for Binance Spot `bookTicker` payloads without event time.
+- [x] Fall back to the local receive timestamp for executable Binance Spot quotes.
+- [x] Seed reconnecting clients with current valid quote snapshots.
+- [x] Run full verification and confirm the live COTI Spot source count and route.
+
+Review: Binance Spot `bookTicker` messages without an event-time field now use their local receive time, so executable quotes remain fresh. A reconnecting browser receives all current valid quote snapshots before opportunity snapshots; two consecutive live WebSocket connections received Binance Spot and Gate Spot COTI quotes within 46 ms and 9 ms, respectively, together with the Gate Spot → Binance Spot route. Go race/vet/build, 52 frontend tests, TypeScript checks, production build, HTTP 200, container identity, database size, and Hummingbot isolation were verified.

@@ -260,11 +260,15 @@ func (s *FuturesScanner) IsLive() bool {
 }
 
 func (s *FuturesScanner) broadcastQuote(quote Quote) {
-	s.broadcastMessage(map[string]interface{}{
+	s.broadcastMessage(quoteUpdateMessage(quote))
+}
+
+func quoteUpdateMessage(quote Quote) map[string]interface{} {
+	return map[string]interface{}{
 		"type":    "quote_update",
 		"version": 1,
 		"quote":   quote,
-	})
+	}
 }
 
 func (s *FuturesScanner) broadcastOpportunity(opportunity ArbitrageOpportunity) {

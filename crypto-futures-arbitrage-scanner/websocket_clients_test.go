@@ -125,12 +125,55 @@ func TestRegisterClientReceivesCurrentOpportunitySnapshots(t *testing.T) {
 	scanner.checkArbitrage("COTIUSDT")
 
 	client := scanner.registerClient(nil)
-	message := (<-client.send).(opportunitiesSnapshot)
+	var message opportunitiesSnapshot
+	for len(client.send) > 0 {
+		candidate, ok := (<-client.send).(opportunitiesSnapshot)
+		if ok {
+			message = candidate
+			break
+		}
+	}
 	if message.Type != "opportunities_snapshot" || message.Version != 1 || message.Symbol != "COTIUSDT" {
 		t.Fatalf("snapshot metadata = %+v", message)
 	}
 	if len(message.Opportunities) != 1 || message.Opportunities[0].BuySource != "gate_spot" {
 		t.Fatalf("snapshot opportunities = %+v", message.Opportunities)
+	}
+}
+
+func TestRegisterClientReceivesCurrentValidQuoteSnapshots(t *testing.T) {
+	now := time.Now()
+	scanner := NewFuturesScanner()
+	scanner.quotes["COTIUSDT"] = map[string]Quote{
+		"binance_spot": {
+			Symbol: "COTIUSDT", Source: "binance_spot", BestBid: 0.01262, BestAsk: 0.01263,
+			Timestamp: now.UnixMilli(),
+		},
+		"gate_spot": {
+			Symbol: "COTIUSDT", Source: "gate_spot", BestBid: 0.01102, BestAsk: 0.01104,
+			Timestamp: now.UnixMilli(),
+		},
+		"stale_spot": {
+			Symbol: "COTIUSDT", Source: "stale_spot", BestBid: 0.01, BestAsk: 0.011,
+			Timestamp: now.Add(-time.Minute).UnixMilli(),
+		},
+	}
+
+	client := scanner.registerClient(nil)
+	if len(client.send) != 2 {
+		t.Fatalf("initial client messages = %d, want two current quote snapshots", len(client.send))
+	}
+	sources := make(map[string]bool)
+	for len(client.send) > 0 {
+		message, ok := (<-client.send).(map[string]interface{})
+		if !ok || message["type"] != "quote_update" || message["version"] != 1 {
+			t.Fatalf("quote snapshot message = %+v", message)
+		}
+		quote := message["quote"].(Quote)
+		sources[quote.Source] = true
+	}
+	if !sources["binance_spot"] || !sources["gate_spot"] || sources["stale_spot"] {
+		t.Fatalf("quote snapshot sources = %+v", sources)
 	}
 }
 

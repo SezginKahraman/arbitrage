@@ -23,9 +23,9 @@ type BinanceFuturesTrade struct {
 }
 
 type BinanceFuturesBookTicker struct {
-	EventType   string `json:"e"`
-	EventTime   int64  `json:"E"`
-	Symbol      string `json:"s"`
+	EventType    string `json:"e"`
+	EventTime    int64  `json:"E"`
+	Symbol       string `json:"s"`
 	BestBidPrice string `json:"b"`
 	BestBidQty   string `json:"B"`
 	BestAskPrice string `json:"a"`
@@ -145,6 +145,27 @@ type BinanceSpotBookTicker struct {
 	BestAskQty   string `json:"A"`
 }
 
+func parseBinanceSpotBookTicker(message []byte, receivedAt time.Time) (OrderbookData, bool) {
+	var bookTicker BinanceSpotBookTicker
+	if err := json.Unmarshal(message, &bookTicker); err != nil || bookTicker.Symbol == "" {
+		return OrderbookData{}, false
+	}
+
+	bestBid, bidErr := strconv.ParseFloat(bookTicker.BestBidPrice, 64)
+	bestAsk, askErr := strconv.ParseFloat(bookTicker.BestAskPrice, 64)
+	if bidErr != nil || askErr != nil || bestBid <= 0 || bestAsk <= 0 || bestBid > bestAsk {
+		return OrderbookData{}, false
+	}
+
+	timestamp := bookTicker.EventTime
+	if timestamp <= 0 {
+		timestamp = receivedAt.UnixMilli()
+	}
+	return OrderbookData{
+		Symbol: bookTicker.Symbol, Source: "binance_spot", BestBid: bestBid, BestAsk: bestAsk, Timestamp: timestamp,
+	}, true
+}
+
 // ConnectBinanceSpot connects to Binance spot trading WebSocket API
 func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData) {
 	streamNames := make([]string, len(symbols)*2)
@@ -180,23 +201,9 @@ func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookC
 			}
 
 			if strings.Contains(message.Stream, "@bookTicker") {
-				var bookTicker BinanceSpotBookTicker
-				if err := json.Unmarshal(message.Data, &bookTicker); err != nil {
+				orderbookData, ok := parseBinanceSpotBookTicker(message.Data, time.Now())
+				if !ok {
 					continue
-				}
-
-				bidPrice, err1 := strconv.ParseFloat(bookTicker.BestBidPrice, 64)
-				askPrice, err2 := strconv.ParseFloat(bookTicker.BestAskPrice, 64)
-				if err1 != nil || err2 != nil {
-					continue
-				}
-
-				orderbookData := OrderbookData{
-					Symbol:    bookTicker.Symbol,
-					Source:    "binance_spot",
-					BestBid:   bidPrice,
-					BestAsk:   askPrice,
-					Timestamp: bookTicker.EventTime,
 				}
 
 				orderbookChan <- orderbookData
