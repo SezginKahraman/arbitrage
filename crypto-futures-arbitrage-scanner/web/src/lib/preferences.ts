@@ -1,6 +1,8 @@
 import {
   SYMBOLS,
   type ChartRange,
+  type ComparisonMode,
+  type DashboardLayout,
   type OpportunitySortField,
   type SortDirection,
   type SymbolName,
@@ -16,10 +18,15 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   minSpread: 0.05,
   sort: { field: 'profit', direction: 'desc' },
   chartRange: '15m',
+  comparisonMode: 'spot',
+  dashboardLayout: 'split',
+  opportunitiesCollapsed: false,
   navigationCollapsed: false,
 };
 
 const CHART_RANGES: ChartRange[] = ['15m', '1h', '4h'];
+const COMPARISON_MODES: ComparisonMode[] = ['spot', 'futures', 'mixed'];
+const DASHBOARD_LAYOUTS: DashboardLayout[] = ['split', 'stacked'];
 const SORT_FIELDS: OpportunitySortField[] = ['symbol', 'profit', 'buy_source', 'sell_source', 'timestamp'];
 const SORT_DIRECTIONS: SortDirection[] = ['asc', 'desc'];
 
@@ -69,6 +76,16 @@ function normalizePreferences(value: Record<string, unknown> | null): UiPreferen
     chartRange: CHART_RANGES.includes(value?.chartRange as ChartRange)
       ? (value?.chartRange as ChartRange)
       : DEFAULT_PREFERENCES.chartRange,
+    comparisonMode: COMPARISON_MODES.includes(value?.comparisonMode as ComparisonMode)
+      ? (value?.comparisonMode as ComparisonMode)
+      : DEFAULT_PREFERENCES.comparisonMode,
+    dashboardLayout: DASHBOARD_LAYOUTS.includes(value?.dashboardLayout as DashboardLayout)
+      ? (value?.dashboardLayout as DashboardLayout)
+      : DEFAULT_PREFERENCES.dashboardLayout,
+    opportunitiesCollapsed:
+      typeof value?.opportunitiesCollapsed === 'boolean'
+        ? value.opportunitiesCollapsed
+        : DEFAULT_PREFERENCES.opportunitiesCollapsed,
     navigationCollapsed:
       typeof value?.navigationCollapsed === 'boolean'
         ? value.navigationCollapsed

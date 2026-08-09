@@ -7,6 +7,7 @@ const (
 	sourceKrakenFutures      = "kraken_futures"
 	sourceOKXFutures         = "okx_futures"
 	sourceGateFutures        = "gate_futures"
+	sourceGateSpot           = "gate_spot"
 	sourceParadexFutures     = "paradex_futures"
 	sourceBinanceSpot        = "binance_spot"
 	sourceBybitSpot          = "bybit_spot"
@@ -20,6 +21,7 @@ var cotiSources = map[string]struct{}{
 	sourceBybitFutures:   {},
 	sourceKrakenFutures:  {},
 	sourceGateFutures:    {},
+	sourceGateSpot:       {},
 	sourceBinanceSpot:    {},
 }
 

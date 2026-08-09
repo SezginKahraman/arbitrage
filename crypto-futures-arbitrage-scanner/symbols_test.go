@@ -17,6 +17,7 @@ func TestSymbolsForSourceRoutesCOTIOnlyToSupportedSources(t *testing.T) {
 		{"Bybit futures", sourceBybitFutures, withCOTI},
 		{"Kraken futures", sourceKrakenFutures, withCOTI},
 		{"Gate futures", sourceGateFutures, withCOTI},
+		{"Gate spot", sourceGateSpot, withCOTI},
 		{"Binance spot", sourceBinanceSpot, withCOTI},
 		{"Bybit spot", sourceBybitSpot, core},
 		{"Hyperliquid futures", sourceHyperliquidFutures, core},

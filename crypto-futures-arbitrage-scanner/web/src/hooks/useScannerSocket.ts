@@ -62,7 +62,7 @@ export function useScannerSocket(options: ScannerSocketOptions = {}): ScannerSta
 
       nextSocket.onclose = () => {
         if (stopped) return;
-        setState((current) => ({ ...current, connection: 'reconnecting' }));
+        setState((current) => ({ ...current, connection: 'reconnecting', opportunities: [] }));
         const baseDelay = optionsRef.current.reconnectBaseMs ?? 1_000;
         const delay = Math.min(baseDelay * 2 ** reconnectAttempt, 30_000);
         reconnectAttempt += 1;

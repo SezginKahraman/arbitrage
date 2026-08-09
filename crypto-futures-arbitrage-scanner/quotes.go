@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"sort"
 	"time"
 )
 
@@ -37,8 +38,15 @@ func FindBestOpportunity(symbol string, quotes map[string]Quote) (ArbitrageOppor
 }
 
 func FindBestOpportunityAt(symbol string, quotes map[string]Quote, now time.Time) (ArbitrageOpportunity, bool) {
-	var best ArbitrageOpportunity
-	found := false
+	opportunities := FindOpportunitiesAt(symbol, quotes, now)
+	if len(opportunities) == 0 {
+		return ArbitrageOpportunity{}, false
+	}
+	return opportunities[0], true
+}
+
+func FindOpportunitiesAt(symbol string, quotes map[string]Quote, now time.Time) []ArbitrageOpportunity {
+	opportunities := make([]ArbitrageOpportunity, 0)
 
 	for buySource, buyQuote := range quotes {
 		if !validQuote(symbol, buyQuote, now) {
@@ -50,22 +58,30 @@ func FindBestOpportunityAt(symbol string, quotes map[string]Quote, now time.Time
 			}
 
 			spreadPct := ((sellQuote.BestBid - buyQuote.BestAsk) / buyQuote.BestAsk) * 100
-			if spreadPct <= minimumGrossSpread || (found && spreadPct <= best.ProfitPct) {
+			if spreadPct <= minimumGrossSpread {
 				continue
 			}
 
-			found = true
-			best = ArbitrageOpportunity{
+			opportunities = append(opportunities, ArbitrageOpportunity{
 				Symbol:     symbol,
 				BuySource:  buySource,
 				SellSource: sellSource,
 				BuyPrice:   buyQuote.BestAsk,
 				SellPrice:  sellQuote.BestBid,
 				ProfitPct:  spreadPct,
-				Timestamp:  now.UnixMilli(),
-			}
+				Timestamp:  min(buyQuote.Timestamp, sellQuote.Timestamp),
+			})
 		}
 	}
 
-	return best, found
+	sort.Slice(opportunities, func(left, right int) bool {
+		if opportunities[left].ProfitPct != opportunities[right].ProfitPct {
+			return opportunities[left].ProfitPct > opportunities[right].ProfitPct
+		}
+		if opportunities[left].BuySource != opportunities[right].BuySource {
+			return opportunities[left].BuySource < opportunities[right].BuySource
+		}
+		return opportunities[left].SellSource < opportunities[right].SellSource
+	})
+	return opportunities
 }

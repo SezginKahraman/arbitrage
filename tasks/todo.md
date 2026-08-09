@@ -225,3 +225,39 @@ and Hummingbot remains deliberately running without trading configuration.
   pixel-level desktop/mobile review could not be automated in this session.
   Semantic component tests and responsive/focus source review passed; the live
   dashboard remains available at `http://127.0.0.1:8082` for manual inspection.
+
+## Market Comparison Controls
+
+- [x] Add mutually exclusive Spot, Futures, and Spot ↔ Futures route modes.
+- [x] Add Gate.io Spot BBO data so COTI has a real spot-to-spot comparison.
+- [x] Make market-source toggles filter the route, table, metrics, and chart together.
+- [x] Add persistent opportunities collapse and split/stacked layout controls.
+- [x] Make table sort direction visually explicit while preserving accessible sorting.
+- [x] Run frontend/Go tests, rebuild the production scanner, and verify live COTI sources.
+
+### Market Controls Review
+
+- Spot, Futures, and Spot ↔ Futures are mutually exclusive persisted modes;
+  source chips drive the hero route, metrics, opportunities table, and chart.
+- Live Opportunities is persisted as collapsed/expanded, every column exposes
+  accessible ascending/descending sorting, and split/stacked layout is persisted.
+- Gate.io Spot now supplies public executable best-bid/best-ask data. A live
+  WebSocket verification received all six COTI books: Binance futures/spot,
+  Bybit futures, Gate.io futures/spot, and Kraken futures, plus the authoritative
+  opportunity snapshot protocol.
+- Route snapshots remove closed routes and seed reconnecting clients. A one-second
+  serial revalidation loop handles silent feeds while a min-leg timestamp and
+  expiry-aware refresh prevent stale or temporarily hidden executable routes.
+- Historical sessions are selected latest-per-route before the SQL limit. Writes
+  are coalesced for 250 ms and committed in one transaction; drain failures are
+  surfaced from shutdown instead of being reported as success.
+- React finished with 9 test files and 52 passing tests plus strict typecheck and
+  production build. Go race tests, vet, build, and diff checks passed. Independent
+  final review returned Ready with no Critical or Important findings.
+- The production scanner image was rebuilt and only `arbitrage-scanner` was
+  replaced on `127.0.0.1:8082`; Hummingbot retained the same container ID. HTTP,
+  API, immutable assets, SQLite health, and live WebSocket checks passed.
+- A prior 3.3 GB WAL caused a one-time slow replay. SQLite now sets a 64 MiB
+  journal limit and explicitly validates the three-column TRUNCATE checkpoint
+  result. The final restart was immediately healthy and the WAL remained below
+  the configured limit.

@@ -60,6 +60,52 @@ func TestSQLiteStoreAggregatesOneOpenRouteSession(t *testing.T) {
 	}
 }
 
+func TestSQLiteStoreBoundsTheWALJournal(t *testing.T) {
+	store := openTestStore(t)
+	var limit int64
+	if err := store.db.QueryRow(`PRAGMA journal_size_limit`).Scan(&limit); err != nil {
+		t.Fatal(err)
+	}
+	if limit != sqliteJournalSizeLimitBytes {
+		t.Fatalf("journal_size_limit = %d, want %d", limit, sqliteJournalSizeLimitBytes)
+	}
+}
+
+func TestCheckpointOutcomeRejectsABusyWAL(t *testing.T) {
+	if err := checkpointOutcomeError(1, 120, 80); err == nil {
+		t.Fatal("busy WAL checkpoint was accepted")
+	}
+	if err := checkpointOutcomeError(0, 0, 0); err != nil {
+		t.Fatalf("successful WAL checkpoint returned %v", err)
+	}
+}
+
+func TestSQLiteStoreObservesABatchAcrossRoutes(t *testing.T) {
+	store := openTestStore(t)
+	ctx := context.Background()
+	items := []Observation{
+		observation("COTIUSDT", "gate_spot", "binance_spot", 0.8, 1_000),
+		observation("COTIUSDT", "gate_spot", "binance_spot", 0.9, 2_000),
+		observation("BTCUSDT", "gate_futures", "binance_futures", 0.4, 2_000),
+	}
+
+	if err := store.ObserveBatch(ctx, items); err != nil {
+		t.Fatalf("ObserveBatch: %v", err)
+	}
+	stored, err := store.List(ctx, Query{Limit: 20})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(stored) != 2 {
+		t.Fatalf("stored routes = %d, want 2", len(stored))
+	}
+	for _, item := range stored {
+		if item.Symbol == "COTIUSDT" && (item.FirstSpreadPct != 0.8 || item.PeakSpreadPct != 0.9) {
+			t.Fatalf("batched COTI route = %+v", item)
+		}
+	}
+}
+
 func TestSQLiteStoreClosesStaleSessionsAndPrunesRetention(t *testing.T) {
 	store := openTestStore(t)
 	ctx := context.Background()
@@ -117,6 +163,41 @@ func TestSQLiteStoreFiltersAndCapsListQueries(t *testing.T) {
 	}
 	if len(items) != 1 || items[0].PeakSpreadPct != 0.90 {
 		t.Fatalf("filtered items = %+v", items)
+	}
+}
+
+func TestSQLiteStoreLimitsAfterSelectingTheLatestSessionPerRoute(t *testing.T) {
+	store := openTestStore(t)
+	ctx := context.Background()
+
+	for _, timestamp := range []int64{1_000, 3_000, 4_000} {
+		if err := store.Observe(ctx, observation("COTIUSDT", "gate_spot", "binance_spot", 0.8, timestamp)); err != nil {
+			t.Fatal(err)
+		}
+		if err := store.CloseStale(ctx, timestamp+1); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := store.Observe(ctx, observation("COTIUSDT", "bybit_spot", "binance_spot", 0.7, 2_000)); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.CloseStale(ctx, 2_001); err != nil {
+		t.Fatal(err)
+	}
+
+	items, err := store.List(ctx, Query{Symbol: "COTIUSDT", Limit: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 2 {
+		t.Fatalf("items = %+v, want one latest session for each route", items)
+	}
+	routes := map[string]bool{}
+	for _, item := range items {
+		routes[item.BuySource+"->"+item.SellSource] = true
+	}
+	if !routes["gate_spot->binance_spot"] || !routes["bybit_spot->binance_spot"] {
+		t.Fatalf("routes = %+v, want both distinct routes", routes)
 	}
 }
 

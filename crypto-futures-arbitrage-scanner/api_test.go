@@ -17,11 +17,12 @@ type fakeOpportunityStore struct {
 	healthErr error
 }
 
-func (f *fakeOpportunityStore) Observe(context.Context, storage.Observation) error { return nil }
-func (f *fakeOpportunityStore) CloseStale(context.Context, int64) error            { return nil }
-func (f *fakeOpportunityStore) Prune(context.Context, int64) error                 { return nil }
-func (f *fakeOpportunityStore) Close() error                                       { return nil }
-func (f *fakeOpportunityStore) Health(context.Context) error                       { return f.healthErr }
+func (f *fakeOpportunityStore) Observe(context.Context, storage.Observation) error        { return nil }
+func (f *fakeOpportunityStore) ObserveBatch(context.Context, []storage.Observation) error { return nil }
+func (f *fakeOpportunityStore) CloseStale(context.Context, int64) error                   { return nil }
+func (f *fakeOpportunityStore) Prune(context.Context, int64) error                        { return nil }
+func (f *fakeOpportunityStore) Close() error                                              { return nil }
+func (f *fakeOpportunityStore) Health(context.Context) error                              { return f.healthErr }
 func (f *fakeOpportunityStore) List(_ context.Context, query storage.Query) ([]storage.Opportunity, error) {
 	f.listQuery = query
 	return f.items, nil

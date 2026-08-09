@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"sync"
 	"time"
 
 	"futures-arbitrage-scanner/storage"
 )
+
+const historyFlushInterval = 250 * time.Millisecond
 
 type pendingRoute struct {
 	earliest storage.Observation
@@ -144,19 +148,48 @@ func (h *opportunityHistory) requeuePending(pending map[string]pendingRoute) {
 	}
 }
 
-func (h *opportunityHistory) persistPending(ctx context.Context) {
+func (h *opportunityHistory) persistPending(ctx context.Context) error {
 	pendingRoutes := h.takePending()
-	for key, pending := range pendingRoutes {
-		for _, observation := range orderedObservations(pending) {
-			if err := h.store.Observe(ctx, observation); err != nil {
-				log.Printf("Opportunity history write failed: %v", err)
-				h.requeuePending(map[string]pendingRoute{key: pending})
-				delete(pendingRoutes, key)
-				h.requeuePending(pendingRoutes)
-				return
+	if len(pendingRoutes) == 0 {
+		return nil
+	}
+	keys := make([]string, 0, len(pendingRoutes))
+	for key := range pendingRoutes {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	observations := make([]storage.Observation, 0, len(keys)*3)
+	for _, key := range keys {
+		observations = append(observations, orderedObservations(pendingRoutes[key])...)
+	}
+	if err := h.store.ObserveBatch(ctx, observations); err != nil {
+		log.Printf("Opportunity history write failed: %v", err)
+		h.requeuePending(pendingRoutes)
+		return err
+	}
+	return nil
+}
+
+func (h *opportunityHistory) drainForShutdown(ctx context.Context) {
+	if err := h.persistPending(ctx); err != nil {
+		h.closeErr = errors.Join(h.closeErr, fmt.Errorf("drain opportunity history: %w", err))
+	}
+}
+
+func (h *opportunityHistory) waitForFlush(shutdown <-chan context.Context) (context.Context, bool) {
+	timer := time.NewTimer(historyFlushInterval)
+	defer timer.Stop()
+	select {
+	case shutdownContext := <-shutdown:
+		return shutdownContext, true
+	case <-timer.C:
+		for {
+			select {
+			case <-h.wake:
+			default:
+				return nil, false
 			}
 		}
-		delete(pendingRoutes, key)
 	}
 }
 
@@ -170,18 +203,22 @@ func (h *opportunityHistory) run() {
 	for {
 		select {
 		case shutdownContext := <-h.done:
-			h.persistPending(shutdownContext)
+			h.drainForShutdown(shutdownContext)
 			return
 		default:
 		}
 
 		select {
 		case shutdownContext := <-h.done:
-			h.persistPending(shutdownContext)
+			h.drainForShutdown(shutdownContext)
 			return
 		case <-h.wake:
+			if shutdownContext, shuttingDown := h.waitForFlush(h.done); shuttingDown {
+				h.drainForShutdown(shutdownContext)
+				return
+			}
 			ctx, cancel := context.WithTimeout(h.worker, 5*time.Second)
-			h.persistPending(ctx)
+			_ = h.persistPending(ctx)
 			cancel()
 		case now := <-staleTicker.C:
 			ctx, cancel := context.WithTimeout(h.worker, 5*time.Second)
@@ -210,7 +247,7 @@ func (h *opportunityHistory) Close(ctx context.Context) error {
 		h.cancel()
 		h.done <- ctx
 		h.wg.Wait()
-		h.closeErr = h.store.Close()
+		h.closeErr = errors.Join(h.closeErr, h.store.Close())
 	})
 	return h.closeErr
 }

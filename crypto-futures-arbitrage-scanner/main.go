@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -39,6 +40,19 @@ type MarketPrice struct {
 	Timestamp int64   `json:"timestamp"`
 }
 
+type opportunitiesSnapshot struct {
+	Type          string                 `json:"type"`
+	Version       int                    `json:"version"`
+	Symbol        string                 `json:"symbol"`
+	Opportunities []ArbitrageOpportunity `json:"opportunities"`
+}
+
+const (
+	opportunityAlertInterval        = 10 * time.Second
+	opportunityRevalidationInterval = time.Second
+	routeRefreshMargin              = 5 * time.Second
+)
+
 type FuturesScanner struct {
 	quotes           map[string]map[string]Quote
 	quotesMutex      sync.RWMutex
@@ -49,6 +63,8 @@ type FuturesScanner struct {
 	orderbookChan    chan exchanges.OrderbookData
 	tradeChan        chan exchanges.TradeData
 	lastOpportunity  map[string]time.Time // Track last alert per symbol
+	lastRouteTime    map[string]int64
+	currentRoutes    map[string]map[string]ArbitrageOpportunity
 	opportunityMutex sync.RWMutex
 	history          *opportunityHistory
 }
@@ -61,6 +77,8 @@ func NewFuturesScanner() *FuturesScanner {
 		orderbookChan:   make(chan exchanges.OrderbookData, 1000),
 		tradeChan:       make(chan exchanges.TradeData, 1000),
 		lastOpportunity: make(map[string]time.Time),
+		lastRouteTime:   make(map[string]int64),
+		currentRoutes:   make(map[string]map[string]ArbitrageOpportunity),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
@@ -76,14 +94,24 @@ func (s *FuturesScanner) processPrices() {
 }
 
 func (s *FuturesScanner) processOrderbooks() {
-	for orderbookData := range s.orderbookChan {
-		s.updateQuote(Quote{
-			Symbol:    orderbookData.Symbol,
-			Source:    orderbookData.Source,
-			BestBid:   orderbookData.BestBid,
-			BestAsk:   orderbookData.BestAsk,
-			Timestamp: orderbookData.Timestamp,
-		})
+	ticker := time.NewTicker(opportunityRevalidationInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case orderbookData, ok := <-s.orderbookChan:
+			if !ok {
+				return
+			}
+			s.updateQuote(Quote{
+				Symbol:    orderbookData.Symbol,
+				Source:    orderbookData.Source,
+				BestBid:   orderbookData.BestBid,
+				BestAsk:   orderbookData.BestAsk,
+				Timestamp: orderbookData.Timestamp,
+			})
+		case now := <-ticker.C:
+			s.revalidateOpportunitiesAt(now)
+		}
 	}
 }
 
@@ -116,6 +144,14 @@ func (s *FuturesScanner) updateQuote(quote Quote) {
 }
 
 func (s *FuturesScanner) checkArbitrage(symbol string) {
+	s.checkArbitrageAt(symbol, time.Now())
+}
+
+func (s *FuturesScanner) checkArbitrageAt(symbol string, now time.Time) {
+	s.evaluateArbitrageAt(symbol, now, true)
+}
+
+func (s *FuturesScanner) evaluateArbitrageAt(symbol string, now time.Time, observeHistory bool) {
 	s.quotesMutex.RLock()
 	sourceQuotes, exists := s.quotes[symbol]
 	quotesCopy := make(map[string]Quote, len(sourceQuotes))
@@ -124,31 +160,80 @@ func (s *FuturesScanner) checkArbitrage(symbol string) {
 	}
 	s.quotesMutex.RUnlock()
 
-	if !exists || len(quotesCopy) < 2 {
-		return
+	opportunities := make([]ArbitrageOpportunity, 0)
+	if exists && len(quotesCopy) >= 2 {
+		opportunities = FindOpportunitiesAt(symbol, quotesCopy, now)
 	}
+	s.replaceCurrentRoutes(symbol, opportunities)
 
-	opportunity, found := FindBestOpportunity(symbol, quotesCopy)
-	if found {
-		if s.history != nil && !s.history.Observe(opportunity) {
+	for _, opportunity := range opportunities {
+		if observeHistory && s.history != nil && !s.history.Observe(opportunity) {
 			log.Printf("Opportunity history closed; skipping %s %s -> %s", opportunity.Symbol, opportunity.BuySource, opportunity.SellSource)
 		}
-		opportunityKey := fmt.Sprintf("%s_%s_%s", symbol, opportunity.BuySource, opportunity.SellSource)
+		opportunityKey := opportunityRouteKey(opportunity)
 
 		s.opportunityMutex.RLock()
 		lastAlert, exists := s.lastOpportunity[opportunityKey]
+		lastRouteTime := s.lastRouteTime[opportunityKey]
 		s.opportunityMutex.RUnlock()
 
-		now := time.Now()
+		publishedTimestampExpiresAt := time.UnixMilli(lastRouteTime).Add(quoteFreshnessWindow)
+		refreshDue := opportunity.Timestamp > lastRouteTime &&
+			!now.Add(routeRefreshMargin).Before(publishedTimestampExpiresAt)
 		// Only send alert if it's been more than 10 seconds since last alert for this pair
-		// This prevents spam while still allowing frequent updates for crypto markets
-		if !exists || now.Sub(lastAlert) > 10*time.Second {
+		// or the periodically checked route needs a fresher client timestamp before expiry.
+		if !exists || now.Sub(lastAlert) >= opportunityAlertInterval || refreshDue {
 			s.opportunityMutex.Lock()
 			s.lastOpportunity[opportunityKey] = now
+			s.lastRouteTime[opportunityKey] = opportunity.Timestamp
 			s.opportunityMutex.Unlock()
 
 			s.broadcastOpportunity(opportunity)
 		}
+	}
+}
+
+func (s *FuturesScanner) revalidateOpportunitiesAt(now time.Time) {
+	s.quotesMutex.RLock()
+	symbols := make([]string, 0, len(s.quotes))
+	for symbol := range s.quotes {
+		symbols = append(symbols, symbol)
+	}
+	s.quotesMutex.RUnlock()
+	sort.Strings(symbols)
+	for _, symbol := range symbols {
+		s.evaluateArbitrageAt(symbol, now, false)
+	}
+}
+
+func opportunityRouteKey(opportunity ArbitrageOpportunity) string {
+	return fmt.Sprintf("%s_%s_%s", opportunity.Symbol, opportunity.BuySource, opportunity.SellSource)
+}
+
+func (s *FuturesScanner) replaceCurrentRoutes(symbol string, opportunities []ArbitrageOpportunity) {
+	next := make(map[string]ArbitrageOpportunity, len(opportunities))
+	for _, opportunity := range opportunities {
+		next[opportunityRouteKey(opportunity)] = opportunity
+	}
+
+	s.opportunityMutex.Lock()
+	previous := s.currentRoutes[symbol]
+	setChanged := len(previous) != len(next)
+	if !setChanged {
+		for key := range next {
+			if _, exists := previous[key]; !exists {
+				setChanged = true
+				break
+			}
+		}
+	}
+	s.currentRoutes[symbol] = next
+	s.opportunityMutex.Unlock()
+
+	if setChanged {
+		s.broadcastMessage(opportunitiesSnapshot{
+			Type: "opportunities_snapshot", Version: 1, Symbol: symbol, Opportunities: opportunities,
+		})
 	}
 }
 
@@ -309,6 +394,7 @@ func run() error {
 	// Start spot exchange connections with orderbook feeds
 	go exchanges.ConnectBinanceSpot(symbolsForSource(sourceBinanceSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
+	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)
 
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan)

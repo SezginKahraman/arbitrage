@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 
 import type { ArbitrageOpportunity, OpportunitySortField, ScannerState, UiPreferences } from '../../app/types';
 import type { OpportunityHistoryState } from '../../hooks/useOpportunityHistory';
-import { countFreshSources, FRESHNESS_WINDOW_MS, selectBestOpportunity } from '../../lib/market-state';
+import { countFreshSources, FRESHNESS_WINDOW_MS } from '../../lib/market-state';
+import { routeMatchesComparisonMode, sourceMatchesComparisonMode } from '../../lib/sources';
 import { AppShell } from '../layout/AppShell';
 import { TopBar } from '../layout/TopBar';
 import { SettingsDrawer } from '../settings/SettingsDrawer';
 import { ExecutionChecks } from './ExecutionChecks';
 import { MetricStrip } from './MetricStrip';
+import { MarketControls } from './MarketControls';
 import { OpportunitiesTable } from './OpportunitiesTable';
 import { OpportunityRoute } from './OpportunityRoute';
 import { PriceComparisonChart } from './PriceComparisonChart';
@@ -68,33 +70,48 @@ export function ScannerDashboard({
     return () => window.clearInterval(timer);
   }, [now]);
   const currentNow = now ?? liveNow;
-  const opportunity = selectBestOpportunity(
-    state,
-    preferences.symbol,
-    preferences.enabledSources,
-    currentNow,
-    preferences.minSpread,
+  const visibleSources = useMemo(
+    () => Object.fromEntries(
+      Object.keys(preferences.enabledSources).map((source) => [
+        source,
+        preferences.enabledSources[source] !== false && sourceMatchesComparisonMode(source, preferences.comparisonMode),
+      ]),
+    ),
+    [preferences.comparisonMode, preferences.enabledSources],
   );
+  const sourceIsVisible = (source: string) =>
+    visibleSources[source] ??
+    (preferences.enabledSources[source] !== false && sourceMatchesComparisonMode(source, preferences.comparisonMode));
   const filteredLiveOpportunities = state.opportunities
     .filter(
       (item) =>
         item.symbol === preferences.symbol &&
         currentNow - item.timestamp <= FRESHNESS_WINDOW_MS &&
         item.profitPct >= preferences.minSpread &&
-        preferences.enabledSources[item.buySource] !== false &&
-        preferences.enabledSources[item.sellSource] !== false,
+        sourceIsVisible(item.buySource) &&
+        sourceIsVisible(item.sellSource) &&
+        routeMatchesComparisonMode(item.buySource, item.sellSource, preferences.comparisonMode),
     );
+  const opportunity = [...filteredLiveOpportunities].sort((left, right) => right.profitPct - left.profitPct)[0] ?? null;
   const liveRoutes = new Set(filteredLiveOpportunities.map(routeKey));
+  const latestHistoryByRoute = new Map<string, ArbitrageOpportunity>();
+  for (const item of history.items) {
+    if (
+      item.symbol !== preferences.symbol ||
+      item.profitPct < preferences.minSpread ||
+      !sourceIsVisible(item.buySource) ||
+      !sourceIsVisible(item.sellSource) ||
+      !routeMatchesComparisonMode(item.buySource, item.sellSource, preferences.comparisonMode)
+    ) {
+      continue;
+    }
+    const key = routeKey(item);
+    const current = latestHistoryByRoute.get(key);
+    if (!current || item.timestamp > current.timestamp) latestHistoryByRoute.set(key, item);
+  }
   const displayedOpportunities = [
     ...filteredLiveOpportunities,
-    ...history.items.filter(
-      (item) =>
-        item.symbol === preferences.symbol &&
-        item.profitPct >= preferences.minSpread &&
-        preferences.enabledSources[item.buySource] !== false &&
-        preferences.enabledSources[item.sellSource] !== false &&
-        !liveRoutes.has(routeKey(item)),
-    ),
+    ...[...latestHistoryByRoute.values()].filter((item) => !liveRoutes.has(routeKey(item))),
   ].sort((left, right) => compareOpportunities(left, right, preferences.sort));
   const changeSort = (field: OpportunitySortField) => {
     onPreferencesChange((current) => ({
@@ -108,10 +125,8 @@ export function ScannerDashboard({
       },
     }));
   };
-  const totalSources = Object.keys(state.prices[preferences.symbol] ?? {}).filter(
-    (source) => preferences.enabledSources[source] !== false,
-  ).length;
-  const freshSources = countFreshSources(state, preferences.symbol, currentNow, preferences.enabledSources);
+  const totalSources = Object.keys(state.prices[preferences.symbol] ?? {}).filter(sourceIsVisible).length;
+  const freshSources = countFreshSources(state, preferences.symbol, currentNow, visibleSources);
 
   return (
     <AppShell
@@ -126,6 +141,17 @@ export function ScannerDashboard({
         />
       }
     >
+      <MarketControls
+        comparisonMode={preferences.comparisonMode}
+        dashboardLayout={preferences.dashboardLayout}
+        enabledSources={preferences.enabledSources}
+        onComparisonModeChange={(comparisonMode) => onPreferencesChange((current) => ({ ...current, comparisonMode }))}
+        onDashboardLayoutChange={(dashboardLayout) => onPreferencesChange((current) => ({ ...current, dashboardLayout }))}
+        onSourceToggle={(source) => onPreferencesChange((current) => ({
+          ...current,
+          enabledSources: { ...current.enabledSources, [source]: current.enabledSources[source] === false },
+        }))}
+      />
       <OpportunityRoute connection={state.connection} opportunity={opportunity} symbol={preferences.symbol} />
       <MetricStrip
         activeOpportunities={filteredLiveOpportunities.length}
@@ -135,17 +161,23 @@ export function ScannerDashboard({
         totalSources={totalSources}
       />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(520px,0.95fr)]">
+      <div className={`grid gap-4 ${preferences.dashboardLayout === 'split' ? 'xl:grid-cols-[minmax(0,1.05fr)_minmax(520px,0.95fr)]' : 'grid-cols-1'}`}>
         <OpportunitiesTable
+          collapsed={preferences.opportunitiesCollapsed}
           historyStatus={history.status}
           onRetryHistory={history.retry}
           onSort={changeSort}
+          onToggleCollapsed={() => onPreferencesChange((current) => ({
+            ...current,
+            opportunitiesCollapsed: !current.opportunitiesCollapsed,
+          }))}
+          liveCount={filteredLiveOpportunities.length}
           opportunities={displayedOpportunities}
           sort={preferences.sort}
         />
         <div className="space-y-4">
           <PriceComparisonChart
-            enabledSources={preferences.enabledSources}
+            enabledSources={visibleSources}
             history={state.history[preferences.symbol] ?? {}}
             onRangeChange={(chartRange) => onPreferencesChange((current) => ({ ...current, chartRange }))}
             range={preferences.chartRange}

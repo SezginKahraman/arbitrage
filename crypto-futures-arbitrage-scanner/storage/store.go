@@ -35,6 +35,7 @@ type Query struct {
 
 type OpportunityStore interface {
 	Observe(context.Context, Observation) error
+	ObserveBatch(context.Context, []Observation) error
 	CloseStale(context.Context, int64) error
 	List(context.Context, Query) ([]Opportunity, error)
 	Prune(context.Context, int64) error
@@ -50,8 +51,9 @@ func NewUnavailable(err error) OpportunityStore {
 	return &unavailableStore{err: err}
 }
 
-func (s *unavailableStore) Observe(context.Context, Observation) error { return s.err }
-func (s *unavailableStore) CloseStale(context.Context, int64) error    { return s.err }
+func (s *unavailableStore) Observe(context.Context, Observation) error        { return s.err }
+func (s *unavailableStore) ObserveBatch(context.Context, []Observation) error { return s.err }
+func (s *unavailableStore) CloseStale(context.Context, int64) error           { return s.err }
 func (s *unavailableStore) List(context.Context, Query) ([]Opportunity, error) {
 	return nil, s.err
 }

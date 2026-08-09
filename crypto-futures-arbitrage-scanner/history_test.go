@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -11,9 +12,28 @@ import (
 
 type recordingStore struct {
 	observed chan storage.Observation
+	batches  chan []storage.Observation
 	block    chan struct{}
 	closed   chan struct{}
 	once     sync.Once
+}
+
+func (s *recordingStore) ObserveBatch(ctx context.Context, observations []storage.Observation) error {
+	if s.batches != nil {
+		copied := append([]storage.Observation(nil), observations...)
+		s.batches <- copied
+	}
+	for _, observation := range observations {
+		s.observed <- observation
+	}
+	if s.block != nil {
+		select {
+		case <-s.block:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+	return nil
 }
 
 func (s *recordingStore) Observe(ctx context.Context, observation storage.Observation) error {
@@ -61,6 +81,37 @@ func TestOpportunityHistoryPersistsNormalizedObservation(t *testing.T) {
 		}
 	case <-time.After(time.Second):
 		t.Fatal("observation was not persisted")
+	}
+}
+
+func TestOpportunityHistoryPersistsMultipleRoutesInOneTimedBatch(t *testing.T) {
+	store := &recordingStore{
+		observed: make(chan storage.Observation, 8),
+		batches:  make(chan []storage.Observation, 2),
+		closed:   make(chan struct{}),
+	}
+	history := newOpportunityHistory(store, 4)
+	t.Cleanup(func() { _ = history.Close(context.Background()) })
+
+	first := opportunityAt(0.85, 10_000)
+	second := opportunityAt(0.65, 10_001)
+	second.BuySource = "gate_spot"
+	second.SellSource = "binance_spot"
+	if !history.Observe(first) || !history.Observe(second) {
+		t.Fatal("observations were unexpectedly rejected")
+	}
+
+	select {
+	case batch := <-store.batches:
+		routes := make(map[string]bool)
+		for _, observation := range batch {
+			routes[observationKey(observation)] = true
+		}
+		if len(routes) != 2 {
+			t.Fatalf("batch routes = %+v, want both routes", routes)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed batch was not persisted")
 	}
 }
 
@@ -175,8 +226,8 @@ func TestOpportunityHistoryCloseUsesOneBoundedDrainContextAndClosesStore(t *test
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Millisecond)
 	defer cancel()
 	started := time.Now()
-	if err := history.Close(ctx); err != nil {
-		t.Fatal(err)
+	if err := history.Close(ctx); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Close error = %v, want deadline exceeded", err)
 	}
 	if elapsed := time.Since(started); elapsed > 250*time.Millisecond {
 		t.Fatalf("bounded close took %s", elapsed)

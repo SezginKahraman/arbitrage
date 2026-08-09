@@ -56,3 +56,47 @@ func TestFindBestOpportunityExcludesStaleAndInvalidQuotes(t *testing.T) {
 		t.Fatal("stale or invalid quote produced an opportunity")
 	}
 }
+
+func TestFindOpportunitiesIncludesSpotFuturesAndCrossMarketRoutes(t *testing.T) {
+	now := time.UnixMilli(60_000)
+	quotes := map[string]Quote{
+		"gate_spot":       {Symbol: "COTIUSDT", Source: "gate_spot", BestBid: 99, BestAsk: 100, Timestamp: now.UnixMilli()},
+		"binance_spot":    {Symbol: "COTIUSDT", Source: "binance_spot", BestBid: 101, BestAsk: 102, Timestamp: now.UnixMilli()},
+		"gate_futures":    {Symbol: "COTIUSDT", Source: "gate_futures", BestBid: 96, BestAsk: 97, Timestamp: now.UnixMilli()},
+		"binance_futures": {Symbol: "COTIUSDT", Source: "binance_futures", BestBid: 99, BestAsk: 100, Timestamp: now.UnixMilli()},
+	}
+
+	routes := make(map[string]bool)
+	for _, opportunity := range FindOpportunitiesAt("COTIUSDT", quotes, now) {
+		routes[opportunity.BuySource+"->"+opportunity.SellSource] = true
+	}
+	for _, route := range []string{
+		"gate_spot->binance_spot",
+		"gate_futures->binance_futures",
+		"gate_futures->binance_spot",
+	} {
+		if !routes[route] {
+			t.Fatalf("route %s missing from %+v", route, routes)
+		}
+	}
+}
+
+func TestOpportunityTimestampUsesTheOlderExecutableLeg(t *testing.T) {
+	now := time.UnixMilli(20_000)
+	quotes := map[string]Quote{
+		"gate_spot": {
+			Symbol: "COTIUSDT", Source: "gate_spot", BestBid: 99, BestAsk: 100, Timestamp: 6_000,
+		},
+		"binance_spot": {
+			Symbol: "COTIUSDT", Source: "binance_spot", BestBid: 101, BestAsk: 102, Timestamp: 20_000,
+		},
+	}
+
+	opportunity, ok := FindBestOpportunityAt("COTIUSDT", quotes, now)
+	if !ok {
+		t.Fatal("expected a route inside the freshness window")
+	}
+	if opportunity.Timestamp != 6_000 {
+		t.Fatalf("opportunity timestamp = %d, want oldest leg 6000", opportunity.Timestamp)
+	}
+}

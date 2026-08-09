@@ -41,6 +41,26 @@ describe('scanner preferences', () => {
         binance_spot: false,
         gate_futures: true,
       },
+      comparisonMode: 'spot',
+      dashboardLayout: 'split',
+      opportunitiesCollapsed: false,
+    });
+  });
+
+  it('falls back independently for invalid comparison and layout controls', () => {
+    localStorage.setItem(
+      PREFERENCES_KEY,
+      JSON.stringify({
+        comparisonMode: 'anything',
+        dashboardLayout: 'diagonal',
+        opportunitiesCollapsed: 'sometimes',
+      }),
+    );
+
+    expect(loadPreferences(localStorage)).toMatchObject({
+      comparisonMode: 'spot',
+      dashboardLayout: 'split',
+      opportunitiesCollapsed: false,
     });
   });
 
@@ -60,6 +80,9 @@ describe('scanner preferences', () => {
       symbol: 'SOLUSDT' as const,
       minSpread: 0.42,
       chartRange: '4h' as const,
+      comparisonMode: 'futures' as const,
+      dashboardLayout: 'stacked' as const,
+      opportunitiesCollapsed: true,
     };
 
     savePreferences(localStorage, preferences);

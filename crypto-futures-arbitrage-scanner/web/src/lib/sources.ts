@@ -1,3 +1,5 @@
+import type { ComparisonMode } from '../app/types';
+
 export interface SourceMeta {
   key: string;
   label: string;
@@ -12,6 +14,7 @@ export const SOURCES: readonly SourceMeta[] = [
   { key: 'bybit_futures', label: 'Bybit Futures', shortLabel: 'BYB-F', market: 'futures', color: '#8b6cf6' },
   { key: 'bybit_spot', label: 'Bybit Spot', shortLabel: 'BYB-S', market: 'spot', color: '#fb923c' },
   { key: 'gate_futures', label: 'Gate.io Futures', shortLabel: 'GAT-F', market: 'futures', color: '#3b82f6' },
+  { key: 'gate_spot', label: 'Gate.io Spot', shortLabel: 'GAT-S', market: 'spot', color: '#38bdf8' },
   { key: 'kraken_futures', label: 'Kraken Futures', shortLabel: 'KRK-F', market: 'futures', color: '#7c6cff' },
   { key: 'hyperliquid_futures', label: 'Hyperliquid Futures', shortLabel: 'HYP-F', market: 'futures', color: '#6ee7d2' },
   { key: 'okx_futures', label: 'OKX Futures', shortLabel: 'OKX-F', market: 'futures', color: '#60a5fa' },
@@ -36,4 +39,23 @@ export function sourceMeta(source: string): SourceMeta {
       color: '#8a9aa3',
     }
   );
+}
+
+export function sourceMatchesComparisonMode(source: string, mode: ComparisonMode): boolean {
+  const market = sourceMeta(source).market;
+  if (market === 'oracle') return false;
+  if (mode === 'mixed') return market === 'spot' || market === 'futures';
+  return market === mode;
+}
+
+export function routeMatchesComparisonMode(
+  buySource: string,
+  sellSource: string,
+  mode: ComparisonMode,
+): boolean {
+  const buyMarket = sourceMeta(buySource).market;
+  const sellMarket = sourceMeta(sellSource).market;
+  if (buyMarket === 'oracle' || sellMarket === 'oracle') return false;
+  if (mode === 'mixed') return buyMarket !== sellMarket;
+  return buyMarket === mode && sellMarket === mode;
 }

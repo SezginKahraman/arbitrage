@@ -230,11 +230,30 @@ export function reduceScannerMessage(state: ScannerState, message: unknown, now 
   if (message.type === 'arbitrage') {
     const opportunity = parseOpportunity(message.opportunity);
     if (!opportunity) return state;
-    const opportunities = [opportunity, ...state.opportunities.filter((item) => item.id !== opportunity.id)].slice(
-      0,
-      OPPORTUNITY_LIMIT,
-    );
+    const opportunities = [
+      opportunity,
+      ...state.opportunities.filter(
+        (item) =>
+          item.symbol !== opportunity.symbol ||
+          item.buySource !== opportunity.buySource ||
+          item.sellSource !== opportunity.sellSource,
+      ),
+    ].slice(0, OPPORTUNITY_LIMIT);
     return { ...state, opportunities, lastUpdatedAt: now };
+  }
+
+  if (message.type === 'opportunities_snapshot' && message.version === 1 && isSymbol(message.symbol)) {
+    if (!Array.isArray(message.opportunities)) return state;
+    const opportunities = message.opportunities.map(parseOpportunity);
+    if (opportunities.some((item) => item === null || item.symbol !== message.symbol)) return state;
+    return {
+      ...state,
+      opportunities: [
+        ...(opportunities as ArbitrageOpportunity[]),
+        ...state.opportunities.filter((item) => item.symbol !== message.symbol),
+      ].slice(0, OPPORTUNITY_LIMIT),
+      lastUpdatedAt: now,
+    };
   }
 
   return state;

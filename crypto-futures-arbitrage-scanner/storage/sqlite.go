@@ -17,6 +17,8 @@ type SQLiteStore struct {
 	db *sql.DB
 }
 
+const sqliteJournalSizeLimitBytes int64 = 64 << 20
+
 func OpenSQLite(databasePath string) (*SQLiteStore, error) {
 	if strings.TrimSpace(databasePath) == "" {
 		return nil, errors.New("database path is required")
@@ -46,6 +48,7 @@ func (s *SQLiteStore) initialize(ctx context.Context) error {
 	statements := []string{
 		`PRAGMA busy_timeout = 5000`,
 		`PRAGMA journal_mode = WAL`,
+		fmt.Sprintf(`PRAGMA journal_size_limit = %d`, sqliteJournalSizeLimitBytes),
 		`CREATE TABLE IF NOT EXISTS opportunities (
 			id INTEGER PRIMARY KEY,
 			symbol TEXT NOT NULL,
@@ -75,7 +78,36 @@ func (s *SQLiteStore) initialize(ctx context.Context) error {
 			return fmt.Errorf("initialize sqlite: %w", err)
 		}
 	}
+	if err := s.checkpointWAL(ctx); err != nil {
+		return fmt.Errorf("initialize sqlite: %w", err)
+	}
 	return nil
+}
+
+func checkpointOutcomeError(busy, logFrames, checkpointedFrames int) error {
+	if busy != 0 {
+		return fmt.Errorf(
+			"WAL checkpoint blocked: busy=%d log_frames=%d checkpointed_frames=%d",
+			busy,
+			logFrames,
+			checkpointedFrames,
+		)
+	}
+	return nil
+}
+
+func (s *SQLiteStore) checkpointWAL(ctx context.Context) error {
+	var busy int
+	var logFrames int
+	var checkpointedFrames int
+	if err := s.db.QueryRowContext(ctx, `PRAGMA wal_checkpoint(TRUNCATE)`).Scan(
+		&busy,
+		&logFrames,
+		&checkpointedFrames,
+	); err != nil {
+		return fmt.Errorf("checkpoint WAL: %w", err)
+	}
+	return checkpointOutcomeError(busy, logFrames, checkpointedFrames)
 }
 
 func validateObservation(observation Observation) error {
@@ -95,20 +127,40 @@ func validateObservation(observation Observation) error {
 }
 
 func (s *SQLiteStore) Observe(ctx context.Context, observation Observation) error {
-	if err := validateObservation(observation); err != nil {
-		return err
+	return s.ObserveBatch(ctx, []Observation{observation})
+}
+
+func (s *SQLiteStore) ObserveBatch(ctx context.Context, observations []Observation) error {
+	if len(observations) == 0 {
+		return nil
+	}
+	for _, observation := range observations {
+		if err := validateObservation(observation); err != nil {
+			return err
+		}
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("begin observation: %w", err)
+		return fmt.Errorf("begin observation batch: %w", err)
 	}
 	defer func() { _ = tx.Rollback() }()
+	for _, observation := range observations {
+		if err := observeTx(ctx, tx, observation); err != nil {
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit observation batch: %w", err)
+	}
+	return nil
+}
 
+func observeTx(ctx context.Context, tx *sql.Tx, observation Observation) error {
 	var id int64
 	var peakSpread float64
 	var lastSeen int64
-	err = tx.QueryRowContext(
+	err := tx.QueryRowContext(
 		ctx,
 		`SELECT id, peak_spread_pct, last_seen_at_ms
 		 FROM opportunities
@@ -159,9 +211,6 @@ func (s *SQLiteStore) Observe(ctx context.Context, observation Observation) erro
 	if err != nil {
 		return fmt.Errorf("observe opportunity: %w", err)
 	}
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("commit observation: %w", err)
-	}
 	return nil
 }
 
@@ -187,16 +236,26 @@ func (s *SQLiteStore) List(ctx context.Context, query Query) ([]Opportunity, err
 		limit = 500
 	}
 
-	statement := `SELECT id, symbol, buy_source, sell_source, buy_price, sell_price,
+	statement := `WITH ranked AS (
+		SELECT id, symbol, buy_source, sell_source, buy_price, sell_price,
 		first_spread_pct, latest_spread_pct, peak_spread_pct,
-		started_at_ms, last_seen_at_ms, ended_at_ms
+		started_at_ms, last_seen_at_ms, ended_at_ms,
+		ROW_NUMBER() OVER (
+			PARTITION BY symbol, buy_source, sell_source
+			ORDER BY last_seen_at_ms DESC, id DESC
+		) AS route_rank
 		FROM opportunities WHERE peak_spread_pct >= ?`
 	args := []any{query.MinSpread}
 	if query.Symbol != "" {
 		statement += ` AND symbol = ?`
 		args = append(args, query.Symbol)
 	}
-	statement += ` ORDER BY last_seen_at_ms DESC, id DESC LIMIT ?`
+	statement += `)
+		SELECT id, symbol, buy_source, sell_source, buy_price, sell_price,
+		first_spread_pct, latest_spread_pct, peak_spread_pct,
+		started_at_ms, last_seen_at_ms, ended_at_ms
+		FROM ranked WHERE route_rank = 1
+		ORDER BY last_seen_at_ms DESC, id DESC LIMIT ?`
 	args = append(args, limit)
 
 	rows, err := s.db.QueryContext(ctx, statement, args...)

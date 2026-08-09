@@ -81,4 +81,36 @@ describe('useScannerSocket', () => {
     act(() => vi.advanceTimersByTime(30_000));
     expect(sockets).toHaveLength(4);
   });
+
+  it('clears routes from the previous connection before applying reconnect snapshots', () => {
+    vi.useFakeTimers();
+    const sockets: FakeSocket[] = [];
+    const { result } = renderHook(() =>
+      useScannerSocket({
+        socketFactory: () => {
+          const socket = new FakeSocket();
+          sockets.push(socket);
+          return socket;
+        },
+        now: () => 10_000,
+        reconnectBaseMs: 100,
+      }),
+    );
+
+    act(() => sockets[0].open());
+    act(() => sockets[0].message({
+      type: 'arbitrage',
+      opportunity: {
+        symbol: 'COTIUSDT', buy_source: 'gate_spot', sell_source: 'binance_spot',
+        buy_price: 0.0113, sell_price: 0.0114, profit_pct: 0.8, timestamp: 10_000,
+      },
+    }));
+    expect(result.current.opportunities).toHaveLength(1);
+
+    act(() => sockets[0].disconnect());
+    act(() => vi.advanceTimersByTime(100));
+    act(() => sockets[1].open());
+
+    expect(result.current.opportunities).toHaveLength(0);
+  });
 });

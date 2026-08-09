@@ -8,7 +8,7 @@ The scanner is observation-only. It does not place orders, transfer assets, or u
 
 - Pairs: `BTCUSDT`, `ETHUSDT`, `XRPUSDT`, `SOLUSDT`, `COTIUSDT`
 - Futures: Binance, Bybit, Hyperliquid, Kraken, OKX, Gate.io, Paradex
-- Spot: Binance, Bybit
+- Spot: Binance, Bybit, Gate.io
 - Reference feed: Pyth
 
 Not every source supports every pair. Unsupported combinations are omitted automatically.
@@ -18,6 +18,10 @@ Not every source supports every pair. Unsupported combinations are omitted autom
 The React + Tailwind dashboard provides:
 
 - executable buy/sell routes based on best ask and best bid
+- separate Spot, Futures, and cross-market Spot ↔ Futures comparison modes
+- market-level visibility controls shared by the route, metrics, table, and chart
+- collapsible opportunities plus persistent split/stacked panel layouts
+- ascending/descending sorting on every opportunity-table column
 - eight-decimal price precision for low-priced assets such as COTI
 - live source status and reconnect handling
 - TradingView Lightweight Charts price comparison

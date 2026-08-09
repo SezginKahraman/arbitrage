@@ -12,13 +12,13 @@ import (
 )
 
 type GateFuturesTrade struct {
-	Size           int64  `json:"size"`
-	ID             int64  `json:"id"`
-	CreateTime     int64  `json:"create_time"`
-	CreateTimeMs   int64  `json:"create_time_ms"`
-	Price          string `json:"price"`
-	Contract       string `json:"contract"`
-	IsInternal     bool   `json:"is_internal,omitempty"`
+	Size         int64  `json:"size"`
+	ID           int64  `json:"id"`
+	CreateTime   int64  `json:"create_time"`
+	CreateTimeMs int64  `json:"create_time_ms"`
+	Price        string `json:"price"`
+	Contract     string `json:"contract"`
+	IsInternal   bool   `json:"is_internal,omitempty"`
 }
 
 type GateWebSocketMessage struct {
@@ -35,41 +35,57 @@ type GateWebSocketMessage struct {
 }
 
 type GateBookTickerResult struct {
-	Symbol   string `json:"s"`            // Contract symbol
-	BestBid  string `json:"b"`            // Best bid price
-	BestBidSize int64 `json:"B"`          // Best bid size
-	BestAsk  string `json:"a"`            // Best ask price 
-	BestAskSize int64 `json:"A"`          // Best ask size
-	Timestamp int64 `json:"t"`            // Timestamp in milliseconds
+	Symbol      string `json:"s"` // Contract symbol
+	BestBid     string `json:"b"` // Best bid price
+	BestBidSize int64  `json:"B"` // Best bid size
+	BestAsk     string `json:"a"` // Best ask price
+	BestAskSize int64  `json:"A"` // Best ask size
+	Timestamp   int64  `json:"t"` // Timestamp in milliseconds
 }
 
 type GateBookTickerMessage struct {
-	Time    int64                 `json:"time"`
-	Channel string                `json:"channel"`
-	Event   string                `json:"event"`
-	Result  GateBookTickerResult  `json:"result"`
+	Time    int64                `json:"time"`
+	Channel string               `json:"channel"`
+	Event   string               `json:"event"`
+	Result  GateBookTickerResult `json:"result"`
+}
+
+type GateSpotBookTickerResult struct {
+	Timestamp   int64  `json:"t"`
+	Symbol      string `json:"s"`
+	BestBid     string `json:"b"`
+	BestBidSize string `json:"B"`
+	BestAsk     string `json:"a"`
+	BestAskSize string `json:"A"`
+}
+
+type GateSpotBookTickerMessage struct {
+	TimeMS  int64                    `json:"time_ms"`
+	Channel string                   `json:"channel"`
+	Event   string                   `json:"event"`
+	Result  GateSpotBookTickerResult `json:"result"`
 }
 
 type GateTradeMessage struct {
-	Time    int64               `json:"time"`
-	Channel string              `json:"channel"`
-	Event   string              `json:"event"`
-	Result  []GateFuturesTrade  `json:"result"`
+	Time    int64              `json:"time"`
+	Channel string             `json:"channel"`
+	Event   string             `json:"event"`
+	Result  []GateFuturesTrade `json:"result"`
 }
 
 type GateFuturesOrderbook struct {
-	Contract       string     `json:"contract"`
-	Ask            [][]string `json:"asks"`
-	Bid            [][]string `json:"bids"`
-	UpdateTime     int64      `json:"update_time"`
-	UpdateTimeMs   int64      `json:"update_time_ms"`
-	UpdateID       int64      `json:"update_id"`
+	Contract     string     `json:"contract"`
+	Ask          [][]string `json:"asks"`
+	Bid          [][]string `json:"bids"`
+	UpdateTime   int64      `json:"update_time"`
+	UpdateTimeMs int64      `json:"update_time_ms"`
+	UpdateID     int64      `json:"update_id"`
 }
 
 type GateOrderbookMessage struct {
-	Time    int64                   `json:"time"`
-	Channel string                  `json:"channel"`
-	Event   string                  `json:"event"`
+	Time    int64                  `json:"time"`
+	Channel string                 `json:"channel"`
+	Event   string                 `json:"event"`
 	Result  []GateFuturesOrderbook `json:"result"`
 }
 
@@ -98,7 +114,7 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 		for i, symbol := range symbols {
 			gateSymbols[i] = convertToGateSymbol(symbol)
 		}
-		
+
 		// Subscribe to book ticker for all symbols - this provides best bid/ask
 		bookTickerSubscribeMsg := GateSubscribeMessage{
 			Time:    time.Now().Unix(),
@@ -114,7 +130,6 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 			time.Sleep(5 * time.Second)
 			continue
 		}
-
 
 		if err != nil {
 			continue
@@ -136,7 +151,7 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 					log.Printf("Gate.io WebSocket error: %d - %s", wsMsg.Error.Code, wsMsg.Error.Message)
 					continue
 				}
-				
+
 				// Skip subscription confirmation messages
 				if wsMsg.Event == "subscribe" {
 					continue
@@ -146,9 +161,9 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 			// Try to parse as book ticker message
 			var bookTickerMsg GateBookTickerMessage
 			if err := json.Unmarshal(message, &bookTickerMsg); err == nil &&
-			   bookTickerMsg.Channel == "futures.book_ticker" &&
-			   bookTickerMsg.Event == "update" {
-				
+				bookTickerMsg.Channel == "futures.book_ticker" &&
+				bookTickerMsg.Event == "update" {
+
 				// Parse best bid and ask
 				bestBid, err1 := strconv.ParseFloat(bookTickerMsg.Result.BestBid, 64)
 				bestAsk, err2 := strconv.ParseFloat(bookTickerMsg.Result.BestAsk, 64)
@@ -168,8 +183,6 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 					timestamp = time.Now().UnixMilli()
 				}
 
-
-
 				orderbookData := OrderbookData{
 					Symbol:    standardSymbol,
 					Source:    "gate_futures",
@@ -183,6 +196,88 @@ func ConnectGateFutures(symbols []string, priceChan chan<- PriceData, orderbookC
 			}
 
 			// Silently ignore unhandled message types
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func parseGateSpotBookTicker(message []byte) (OrderbookData, bool) {
+	var bookTicker GateSpotBookTickerMessage
+	if err := json.Unmarshal(message, &bookTicker); err != nil ||
+		bookTicker.Channel != "spot.book_ticker" || bookTicker.Event != "update" {
+		return OrderbookData{}, false
+	}
+
+	bestBid, bidErr := strconv.ParseFloat(bookTicker.Result.BestBid, 64)
+	bestAsk, askErr := strconv.ParseFloat(bookTicker.Result.BestAsk, 64)
+	if bidErr != nil || askErr != nil || bestBid <= 0 || bestAsk <= 0 || bestBid > bestAsk {
+		return OrderbookData{}, false
+	}
+
+	timestamp := bookTicker.Result.Timestamp
+	if timestamp <= 0 {
+		timestamp = bookTicker.TimeMS
+	}
+	if timestamp <= 0 {
+		timestamp = time.Now().UnixMilli()
+	}
+
+	return OrderbookData{
+		Symbol:    convertFromGateSymbol(bookTicker.Result.Symbol),
+		Source:    "gate_spot",
+		BestBid:   bestBid,
+		BestAsk:   bestAsk,
+		Timestamp: timestamp,
+	}, true
+}
+
+// ConnectGateSpot streams public best-bid/best-ask updates. It does not use API credentials.
+func ConnectGateSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData) {
+	const wsURL = "wss://api.gateio.ws/ws/v4/"
+
+	for {
+		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		if err != nil {
+			log.Printf("Gate.io spot connection error: %v", err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		log.Printf("Connected to Gate.io spot WebSocket")
+		gateSymbols := make([]string, len(symbols))
+		for index, symbol := range symbols {
+			gateSymbols[index] = convertToGateSymbol(symbol)
+		}
+		subscription := GateSubscribeMessage{
+			Time:    time.Now().Unix(),
+			Channel: "spot.book_ticker",
+			Event:   "subscribe",
+			Payload: gateSymbols,
+		}
+		if err := conn.WriteJSON(subscription); err != nil {
+			log.Printf("Gate.io spot subscription error: %v", err)
+			_ = conn.Close()
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
+		for {
+			var message json.RawMessage
+			if err := conn.ReadJSON(&message); err != nil {
+				log.Printf("Gate.io spot read error: %v", err)
+				_ = conn.Close()
+				break
+			}
+
+			var envelope GateWebSocketMessage
+			if err := json.Unmarshal(message, &envelope); err == nil && envelope.Error != nil {
+				log.Printf("Gate.io spot WebSocket error: %d - %s", envelope.Error.Code, envelope.Error.Message)
+				continue
+			}
+			if orderbook, ok := parseGateSpotBookTicker(message); ok {
+				orderbookChan <- orderbook
+			}
 		}
 
 		time.Sleep(2 * time.Second)

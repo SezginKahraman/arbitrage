@@ -171,6 +171,78 @@ describe('market state', () => {
     expect(selectBestOpportunity(state, 'COTIUSDT', { gate_futures: true, binance_spot: true }, 20_000, 1)).toBeNull();
   });
 
+  it('keeps only the latest update for each executable route', () => {
+    const first = reduceScannerMessage(
+      createInitialScannerState(),
+      {
+        type: 'arbitrage',
+        opportunity: {
+          symbol: 'COTIUSDT', buy_source: 'gate_spot', sell_source: 'binance_spot',
+          buy_price: 0.01131, sell_price: 0.01140, profit_pct: 0.79, timestamp: 10_000,
+        },
+      },
+      10_000,
+    );
+    const latest = reduceScannerMessage(
+      first,
+      {
+        type: 'arbitrage',
+        opportunity: {
+          symbol: 'COTIUSDT', buy_source: 'gate_spot', sell_source: 'binance_spot',
+          buy_price: 0.01132, sell_price: 0.01141, profit_pct: 0.8, timestamp: 20_000,
+        },
+      },
+      20_000,
+    );
+
+    expect(latest.opportunities).toHaveLength(1);
+    expect(latest.opportunities[0]).toMatchObject({ profitPct: 0.8, timestamp: 20_000 });
+  });
+
+  it('atomically replaces the live routes for one symbol from a snapshot', () => {
+    const withOtherSymbol = reduceScannerMessage(
+      createInitialScannerState(),
+      {
+        type: 'arbitrage',
+        opportunity: {
+          symbol: 'BTCUSDT', buy_source: 'gate_spot', sell_source: 'binance_spot',
+          buy_price: 64_000, sell_price: 64_100, profit_pct: 0.15, timestamp: 9_000,
+        },
+      },
+      9_000,
+    );
+    const snapshot = reduceScannerMessage(
+      withOtherSymbol,
+      {
+        type: 'opportunities_snapshot',
+        version: 1,
+        symbol: 'COTIUSDT',
+        opportunities: [
+          {
+            symbol: 'COTIUSDT', buy_source: 'gate_spot', sell_source: 'binance_spot',
+            buy_price: 0.01131, sell_price: 0.0114, profit_pct: 0.79, timestamp: 10_000,
+          },
+          {
+            symbol: 'COTIUSDT', buy_source: 'gate_futures', sell_source: 'binance_futures',
+            buy_price: 0.01132, sell_price: 0.01141, profit_pct: 0.8, timestamp: 10_000,
+          },
+        ],
+      },
+      10_000,
+    );
+
+    expect(snapshot.opportunities.filter((item) => item.symbol === 'COTIUSDT')).toHaveLength(2);
+    expect(snapshot.opportunities.some((item) => item.symbol === 'BTCUSDT')).toBe(true);
+
+    const cleared = reduceScannerMessage(
+      snapshot,
+      { type: 'opportunities_snapshot', version: 1, symbol: 'COTIUSDT', opportunities: [] },
+      11_000,
+    );
+    expect(cleared.opportunities.filter((item) => item.symbol === 'COTIUSDT')).toHaveLength(0);
+    expect(cleared.opportunities.some((item) => item.symbol === 'BTCUSDT')).toBe(true);
+  });
+
   it('counts only sources updated in the last fifteen seconds', () => {
     const state = reduceScannerMessage(
       createInitialScannerState(),

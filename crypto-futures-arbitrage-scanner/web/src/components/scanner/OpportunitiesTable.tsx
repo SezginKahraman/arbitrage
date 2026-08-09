@@ -1,4 +1,4 @@
-import { ArrowDownUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react';
 
 import type { ArbitrageOpportunity, OpportunitySortField, UiPreferences } from '../../app/types';
 import type { OpportunityHistoryState } from '../../hooks/useOpportunityHistory';
@@ -7,10 +7,13 @@ import { SourceMark } from '../shared/SourceMark';
 
 interface OpportunitiesTableProps {
   opportunities: ArbitrageOpportunity[];
+  liveCount: number;
   historyStatus: OpportunityHistoryState['status'];
   onRetryHistory: () => void;
   onSort: (field: OpportunitySortField) => void;
   sort: UiPreferences['sort'];
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
 const columns: Array<{ field: OpportunitySortField; label: string; aria: string; className: string }> = [
@@ -26,31 +29,51 @@ export function OpportunitiesTable({
   onRetryHistory,
   onSort,
   opportunities,
+  liveCount,
   sort,
+  collapsed,
+  onToggleCollapsed,
 }: OpportunitiesTableProps) {
   return (
     <section className="overflow-hidden rounded-xl border border-terminal-line bg-terminal-panel/65">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-terminal-line px-5 py-4">
         <div>
-          <h2 className="font-display text-lg font-medium">Opportunities</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-lg font-medium">Live opportunities</h2>
+            <span className="rounded-full border border-terminal-line bg-black/15 px-2 py-0.5 font-data text-[10px] text-slate-400">
+              {liveCount} live
+            </span>
+          </div>
           {historyStatus === 'degraded' ? (
             <p className="mt-1 text-xs text-signal-amber">Opportunity history is unavailable. Live scanning is unaffected.</p>
           ) : null}
         </div>
-        {historyStatus === 'degraded' ? (
+        <div className="flex items-center gap-2">
+          {historyStatus === 'degraded' ? (
+            <button
+              aria-label="Retry opportunity history"
+              className="rounded-md border border-signal-amber/30 px-3 py-1.5 text-xs text-signal-amber transition hover:bg-signal-amber/10"
+              onClick={onRetryHistory}
+              type="button"
+            >
+              Retry
+            </button>
+          ) : historyStatus === 'loading' ? (
+            <span className="text-xs text-slate-500">Loading history…</span>
+          ) : null}
           <button
-            aria-label="Retry opportunity history"
-            className="rounded-md border border-signal-amber/30 px-3 py-1.5 text-xs text-signal-amber transition hover:bg-signal-amber/10"
-            onClick={onRetryHistory}
+            aria-controls="opportunities-table-body"
+            aria-expanded={!collapsed}
+            aria-label={collapsed ? 'Expand live opportunities' : 'Collapse live opportunities'}
+            className="grid size-9 place-items-center rounded-lg border border-terminal-line text-slate-400 transition hover:bg-white/[0.035] hover:text-terminal-text"
+            onClick={onToggleCollapsed}
             type="button"
           >
-            Retry
+            {collapsed ? <ChevronDown aria-hidden="true" size={17} /> : <ChevronUp aria-hidden="true" size={17} />}
           </button>
-        ) : historyStatus === 'loading' ? (
-          <span className="text-xs text-slate-500">Loading history…</span>
-        ) : null}
+        </div>
       </header>
-      <div className="overflow-x-auto">
+      {!collapsed ? <div className="overflow-x-auto" id="opportunities-table-body">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="text-xs text-slate-500">
             <tr className="border-b border-terminal-line">
@@ -67,7 +90,11 @@ export function OpportunitiesTable({
                     type="button"
                   >
                     {column.label}
-                    <ArrowDownUp aria-hidden="true" size={12} />
+                    {sort.field === column.field ? (
+                      sort.direction === 'asc' ? <ArrowUp aria-hidden="true" className="text-signal-mint" size={13} /> : <ArrowDown aria-hidden="true" className="text-signal-mint" size={13} />
+                    ) : (
+                      <ChevronsUpDown aria-hidden="true" className="opacity-45" size={13} />
+                    )}
                   </button>
                 </th>
               ))}
@@ -124,7 +151,7 @@ export function OpportunitiesTable({
             )}
           </tbody>
         </table>
-      </div>
+      </div> : null}
     </section>
   );
 }

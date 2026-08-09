@@ -43,3 +43,15 @@
 - High-frequency chart state needs both bounded retention and bounded update
   frequency. Coarse time buckets plus stable state references prevent React
   effects from rebuilding entire multi-hour series on every order-book tick.
+- A live opportunity stream needs authoritative route snapshots in addition to
+  throttled deltas. Snapshot the current route set for new clients and publish
+  an empty replacement when a route set closes so stale opportunities cannot
+  linger as client-local state.
+- Expanding from one best route to every qualifying route multiplies storage
+  pressure. Coalesce observations over a short time window and persist the
+  entire batch in one SQLite transaction while retaining each route's first,
+  peak, and latest points.
+- SQLite WAL maintenance must validate the result row, not just the SQL call.
+  `wal_checkpoint` can return `busy=1` without a SQL error; scan all three result
+  columns, fail explicitly when blocked, and cap the journal so an old high-water
+  mark cannot turn every restart into a multi-gigabyte replay.

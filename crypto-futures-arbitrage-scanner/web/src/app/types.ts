@@ -1,6 +1,8 @@
 export const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'XRPUSDT', 'SOLUSDT', 'COTIUSDT'] as const;
 export type SymbolName = (typeof SYMBOLS)[number];
 export type ChartRange = '15m' | '1h' | '4h';
+export type ComparisonMode = 'spot' | 'futures' | 'mixed';
+export type DashboardLayout = 'split' | 'stacked';
 export type SortDirection = 'asc' | 'desc';
 export type OpportunitySortField = 'symbol' | 'profit' | 'buy_source' | 'sell_source' | 'timestamp';
 
@@ -13,6 +15,9 @@ export interface UiPreferences {
     direction: SortDirection;
   };
   chartRange: ChartRange;
+  comparisonMode: ComparisonMode;
+  dashboardLayout: DashboardLayout;
+  opportunitiesCollapsed: boolean;
   navigationCollapsed: boolean;
 }
 

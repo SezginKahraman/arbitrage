@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,9 +16,29 @@ type wsClient struct {
 
 func (s *FuturesScanner) registerClient(conn *websocket.Conn) *wsClient {
 	client := &wsClient{conn: conn, send: make(chan any, clientQueueCapacity)}
+	s.opportunityMutex.RLock()
 	s.clientsMutex.Lock()
 	s.wsClients[client] = struct{}{}
+	symbols := make([]string, 0, len(s.currentRoutes))
+	for symbol := range s.currentRoutes {
+		symbols = append(symbols, symbol)
+	}
+	sort.Strings(symbols)
+	for _, symbol := range symbols {
+		routes := s.currentRoutes[symbol]
+		opportunities := make([]ArbitrageOpportunity, 0, len(routes))
+		for _, opportunity := range routes {
+			opportunities = append(opportunities, opportunity)
+		}
+		sort.Slice(opportunities, func(left, right int) bool {
+			return opportunities[left].ProfitPct > opportunities[right].ProfitPct
+		})
+		client.send <- opportunitiesSnapshot{
+			Type: "opportunities_snapshot", Version: 1, Symbol: symbol, Opportunities: opportunities,
+		}
+	}
 	s.clientsMutex.Unlock()
+	s.opportunityMutex.RUnlock()
 	return client
 }
 
