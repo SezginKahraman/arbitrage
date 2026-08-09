@@ -15,3 +15,7 @@
 - The user explicitly does not want separate specs or approval gates for small,
   obvious changes. For those tasks, keep the plan concise in `tasks/todo.md`,
   apply TDD where code behavior changes, and proceed directly to implementation.
+- In zsh, lowercase `path` is tied to the shell's executable `PATH`; never use
+  it as a loop or task variable. Use a scoped name such as `repo_file` and run
+  multi-assertion verification scripts with fail-fast enabled so a missing
+  command cannot masquerade as a passing negative check.

@@ -147,3 +147,26 @@ and Hummingbot remains deliberately running without trading configuration.
   received five positive sources.
 - The browser was reopened with a cache-busting page query at
   `http://localhost:8082/?precision=8`.
+
+## GitHub Publication
+
+- [x] Initialize `arbitrage` as an independent Git repository on `main`.
+- [x] Import the tracked scanner, Hummingbot, and CCXT source trees as real
+  monorepo files while excluding nested Git metadata and generated files.
+- [x] Verify root `.env` is ignored and no configured credential value appears
+  in the staged tree.
+- [x] Create the requested `first commit` and push `main` to
+  `https://github.com/SezginKahraman/arbitrage.git`.
+- [x] Verify the remote SHA, representative files from all three projects, and
+  absence of the root `.env` through the GitHub API.
+
+### Publication Review
+
+- The initial commit contains 11,975 files and no tracked file is 50 MB or
+  larger. Local Git object storage was approximately 175 MB before push.
+- GitHub reports the repository as public with `main` as its default branch.
+- Remote file checks passed for the root README, customized scanner app,
+  Hummingbot README, and CCXT README.
+- The configured Binance, Gate.io, and KuCoin key, secret, and passphrase
+  values were not found in the committed content; root `.env` is absent from
+  GitHub.
