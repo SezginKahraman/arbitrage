@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 
@@ -81,6 +81,21 @@ const state: ScannerState = {
   ],
 };
 
+const transferRouteFetcher = vi.fn(async () => new Response(JSON.stringify({
+  asset: 'COTI',
+  source: 'gate_spot',
+  destination: 'binance_spot',
+  status: 'ready',
+  reason: 'verified common network available',
+  checked_at: 20_000,
+  networks: [{
+    network_id: 'coti_evm', name: 'COTI', status: 'ready', reason: 'network identity and direction are available',
+    source_withdraw_enabled: true, destination_deposit_enabled: true,
+  }],
+  source_networks: [],
+  destination_networks: [],
+}), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+
 function renderDashboard(
   preferences: UiPreferences = DEFAULT_PREFERENCES,
   history: Parameters<typeof ScannerDashboard>[0]['history'] = { items: [], status: 'ready', retry: vi.fn() },
@@ -94,6 +109,7 @@ function renderDashboard(
       onPreferencesChange={onPreferencesChange}
       preferences={preferences}
       state={scannerState}
+      transferRouteFetcher={transferRouteFetcher}
     />,
   );
   return onPreferencesChange;
@@ -108,6 +124,7 @@ function StatefulDashboard() {
       onPreferencesChange={setPreferences}
       preferences={preferences}
       state={state}
+      transferRouteFetcher={transferRouteFetcher}
     />
   );
 }
@@ -118,15 +135,15 @@ describe('ScannerDashboard', () => {
     chartMocks.setData.mockClear();
   });
 
-  it('renders the best route and honest execution status', () => {
+  it('renders the best route and live transfer status', async () => {
     renderDashboard();
 
     expect(screen.getByRole('heading', { name: 'COTI/USDT' })).toBeInTheDocument();
     expect(screen.getAllByText('Gate.io Spot').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Binance Spot').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+0.86%').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Transfer route unverified').length).toBeGreaterThan(0);
-    expect(screen.getByText('Deposit/withdraw status, common network, and transfer fees are not checked yet.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText('Transfer route ready').length).toBeGreaterThan(0));
+    expect(screen.getAllByText('Verified common network available').length).toBeGreaterThan(0);
     expect(screen.getByLabelText('2 of 2 feeds connected')).toBeInTheDocument();
     expect(screen.getByLabelText('2 of 2 books fresh')).toBeInTheDocument();
     expect(screen.getAllByText(/0\.01140723/).length).toBeGreaterThan(0);

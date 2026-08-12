@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetState
 import type { ArbitrageOpportunity, OpportunitySortField, ScannerState, UiPreferences } from '../../app/types';
 import type { AppPage } from '../../app/navigation';
 import type { OpportunityHistoryState } from '../../hooks/useOpportunityHistory';
+import { useTransferRoute, type TransferRouteFetcher } from '../../hooks/useTransferRoute';
 import { countFreshSources, countSourceConnections, FRESHNESS_WINDOW_MS } from '../../lib/market-state';
 import { routeMatchesComparisonMode, sourceMatchesComparisonMode } from '../../lib/sources';
 import { AppShell } from '../layout/AppShell';
@@ -23,6 +24,7 @@ interface ScannerDashboardProps {
   onPreferencesChange: Dispatch<SetStateAction<UiPreferences>>;
   now?: number;
   onNavigate?: (page: AppPage) => void;
+  transferRouteFetcher?: TransferRouteFetcher;
 }
 
 function routeKey(opportunity: ScannerState['opportunities'][number]): string {
@@ -63,6 +65,7 @@ export function ScannerDashboard({
   onPreferencesChange,
   now,
   onNavigate,
+  transferRouteFetcher,
 }: ScannerDashboardProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
@@ -100,6 +103,12 @@ export function ScannerDashboard({
         routeMatchesComparisonMode(item.buySource, item.sellSource, preferences.comparisonMode),
     );
   const opportunity = [...filteredLiveOpportunities].sort((left, right) => right.profitPct - left.profitPct)[0] ?? null;
+  const transferRoute = useTransferRoute({
+    symbol: preferences.symbol,
+    source: opportunity?.buySource,
+    destination: opportunity?.sellSource,
+    fetcher: transferRouteFetcher,
+  });
   const liveRoutes = new Set(filteredLiveOpportunities.map(routeKey));
   const latestHistoryByRoute = new Map<string, ArbitrageOpportunity>();
   for (const item of history.items) {
@@ -168,6 +177,8 @@ export function ScannerDashboard({
         opportunity={opportunity}
         symbol={preferences.symbol}
         totalBooks={feedConnections.total}
+        transferRoute={transferRoute.route}
+        transferRouteStatus={transferRoute.status}
       />
       <MetricStrip
         activeOpportunities={filteredLiveOpportunities.length}
@@ -200,7 +211,7 @@ export function ScannerDashboard({
             onRangeChange={(chartRange) => onPreferencesChange((current) => ({ ...current, chartRange }))}
             range={preferences.chartRange}
           />
-          <ExecutionChecks />
+          <ExecutionChecks requestStatus={transferRoute.status} route={transferRoute.route} />
         </div>
       </div>
 

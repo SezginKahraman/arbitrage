@@ -373,3 +373,38 @@ disconnect. Production repeated the check for 25 seconds with quote ages of 5.4,
 3.6, and 0.8 seconds, HTTP 200, zero scanner restarts, and the persistent SQLite
 volume preserved. Only `arbitrage-scanner` was replaced; Hummingbot retained its
 exact running container ID.
+
+## Transfer Network Discovery
+
+- [x] Test the Binance Global read-only account and capital-network endpoints without exposing credentials.
+- [x] Add RED tests for Binance, Gate.io, and KuCoin network normalization and route evaluation.
+- [x] Collect and cache tracked-asset network state without blocking market-data feeds.
+- [x] Expose sanitized network snapshots through the scanner API.
+- [x] Replace generic transfer warnings with directional READY / BLOCKED / CHECK / UNKNOWN details.
+- [x] Run full verification and deploy only the scanner with Hummingbot isolation.
+
+### Transfer Network Discovery Review
+
+- Binance Global server time, private account read, and capital-network metadata
+  returned HTTP 200 after the VPN was disabled; no credential, balance, signed
+  URL, or raw private payload was printed.
+- Binance, Gate.io, and KuCoin network metadata is refreshed in the background
+  for BTC, ETH, XRP, SOL, and COTI. A failure at one venue degrades only that
+  venue and does not block public market-data feeds.
+- COTI live metadata showed Binance BSC and ERC20 open; Gate native COTI open
+  with ERC20 withdrawal closed; and KuCoin native COTI open with ERC20
+  withdrawal closed. Directional evaluation reported Gate/KuCoin native routes
+  as CHECK, Gate/KuCoin to Binance as BLOCKED, and Binance to either venue over
+  ERC20 as READY.
+- Production live data showed COTI gross spreads around 15–16% from Gate/KuCoin
+  to Binance, but both routes were correctly rejected as BLOCKED. No currently
+  observed Spot route combined a positive scanner spread with READY network
+  status; no trade was attempted.
+- React passed 77 tests and the production build. Go 1.24 passed normal tests,
+  race tests, vet, build, and diff checks. The isolated image smoke returned
+  HTTP 200 with healthy database/scanner state and three ready network sources.
+- Only `arbitrage-scanner` was replaced. Its SQLite volume was preserved, the
+  root `.env` is mounted read-only, production health is healthy, and restart
+  count is zero. Docker Desktop restart had stopped Hummingbot; the exact prior
+  container ID was restored to running without configuration changes. Temporary
+  smoke/rollback containers and the temporary smoke volume were removed.

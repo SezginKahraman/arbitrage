@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -17,17 +18,89 @@ type apiServer struct {
 	store       storage.OpportunityStore
 	alerts      storage.AlertStore
 	scannerLive func() bool
+	networks    networkCatalogReader
 }
 
-func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, scannerLive func() bool) http.Handler {
-	server := &apiServer{store: store, alerts: alerts, scannerLive: scannerLive}
+type networkCatalogReader interface {
+	Snapshots(asset string) map[string]networkVenueSnapshot
+}
+
+func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, scannerLive func() bool, networkReaders ...networkCatalogReader) http.Handler {
+	var networks networkCatalogReader
+	if len(networkReaders) > 0 {
+		networks = networkReaders[0]
+	}
+	server := &apiServer{store: store, alerts: alerts, scannerLive: scannerLive, networks: networks}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/opportunities", server.handleOpportunities)
+	mux.HandleFunc("/api/networks", server.handleNetworks)
+	mux.HandleFunc("/api/transfer-route", server.handleTransferRoute)
 	mux.HandleFunc("/api/alert-rules", server.handleAlertRules)
 	mux.HandleFunc("/api/alert-rules/", server.handleAlertRule)
 	mux.HandleFunc("/api/alert-triggers", server.handleAlertTriggers)
 	mux.HandleFunc("/api/health", server.handleHealth)
 	return mux
+}
+
+func supportedNetworkAsset(asset string) bool {
+	switch asset {
+	case "BTC", "ETH", "XRP", "SOL", "COTI":
+		return true
+	default:
+		return false
+	}
+}
+
+func supportedNetworkSource(source string) bool {
+	switch source {
+	case sourceBinanceSpot, sourceGateSpot, sourceKuCoinSpot:
+		return true
+	default:
+		return false
+	}
+}
+
+func (s *apiServer) handleNetworks(w http.ResponseWriter, r *http.Request) {
+	if !methodAllowed(w, r) {
+		return
+	}
+	asset := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("asset")))
+	if !supportedNetworkAsset(asset) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid network asset"})
+		return
+	}
+	var snapshots map[string]networkVenueSnapshot
+	if s.networks != nil {
+		snapshots = s.networks.Snapshots(asset)
+	}
+	venues := make([]networkVenueSnapshot, 0, len(snapshots))
+	for _, snapshot := range snapshots {
+		venues = append(venues, snapshot)
+	}
+	sort.Slice(venues, func(left, right int) bool { return venues[left].Source < venues[right].Source })
+	writeJSON(w, http.StatusOK, struct {
+		Asset  string                 `json:"asset"`
+		Venues []networkVenueSnapshot `json:"venues"`
+	}{Asset: asset, Venues: venues})
+}
+
+func (s *apiServer) handleTransferRoute(w http.ResponseWriter, r *http.Request) {
+	if !methodAllowed(w, r) {
+		return
+	}
+	query := r.URL.Query()
+	asset := strings.ToUpper(strings.TrimSpace(query.Get("asset")))
+	source := strings.ToLower(strings.TrimSpace(query.Get("source")))
+	destination := strings.ToLower(strings.TrimSpace(query.Get("destination")))
+	if !supportedNetworkAsset(asset) || !supportedNetworkSource(source) || !supportedNetworkSource(destination) || source == destination {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid transfer route"})
+		return
+	}
+	var snapshots map[string]networkVenueSnapshot
+	if s.networks != nil {
+		snapshots = s.networks.Snapshots(asset)
+	}
+	writeJSON(w, http.StatusOK, evaluateTransferRoute(asset, source, destination, snapshots))
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {

@@ -83,6 +83,47 @@ export interface ArbitrageOpportunity {
   historical?: boolean;
 }
 
+export type TransferRouteStatus = 'ready' | 'blocked' | 'check' | 'unknown' | 'not_applicable';
+export type TransferRouteRequestStatus = 'idle' | 'loading' | 'ready' | 'degraded';
+
+export interface VenueAssetNetwork {
+  asset: string;
+  networkID: string;
+  rawNetworkID: string;
+  name: string;
+  contractAddress: string;
+  depositEnabled: boolean;
+  withdrawEnabled: boolean;
+  withdrawalFee: string;
+  minimumWithdrawal: string;
+  confirmations: number;
+  checkedAt: number;
+}
+
+export interface TransferNetworkMatch {
+  networkID: string;
+  name: string;
+  status: TransferRouteStatus;
+  reason: string;
+  sourceWithdrawEnabled: boolean;
+  destinationDepositEnabled: boolean;
+  withdrawalFee: string;
+  minimumWithdrawal: string;
+  contractAddress: string;
+}
+
+export interface TransferRouteEvaluation {
+  asset: string;
+  source: string;
+  destination: string;
+  status: TransferRouteStatus;
+  reason: string;
+  checkedAt: number;
+  networks: TransferNetworkMatch[];
+  sourceNetworks: VenueAssetNetwork[];
+  destinationNetworks: VenueAssetNetwork[];
+}
+
 export type AlertMarketMode = 'all' | 'spot' | 'mixed' | 'futures';
 
 export interface AlertRuleInput {

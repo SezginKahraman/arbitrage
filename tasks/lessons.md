@@ -1,5 +1,14 @@
 # Lessons
 
+- Binance `-2015` is not enough to blame the credential itself: VPN/IP-whitelist
+  changes can make the same signed read-only calls pass and then fail as the
+  outbound address changes. Re-test server time and the exact signed endpoint
+  after the network path changes, and make metadata collection degrade per
+  venue without stopping public market feeds.
+- Transfer-network availability is directional and dynamic. Evaluate withdrawal
+  on the buy venue and deposit on the sell venue, retain metadata from the side
+  that is still available, and distinguish an exact contract/raw-network match
+  from a normalized alias that still needs a human check.
 - A top-level `loadMarkets()` or `fetchBalance({ type: "spot" })` assertion does not prove an exchange endpoint boundary. For credentialed CCXT clients, test the real version-pinned client with offline implicit-route interception, fail closed on every unexpected transport call, and assert the exact public/private route sequence before running live checks.
 - Treat historical verification evidence as superseded when later review disproves its stated scope. Preserve the original result and chronology, state the additional read-only calls transparently, and collect fresh evidence only after the route regression tests pass.
 - Origin URLs, shallow HEADs, and mutable Docker tags are not interchangeable reproducibility evidence. Record each resolved nested Git HEAD and the running image's repository digest, and distinguish that observed snapshot from a version or image pin.

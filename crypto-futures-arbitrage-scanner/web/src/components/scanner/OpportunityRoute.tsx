@@ -1,7 +1,8 @@
-import { ArrowRight, CircleDollarSign, ShoppingCart, Star, TriangleAlert, WalletCards } from 'lucide-react';
+import { ArrowRight, BadgeCheck, CircleDollarSign, CircleX, ShoppingCart, Star, TriangleAlert, WalletCards } from 'lucide-react';
 
-import type { ArbitrageOpportunity, ConnectionStatus, SymbolName } from '../../app/types';
+import type { ArbitrageOpportunity, ConnectionStatus, SymbolName, TransferRouteEvaluation, TransferRouteRequestStatus } from '../../app/types';
 import { formatPrice } from '../../lib/format';
+import { transferRoutePresentation } from '../../lib/transfer-route';
 import { SourceMark } from '../shared/SourceMark';
 import { StatusBadge } from '../shared/StatusBadge';
 
@@ -12,6 +13,8 @@ interface OpportunityRouteProps {
   freshBooks: number;
   totalBooks: number;
   minSpread: number;
+  transferRoute: TransferRouteEvaluation | null;
+  transferRouteStatus: TransferRouteRequestStatus;
 }
 
 function pairLabel(symbol: string): string {
@@ -25,11 +28,27 @@ const emptyCopy: Record<ConnectionStatus, string> = {
   live: '',
 };
 
-export function OpportunityRoute({ connection, opportunity, symbol, freshBooks, totalBooks, minSpread }: OpportunityRouteProps) {
+export function OpportunityRoute({
+  connection,
+  opportunity,
+  symbol,
+  freshBooks,
+  totalBooks,
+  minSpread,
+  transferRoute,
+  transferRouteStatus,
+}: OpportunityRouteProps) {
   const liveEmptyCopy = freshBooks < 2
     ? `Waiting for fresh order books — ${freshBooks} / ${totalBooks} available.`
     : `No executable route currently clears the ${minSpread.toFixed(2)}% threshold.`;
   const routeEmptyCopy = connection === 'live' ? liveEmptyCopy : emptyCopy[connection];
+  const transferPresentation = transferRoutePresentation(transferRoute, transferRouteStatus);
+  const TransferIcon = transferPresentation.tone === 'positive'
+    ? BadgeCheck
+    : transferPresentation.tone === 'negative' ? CircleX : TriangleAlert;
+  const transferToneClass = transferPresentation.tone === 'positive'
+    ? 'text-signal-mint'
+    : transferPresentation.tone === 'negative' ? 'text-red-400' : transferPresentation.tone === 'neutral' ? 'text-slate-400' : 'text-signal-amber';
 
   return (
     <section className="overflow-hidden rounded-2xl border border-signal-mint/55 bg-[linear-gradient(115deg,rgba(39,229,140,0.055),rgba(12,23,29,0.88)_34%,rgba(12,23,29,0.98))] shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
@@ -77,11 +96,11 @@ export function OpportunityRoute({ connection, opportunity, symbol, freshBooks, 
               </div>
             </div>
 
-            <div className="flex items-center gap-3 border-t border-terminal-line pt-5 text-signal-amber lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-              <TriangleAlert aria-hidden="true" className="shrink-0" size={28} />
+            <div className={`flex items-center gap-3 border-t border-terminal-line pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 ${transferToneClass}`}>
+              <TransferIcon aria-hidden="true" className="shrink-0" size={28} />
               <div>
-                <p className="font-medium">Transfer route unverified</p>
-                <p className="mt-1 text-xs text-slate-500">Deposit/withdraw status, common network, and transfer fees are not checked yet.</p>
+                <p className="font-medium">{transferPresentation.label}</p>
+                <p className="mt-1 text-xs text-slate-500">{transferPresentation.detail}</p>
               </div>
             </div>
           </>

@@ -470,9 +470,14 @@ func run() error {
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 
+	networkCatalog := newProductionNetworkCatalog(os.Getenv("BINANCE_API_KEY"), os.Getenv("BINANCE_API_SECRET"))
+	networkContext, stopNetworkCatalog := context.WithCancel(context.Background())
+	defer stopNetworkCatalog()
+	go networkCatalog.Run(networkContext)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", scanner.handleWebSocket)
-	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive))
+	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive, networkCatalog))
 	mux.Handle("/", newSPAHandler("./web/dist"))
 
 	port := os.Getenv("PORT")
