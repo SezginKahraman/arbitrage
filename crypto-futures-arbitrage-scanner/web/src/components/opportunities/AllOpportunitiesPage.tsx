@@ -290,22 +290,22 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
             <div>
               <div className="flex items-center gap-2">
                 <Network aria-hidden="true" className="text-signal-mint" size={17} />
-                <h2 className="font-medium">Active market watchlist</h2>
+                <h2 className="font-medium">Tracked pairs</h2>
                 <span className="rounded-full border border-terminal-line px-2 py-0.5 font-data text-[10px] text-slate-400">
                   {marketCatalog.watchlist.length}/{marketCatalog.limit}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-slate-500">Each pair subscribes to every discovered Spot and Futures source that supports it.</p>
+              <p className="mt-1 text-xs text-slate-500">Add or remove pairs here. Each pair automatically subscribes to every supported Spot and Futures feed.</p>
             </div>
             <button
               aria-expanded={addingMarket}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-signal-mint/35 bg-signal-mint/10 px-3 text-xs text-signal-mint disabled:opacity-40"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-signal-mint/60 bg-signal-mint px-3 text-xs font-medium text-terminal-ink transition hover:bg-emerald-300 disabled:opacity-40"
               disabled={marketCatalog.saving || marketCatalog.watchlist.length >= marketCatalog.limit}
               onClick={() => setAddingMarket((value) => !value)}
               type="button"
             >
               {addingMarket ? <X aria-hidden="true" size={14} /> : <Plus aria-hidden="true" size={14} />}
-              {addingMarket ? 'Close catalog' : 'Add market'}
+              {addingMarket ? 'Close' : 'Add pair'}
             </button>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -331,6 +331,13 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
           {marketCatalog.error ? <p className="mt-3 text-xs text-red-300" role="alert">{marketCatalog.error}</p> : null}
           {addingMarket ? (
             <div className="mt-4 rounded-xl border border-terminal-line bg-black/15 p-3">
+              <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <h3 className="font-medium text-terminal-text">Add a USDT pair</h3>
+                  <p className="mt-1 text-xs text-slate-500">Search below, then press <span className="text-signal-mint">+</span>. Only pairs available from at least two scanner feeds are listed.</p>
+                </div>
+                <span className="font-data text-[10px] text-slate-500">{availableMarkets.length} available</span>
+              </div>
               <label className="relative block">
                 <span className="sr-only">Search market catalog</span>
                 <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={15} />

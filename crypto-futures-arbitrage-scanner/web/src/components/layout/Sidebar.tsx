@@ -16,14 +16,14 @@ const navigation: Array<{ page: AppPage; label: string; aria: string; icon: type
 
 export function Sidebar({ onOpenSettings, activePage = 'scanner', onNavigate = () => undefined }: SidebarProps) {
   return (
-    <aside className="fixed inset-x-0 bottom-0 z-40 flex border-t border-terminal-line bg-terminal-panel/95 backdrop-blur lg:static lg:min-h-screen lg:flex-col lg:border-r lg:border-t-0 lg:bg-terminal-panel/75">
+    <aside className="fixed inset-x-0 bottom-0 z-40 flex border-t border-terminal-line bg-terminal-panel/95 backdrop-blur lg:sticky lg:top-0 lg:h-screen lg:self-start lg:flex-col lg:overflow-y-auto lg:border-r lg:border-t-0 lg:bg-terminal-panel/75">
       <div className="hidden h-20 place-items-center border-b border-terminal-line lg:grid">
         <span className="grid size-11 place-items-center rounded-xl border border-signal-mint/60 bg-signal-mint/10 text-signal-mint">
           <Activity aria-hidden="true" size={23} strokeWidth={1.8} />
         </span>
       </div>
 
-      <nav aria-label="Primary" className="flex flex-1 items-stretch justify-around lg:flex-col lg:items-center lg:justify-start lg:gap-3 lg:py-5">
+      <nav aria-label="Primary" className="flex flex-1 items-stretch justify-around lg:min-h-0 lg:flex-col lg:items-center lg:justify-start lg:gap-3 lg:py-5">
         {navigation.map(({ page, label, aria, icon: Icon }) => {
           const active = activePage === page;
           return (

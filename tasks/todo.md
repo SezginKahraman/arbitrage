@@ -427,3 +427,16 @@ exact running container ID.
 - Batch transfer-route metadata returned 30 directional routes with non-null arrays: 26 ready, two check, and two blocked.
 - Backend race tests, vet, build, frontend tests/typecheck/build, Docker build, and the production health endpoint passed.
 - Hummingbot was not changed or restarted; its container identity remained unchanged.
+
+## Sidebar Viewport And Pair Discovery
+
+- [x] Keep desktop navigation and Settings within the visible viewport on tall pages.
+- [x] Make the Opportunities pair-add flow self-explanatory.
+- [x] Add regression coverage and verify the responsive production UI.
+
+### Review
+
+- The desktop sidebar now uses a sticky viewport-height layout, while the existing mobile bottom navigation remains unchanged.
+- Opportunities exposes a high-contrast `Add pair` action and explains the search-plus flow and two-feed eligibility rule in the opened catalog.
+- Frontend verification passed 18 files and 83 tests, TypeScript typecheck, and the Vite production build.
+- A 1280×640 production screenshot confirmed that Settings and Add pair are both visible; the deployed health endpoint remained healthy.

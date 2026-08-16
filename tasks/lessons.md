@@ -81,3 +81,11 @@
   unbounded. Preserve full-rate server-side calculations, but cap/coalesce UI
   quote publications per source and pair and verify the WebSocket stays open
   beyond the client freshness window.
+- A desktop sidebar inside a stretching CSS grid must be sized and positioned
+  against the viewport, not the page content. Keep persistent navigation
+  sticky with an explicit viewport height so bottom actions remain reachable
+  on short screens and long pages.
+- A management action that exists only under a domain-specific label is still
+  undiscoverable. Use the user's object name (for example, "pair" instead of
+  "market") and place a short instruction beside the action that explains the
+  exact add flow.

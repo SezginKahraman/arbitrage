@@ -88,7 +88,8 @@ describe('AllOpportunitiesPage', () => {
     };
     render(<AllOpportunitiesPage marketCatalog={marketCatalog} now={20_000} state={state} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add market' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add pair' }));
+    expect(screen.getByRole('heading', { name: 'Add a USDT pair' })).toBeInTheDocument();
     fireEvent.change(screen.getByRole('textbox', { name: 'Search market catalog' }), { target: { value: 'LINK' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add LINK/USDT' }));
     await waitFor(() => expect(replace).toHaveBeenCalledWith(['BTCUSDT', 'COTIUSDT', 'LINKUSDT']));
