@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -17,8 +18,6 @@ const (
 	gateAPIBaseURL                 = "https://api.gateio.ws"
 	kuCoinAPIBaseURL               = "https://api.kucoin.com"
 )
-
-var trackedNetworkAssets = []string{"BTC", "ETH", "XRP", "SOL", "COTI"}
 
 type networkSourceFetcher func(context.Context, []string, time.Time) map[string]networkVenueSnapshot
 
@@ -51,7 +50,7 @@ func newNetworkCatalog(assets []string, sources []networkSourceDefinition) *netw
 	return catalog
 }
 
-func newProductionNetworkCatalog(binanceAPIKey, binanceSecret string) *networkCatalog {
+func newProductionNetworkCatalog(assets []string, binanceAPIKey, binanceSecret string) *networkCatalog {
 	client := &http.Client{Timeout: networkMetadataRequestTimeout}
 	sources := []networkSourceDefinition{
 		{
@@ -83,7 +82,7 @@ func newProductionNetworkCatalog(binanceAPIKey, binanceSecret string) *networkCa
 			}),
 		},
 	}
-	return newNetworkCatalog(trackedNetworkAssets, sources)
+	return newNetworkCatalog(assets, sources)
 }
 
 func publicAssetNetworkFetcher(
@@ -127,6 +126,7 @@ func unavailableNetworkSnapshots(source string, assets []string, errorCode strin
 }
 
 func (c *networkCatalog) RefreshAt(ctx context.Context, checkedAt time.Time) {
+	assets := c.Assets()
 	type sourceResult struct {
 		source    string
 		snapshots map[string]networkVenueSnapshot
@@ -138,7 +138,7 @@ func (c *networkCatalog) RefreshAt(ctx context.Context, checkedAt time.Time) {
 		waitGroup.Add(1)
 		go func() {
 			defer waitGroup.Done()
-			results <- sourceResult{source: definition.Source, snapshots: definition.Fetch(ctx, c.assets, checkedAt)}
+			results <- sourceResult{source: definition.Source, snapshots: definition.Fetch(ctx, assets, checkedAt)}
 		}()
 	}
 	waitGroup.Wait()
@@ -147,7 +147,10 @@ func (c *networkCatalog) RefreshAt(ctx context.Context, checkedAt time.Time) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for result := range results {
-		for _, asset := range c.assets {
+		for _, asset := range assets {
+			if _, active := c.snapshots[asset]; !active {
+				continue
+			}
 			snapshot, exists := result.snapshots[asset]
 			if !exists {
 				snapshot = networkVenueSnapshot{
@@ -158,9 +161,57 @@ func (c *networkCatalog) RefreshAt(ctx context.Context, checkedAt time.Time) {
 			if c.snapshots[asset] == nil {
 				c.snapshots[asset] = make(map[string]networkVenueSnapshot)
 			}
+			if current := c.snapshots[asset][result.source]; current.CheckedAt > snapshot.CheckedAt {
+				continue
+			}
 			c.snapshots[asset][result.source] = cloneNetworkVenueSnapshot(snapshot)
 		}
 	}
+}
+
+func normalizeNetworkAssets(assets []string) []string {
+	seen := make(map[string]struct{}, len(assets))
+	result := make([]string, 0, len(assets))
+	for _, raw := range assets {
+		asset := strings.ToUpper(strings.TrimSpace(raw))
+		if asset == "" || normalizeDiscoveredSymbol(asset+"USDT") != asset+"USDT" {
+			continue
+		}
+		if _, exists := seen[asset]; exists {
+			continue
+		}
+		seen[asset] = struct{}{}
+		result = append(result, asset)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func (c *networkCatalog) Assets() []string {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+	return append([]string(nil), c.assets...)
+}
+
+func (c *networkCatalog) SetAssets(assets []string) {
+	normalized := normalizeNetworkAssets(assets)
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	next := make(map[string]map[string]networkVenueSnapshot, len(normalized))
+	for _, asset := range normalized {
+		if existing := c.snapshots[asset]; existing != nil {
+			next[asset] = existing
+			continue
+		}
+		next[asset] = make(map[string]networkVenueSnapshot, len(c.sources))
+		for _, source := range c.sources {
+			next[asset][source.Source] = networkVenueSnapshot{
+				Source: source.Source, Asset: asset, Status: networkVenueLoading, Networks: []exchanges.AssetNetwork{},
+			}
+		}
+	}
+	c.assets = normalized
+	c.snapshots = next
 }
 
 func (c *networkCatalog) Run(ctx context.Context) {

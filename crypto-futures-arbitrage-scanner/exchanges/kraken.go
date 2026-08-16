@@ -1,8 +1,10 @@
 package exchanges
 
 import (
+	"context"
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -56,19 +58,33 @@ func processKrakenOrderbook(productID string, orderBook *KrakenOrderBook, orderb
 }
 
 func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectKrakenFuturesContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectKrakenFuturesContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "kraken_futures", false, symbols)
 	wsURL := "wss://futures.kraken.com/ws/v1"
 
 	// Maintain orderbooks for each symbol
 	orderbooks := make(map[string]*KrakenOrderBook)
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "kraken_futures", false, symbols)
 			log.Printf("Kraken connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 
 		log.Printf("Connected to Kraken futures WebSocket")
 
@@ -102,7 +118,9 @@ func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderboo
 			err := conn.ReadJSON(&rawMessage)
 			if err != nil {
 				publishConnectionStatus(statusChan, "kraken_futures", false, symbols)
-				log.Printf("Kraken read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Kraken read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -136,7 +154,10 @@ func ConnectKrakenFutures(symbols []string, priceChan chan<- PriceData, orderboo
 			}
 		}
 
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
 
@@ -222,6 +243,9 @@ func convertToKrakenSymbol(symbol string) string {
 	case "COTIUSDT":
 		return "PF_COTIUSD"
 	default:
+		if strings.HasSuffix(symbol, "USDT") {
+			return "PF_" + strings.TrimSuffix(symbol, "USDT") + "USD"
+		}
 		return symbol
 	}
 }
@@ -240,6 +264,13 @@ func convertFromKrakenSymbol(symbol string) string {
 	case "PF_COTIUSD":
 		return "COTIUSDT"
 	default:
+		if strings.HasPrefix(symbol, "PF_") && strings.HasSuffix(symbol, "USD") {
+			base := strings.TrimSuffix(strings.TrimPrefix(symbol, "PF_"), "USD")
+			if base == "XBT" {
+				base = "BTC"
+			}
+			return base + "USDT"
+		}
 		return symbol
 	}
 }

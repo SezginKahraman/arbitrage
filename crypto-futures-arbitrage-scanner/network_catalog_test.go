@@ -50,3 +50,17 @@ func TestNetworkCatalogSnapshotsAreDefensiveCopies(t *testing.T) {
 		t.Fatalf("catalog was mutated through snapshot: %+v", second)
 	}
 }
+
+func TestNetworkCatalogSetAssetsAddsLoadingSnapshotsAndDropsRemovedAssets(t *testing.T) {
+	catalog := newNetworkCatalog([]string{"BTC", "COTI"}, []networkSourceDefinition{{Source: sourceGateSpot}})
+	catalog.SetAssets([]string{"SOL", "COTI", "SOL"})
+	if got := catalog.Assets(); len(got) != 2 || got[0] != "COTI" || got[1] != "SOL" {
+		t.Fatalf("assets = %v", got)
+	}
+	if got := catalog.Snapshots("BTC"); len(got) != 0 {
+		t.Fatalf("removed BTC snapshots = %+v", got)
+	}
+	if got := catalog.Snapshots("SOL")[sourceGateSpot].Status; got != networkVenueLoading {
+		t.Fatalf("new SOL status = %q, want loading", got)
+	}
+}

@@ -102,6 +102,11 @@ func (s *SQLiteStore) initialize(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS alert_triggers_recent
 			ON alert_triggers(triggered_at_ms DESC, id DESC)`,
+		`CREATE TABLE IF NOT EXISTS watchlist_symbols (
+			symbol TEXT PRIMARY KEY,
+			position INTEGER NOT NULL UNIQUE,
+			created_at_ms INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000)
+		)`,
 		`UPDATE opportunities SET ended_at_ms = last_seen_at_ms WHERE ended_at_ms IS NULL`,
 	}
 

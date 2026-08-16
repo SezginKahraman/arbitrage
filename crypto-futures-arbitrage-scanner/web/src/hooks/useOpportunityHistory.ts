@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { SYMBOLS, type ArbitrageOpportunity, type SymbolName } from '../app/types';
+import { isSymbolName, type ArbitrageOpportunity, type SymbolName } from '../app/types';
 
 type HistoryStatus = 'loading' | 'ready' | 'degraded';
 type HistoryFetcher = (input: string, init?: RequestInit) => Promise<Response>;
@@ -31,8 +31,6 @@ interface OpportunityPayload {
   ended_at_ms: number | null;
 }
 
-const symbolNames = new Set<string>(SYMBOLS);
-
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
@@ -44,7 +42,7 @@ function normalizeOpportunity(value: unknown): ArbitrageOpportunity | null {
   if (
     !Number.isInteger(item.id) ||
     typeof item.symbol !== 'string' ||
-    !symbolNames.has(item.symbol) ||
+    !isSymbolName(item.symbol) ||
     typeof item.buy_source !== 'string' ||
     typeof item.sell_source !== 'string' ||
     !isFiniteNumber(item.buy_price) ||

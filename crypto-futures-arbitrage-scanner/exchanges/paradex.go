@@ -1,6 +1,7 @@
 package exchanges
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -57,14 +58,31 @@ type ParadexMarketSummaryEvent struct {
 }
 
 func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectParadexFuturesContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectParadexFuturesContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
 	wsURL := "wss://ws.api.prod.paradex.trade/v1"
+	allowed := make(map[string]struct{}, len(symbols))
+	for _, symbol := range symbols {
+		allowed[symbol] = struct{}{}
+	}
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
 			log.Printf("Paradex connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -84,9 +102,12 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 		if err := conn.WriteJSON(subscribeReq); err != nil {
 			publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
 			_ = conn.Close()
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 		publishConnectionStatus(statusChan, "paradex_futures", true, symbols)
 
 		// Read messages
@@ -94,7 +115,9 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				publishConnectionStatus(statusChan, "paradex_futures", false, symbols)
-				log.Printf("Paradex read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Paradex read error: %v", err)
+				}
 				break
 			}
 
@@ -112,6 +135,9 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 				symbol := convertFromParadexSymbol(marketEvent.Params.Data.Symbol)
 				if symbol == "" {
 					continue // Skip unsupported symbols
+				}
+				if _, enabled := allowed[symbol]; !enabled {
+					continue
 				}
 
 				// Parse bid and ask prices
@@ -134,8 +160,11 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 		}
 
 		conn.Close()
+		stopClose()
 		log.Printf("Paradex connection closed, reconnecting in 5 seconds...")
-		time.Sleep(5 * time.Second)
+		if ctx.Err() != nil || !waitForReconnect(ctx, 5*time.Second) {
+			return
+		}
 	}
 }
 
@@ -145,16 +174,8 @@ func ConnectParadexFutures(symbols []string, priceChan chan<- PriceData, orderbo
 func convertToParadexSymbol(symbol string) string {
 	symbol = strings.ToUpper(symbol)
 
-	// Map of supported symbols
-	symbolMap := map[string]string{
-		"BTCUSDT": "BTC-USD-PERP",
-		"ETHUSDT": "ETH-USD-PERP",
-		"XRPUSDT": "XRP-USD-PERP",
-		"SOLUSDT": "SOL-USD-PERP",
-	}
-
-	if paradexSymbol, exists := symbolMap[symbol]; exists {
-		return paradexSymbol
+	if strings.HasSuffix(symbol, "USDT") {
+		return strings.TrimSuffix(symbol, "USDT") + "-USD-PERP"
 	}
 
 	return ""
@@ -163,16 +184,8 @@ func convertToParadexSymbol(symbol string) string {
 // Convert Paradex symbol format back to standard format
 // BTC-USD-PERP -> BTCUSDT
 func convertFromParadexSymbol(paradexSymbol string) string {
-	// Map from Paradex format back to standard
-	symbolMap := map[string]string{
-		"BTC-USD-PERP": "BTCUSDT",
-		"ETH-USD-PERP": "ETHUSDT",
-		"XRP-USD-PERP": "XRPUSDT",
-		"SOL-USD-PERP": "SOLUSDT",
-	}
-
-	if symbol, exists := symbolMap[paradexSymbol]; exists {
-		return symbol
+	if strings.HasSuffix(paradexSymbol, "-USD-PERP") {
+		return strings.TrimSuffix(paradexSymbol, "-USD-PERP") + "USDT"
 	}
 
 	return ""

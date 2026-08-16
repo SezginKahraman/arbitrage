@@ -16,29 +16,8 @@ const (
 	sourcePyth               = "pyth"
 )
 
-var coreSymbols = []string{"BTCUSDT", "ETHUSDT", "XRPUSDT", "SOLUSDT"}
-
 var configuredSources = []string{
 	sourceBinanceFutures, sourceBybitFutures, sourceHyperliquidFutures, sourceKrakenFutures,
 	sourceOKXFutures, sourceGateFutures, sourceKuCoinFutures, sourceParadexFutures,
 	sourceBinanceSpot, sourceBybitSpot, sourceGateSpot, sourceKuCoinSpot, sourcePyth,
-}
-
-var cotiSources = map[string]struct{}{
-	sourceBinanceFutures: {},
-	sourceBybitFutures:   {},
-	sourceKrakenFutures:  {},
-	sourceGateFutures:    {},
-	sourceGateSpot:       {},
-	sourceBinanceSpot:    {},
-	sourceKuCoinFutures:  {},
-	sourceKuCoinSpot:     {},
-}
-
-func symbolsForSource(source string) []string {
-	result := append([]string(nil), coreSymbols...)
-	if _, ok := cotiSources[source]; ok {
-		result = append(result, "COTIUSDT")
-	}
-	return result
 }

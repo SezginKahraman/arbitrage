@@ -1,6 +1,7 @@
 package exchanges
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -36,14 +37,27 @@ type BybitFuturesOrderbook struct {
 }
 
 func ConnectBybitFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectBybitFuturesContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectBybitFuturesContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "bybit_futures", false, symbols)
 	wsURL := "wss://stream.bybit.com/v5/public/linear"
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "bybit_futures", false, symbols)
 			log.Printf("Bybit futures connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -64,9 +78,12 @@ func ConnectBybitFutures(symbols []string, priceChan chan<- PriceData, orderbook
 			publishConnectionStatus(statusChan, "bybit_futures", false, symbols)
 			log.Printf("Bybit futures subscription error: %v", err)
 			conn.Close()
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 		publishConnectionStatus(statusChan, "bybit_futures", true, symbols)
 
 		for {
@@ -74,7 +91,9 @@ func ConnectBybitFutures(symbols []string, priceChan chan<- PriceData, orderbook
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				publishConnectionStatus(statusChan, "bybit_futures", false, symbols)
-				log.Printf("Bybit futures read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Bybit futures read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -135,7 +154,10 @@ func ConnectBybitFutures(symbols []string, priceChan chan<- PriceData, orderbook
 			}
 		}
 
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
 
@@ -167,14 +189,27 @@ type BybitSpotOrderbook struct {
 
 // ConnectBybitSpot connects to Bybit spot trading WebSocket API
 func ConnectBybitSpot(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectBybitSpotContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectBybitSpotContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "bybit_spot", false, symbols)
 	wsURL := "wss://stream.bybit.com/v5/public/spot"
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "bybit_spot", false, symbols)
 			log.Printf("Bybit spot connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -195,9 +230,12 @@ func ConnectBybitSpot(symbols []string, priceChan chan<- PriceData, orderbookCha
 			publishConnectionStatus(statusChan, "bybit_spot", false, symbols)
 			log.Printf("Bybit spot subscription error: %v", err)
 			conn.Close()
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 		publishConnectionStatus(statusChan, "bybit_spot", true, symbols)
 
 		for {
@@ -205,7 +243,9 @@ func ConnectBybitSpot(symbols []string, priceChan chan<- PriceData, orderbookCha
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				publishConnectionStatus(statusChan, "bybit_spot", false, symbols)
-				log.Printf("Bybit spot read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Bybit spot read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -266,6 +306,9 @@ func ConnectBybitSpot(symbols []string, priceChan chan<- PriceData, orderbookCha
 			}
 		}
 
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }

@@ -55,40 +55,47 @@ const (
 )
 
 type FuturesScanner struct {
-	quotes           map[string]map[string]Quote
-	quotesMutex      sync.RWMutex
-	quoteBroadcastAt map[string]time.Time
-	quoteBroadcastMu sync.Mutex
-	wsClients        map[*wsClient]struct{}
-	clientsMutex     sync.RWMutex
-	upgrader         websocket.Upgrader
-	priceChan        chan exchanges.PriceData
-	orderbookChan    chan exchanges.OrderbookData
-	tradeChan        chan exchanges.TradeData
-	connectionChan   chan exchanges.ConnectionStatus
-	connections      map[string]exchanges.ConnectionStatus
-	connectionMutex  sync.RWMutex
-	lastOpportunity  map[string]time.Time // Track last alert per symbol
-	lastRouteTime    map[string]int64
-	currentRoutes    map[string]map[string]ArbitrageOpportunity
-	opportunityMutex sync.RWMutex
-	history          *opportunityHistory
-	alerts           storage.AlertStore
+	watchlist             map[string]struct{}
+	watchlistSet          bool
+	watchlistMutex        sync.RWMutex
+	expectedSubscriptions map[string][]string
+	subscriptionMutex     sync.RWMutex
+	quotes                map[string]map[string]Quote
+	quotesMutex           sync.RWMutex
+	quoteBroadcastAt      map[string]time.Time
+	quoteBroadcastMu      sync.Mutex
+	wsClients             map[*wsClient]struct{}
+	clientsMutex          sync.RWMutex
+	upgrader              websocket.Upgrader
+	priceChan             chan exchanges.PriceData
+	orderbookChan         chan exchanges.OrderbookData
+	tradeChan             chan exchanges.TradeData
+	connectionChan        chan exchanges.ConnectionStatus
+	connections           map[string]exchanges.ConnectionStatus
+	connectionMutex       sync.RWMutex
+	lastOpportunity       map[string]time.Time // Track last alert per symbol
+	lastRouteTime         map[string]int64
+	currentRoutes         map[string]map[string]ArbitrageOpportunity
+	opportunityMutex      sync.RWMutex
+	history               *opportunityHistory
+	alerts                storage.AlertStore
 }
 
 func NewFuturesScanner() *FuturesScanner {
 	return &FuturesScanner{
-		quotes:           make(map[string]map[string]Quote),
-		quoteBroadcastAt: make(map[string]time.Time),
-		wsClients:        make(map[*wsClient]struct{}),
-		priceChan:        make(chan exchanges.PriceData, 1000),
-		orderbookChan:    make(chan exchanges.OrderbookData, 1000),
-		tradeChan:        make(chan exchanges.TradeData, 1000),
-		connectionChan:   make(chan exchanges.ConnectionStatus, 128),
-		connections:      make(map[string]exchanges.ConnectionStatus),
-		lastOpportunity:  make(map[string]time.Time),
-		lastRouteTime:    make(map[string]int64),
-		currentRoutes:    make(map[string]map[string]ArbitrageOpportunity),
+		watchlist:             make(map[string]struct{}),
+		expectedSubscriptions: make(map[string][]string),
+		quotes:                make(map[string]map[string]Quote),
+		quoteBroadcastAt:      make(map[string]time.Time),
+		wsClients:             make(map[*wsClient]struct{}),
+		priceChan:             make(chan exchanges.PriceData, 1000),
+		orderbookChan:         make(chan exchanges.OrderbookData, 1000),
+		tradeChan:             make(chan exchanges.TradeData, 1000),
+		connectionChan:        make(chan exchanges.ConnectionStatus, 128),
+		connections:           make(map[string]exchanges.ConnectionStatus),
+		lastOpportunity:       make(map[string]time.Time),
+		lastRouteTime:         make(map[string]int64),
+		currentRoutes:         make(map[string]map[string]ArbitrageOpportunity),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
@@ -138,6 +145,9 @@ func (s *FuturesScanner) processConnections() {
 }
 
 func (s *FuturesScanner) updatePrice(data exchanges.PriceData) {
+	if !s.isWatched(data.Symbol) {
+		return
+	}
 	s.broadcastMessage(map[string]any{
 		"type":    "price_update",
 		"version": 1,
@@ -148,6 +158,9 @@ func (s *FuturesScanner) updatePrice(data exchanges.PriceData) {
 }
 
 func (s *FuturesScanner) updateQuote(quote Quote) {
+	if !s.isWatched(quote.Symbol) {
+		return
+	}
 	s.quotesMutex.Lock()
 	if s.quotes[quote.Symbol] == nil {
 		s.quotes[quote.Symbol] = make(map[string]Quote)
@@ -157,6 +170,61 @@ func (s *FuturesScanner) updateQuote(quote Quote) {
 
 	s.broadcastQuote(quote)
 	s.checkArbitrage(quote.Symbol)
+}
+
+func (s *FuturesScanner) isWatched(symbol string) bool {
+	s.watchlistMutex.RLock()
+	defer s.watchlistMutex.RUnlock()
+	if !s.watchlistSet {
+		return true
+	}
+	_, exists := s.watchlist[symbol]
+	return exists
+}
+
+func (s *FuturesScanner) SetWatchlist(symbols []string) {
+	next := make(map[string]struct{}, len(symbols))
+	for _, symbol := range symbols {
+		next[symbol] = struct{}{}
+	}
+
+	s.watchlistMutex.Lock()
+	previous := s.watchlist
+	s.watchlist = next
+	s.watchlistSet = true
+	s.watchlistMutex.Unlock()
+
+	removed := make([]string, 0)
+	for symbol := range previous {
+		if _, remains := next[symbol]; !remains {
+			removed = append(removed, symbol)
+		}
+	}
+	if len(removed) == 0 {
+		return
+	}
+	sort.Strings(removed)
+	s.quotesMutex.Lock()
+	for _, symbol := range removed {
+		delete(s.quotes, symbol)
+	}
+	s.quotesMutex.Unlock()
+	s.opportunityMutex.Lock()
+	for _, symbol := range removed {
+		delete(s.currentRoutes, symbol)
+		for key := range s.lastOpportunity {
+			if strings.HasPrefix(key, symbol+"_") {
+				delete(s.lastOpportunity, key)
+				delete(s.lastRouteTime, key)
+			}
+		}
+	}
+	s.opportunityMutex.Unlock()
+	for _, symbol := range removed {
+		s.broadcastMessage(opportunitiesSnapshot{
+			Type: "opportunities_snapshot", Version: 1, Symbol: symbol, Opportunities: []ArbitrageOpportunity{},
+		})
+	}
 }
 
 func (s *FuturesScanner) checkArbitrage(symbol string) {
@@ -405,6 +473,64 @@ func cloneRequestPath(r *http.Request, requestPath string) *http.Request {
 	return clone
 }
 
+func productionSubscriptionRunners(scanner *FuturesScanner) map[string]sourceSubscriptionRunner {
+	withSpotREST := func(source string, connect sourceSubscriptionRunner) sourceSubscriptionRunner {
+		return func(ctx context.Context, symbols []string) {
+			exchanges.StartSpotRESTFallbacks(ctx, map[string][]string{source: symbols}, scanner.orderbookChan)
+			connect(ctx, symbols)
+		}
+	}
+	return map[string]sourceSubscriptionRunner{
+		sourceBinanceFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectBinanceFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceBybitFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectBybitFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceHyperliquidFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectHyperliquidFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceKrakenFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectKrakenFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceOKXFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectOKXFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceGateFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectGateFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceKuCoinFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectKuCoinFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceParadexFutures: func(ctx context.Context, symbols []string) {
+			exchanges.ConnectParadexFuturesContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		},
+		sourceBinanceSpot: withSpotREST(sourceBinanceSpot, func(ctx context.Context, symbols []string) {
+			exchanges.ConnectBinanceSpotContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		}),
+		sourceBybitSpot: withSpotREST(sourceBybitSpot, func(ctx context.Context, symbols []string) {
+			exchanges.ConnectBybitSpotContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		}),
+		sourceGateSpot: withSpotREST(sourceGateSpot, func(ctx context.Context, symbols []string) {
+			exchanges.ConnectGateSpotContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		}),
+		sourceKuCoinSpot: withSpotREST(sourceKuCoinSpot, func(ctx context.Context, symbols []string) {
+			exchanges.ConnectKuCoinSpotContext(ctx, symbols, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+		}),
+	}
+}
+
+func subscriptionSymbols(catalog *marketCatalog, watchlist []string) map[string][]string {
+	result := make(map[string][]string)
+	for _, source := range configuredSources {
+		if source == sourcePyth {
+			continue
+		}
+		result[source] = catalog.SymbolsForSource(watchlist, source)
+	}
+	return result
+}
+
 func run() error {
 	err := godotenv.Load()
 	if err != nil {
@@ -418,14 +544,22 @@ func run() error {
 	}
 	var opportunityStore storage.OpportunityStore
 	var alertStore storage.AlertStore
+	var watchlistRepository watchlistRepository
 	sqliteStore, err := storage.OpenSQLite(databasePath)
 	if err != nil {
 		log.Printf("SQLite history unavailable; live scanner will continue: %v", err)
 		opportunityStore = storage.NewUnavailable(err)
 		alertStore = storage.NewUnavailableAlerts(err)
+		watchlistRepository = newMemoryWatchlistRepository(defaultWatchlistSymbols)
 	} else {
 		opportunityStore = sqliteStore
 		alertStore = sqliteStore
+		if err := sqliteStore.SeedWatchlist(context.Background(), defaultWatchlistSymbols); err != nil {
+			log.Printf("SQLite watchlist unavailable; using in-memory defaults: %v", err)
+			watchlistRepository = newMemoryWatchlistRepository(defaultWatchlistSymbols)
+		} else {
+			watchlistRepository = sqliteStore
+		}
 		log.Printf("Opportunity history ready")
 	}
 	scanner.history = newOpportunityHistory(opportunityStore, 512)
@@ -437,47 +571,64 @@ func run() error {
 	go scanner.processTrades()
 	go scanner.processConnections()
 
+	marketCatalog := newProductionMarketCatalog()
+	initialMarketContext, cancelInitialMarkets := context.WithTimeout(context.Background(), 25*time.Second)
+	marketCatalog.RefreshAt(initialMarketContext, time.Now())
+	cancelInitialMarkets()
+	marketContext, stopMarketCatalog := context.WithCancel(context.Background())
+	defer stopMarketCatalog()
+	go marketCatalog.RunPeriodic(marketContext)
+
+	activeSymbols, err := watchlistRepository.ListWatchlist(context.Background())
+	if err != nil || len(activeSymbols) == 0 {
+		activeSymbols = append([]string(nil), defaultWatchlistSymbols...)
+	}
+	scanner.SetWatchlist(activeSymbols)
 	for _, source := range configuredSources {
 		scanner.updateConnectionStatus(exchanges.ConnectionStatus{
-			Source: source, Connected: false, Symbols: symbolsForSource(source), Timestamp: time.Now().UnixMilli(),
+			Source: source, Connected: false, Symbols: marketCatalog.SymbolsForSource(activeSymbols, source), Timestamp: time.Now().UnixMilli(),
 		})
 	}
-
-	// Start exchange connections with orderbook feeds
-	go exchanges.ConnectBinanceFutures(symbolsForSource(sourceBinanceFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectBybitFutures(symbolsForSource(sourceBybitFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectHyperliquidFutures(symbolsForSource(sourceHyperliquidFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectKrakenFutures(symbolsForSource(sourceKrakenFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectOKXFutures(symbolsForSource(sourceOKXFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectGateFutures(symbolsForSource(sourceGateFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectKuCoinFutures(symbolsForSource(sourceKuCoinFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectParadexFutures(symbolsForSource(sourceParadexFutures), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-
-	// Start spot exchange connections with orderbook feeds
-	go exchanges.ConnectBinanceSpot(symbolsForSource(sourceBinanceSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectBybitSpot(symbolsForSource(sourceBybitSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectGateSpot(symbolsForSource(sourceGateSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	go exchanges.ConnectKuCoinSpot(symbolsForSource(sourceKuCoinSpot), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-	spotRESTContext, stopSpotRESTFallbacks := context.WithCancel(context.Background())
-	defer stopSpotRESTFallbacks()
-	exchanges.StartSpotRESTFallbacks(spotRESTContext, map[string][]string{
-		sourceBinanceSpot: symbolsForSource(sourceBinanceSpot),
-		sourceBybitSpot:   symbolsForSource(sourceBybitSpot),
-		sourceGateSpot:    symbolsForSource(sourceGateSpot),
-		sourceKuCoinSpot:  symbolsForSource(sourceKuCoinSpot),
-	}, scanner.orderbookChan)
-
-	// Start Pyth price feed connection
-	go exchanges.ConnectPythPrices(symbolsForSource(sourcePyth), scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
-
-	networkCatalog := newProductionNetworkCatalog(os.Getenv("BINANCE_API_KEY"), os.Getenv("BINANCE_API_SECRET"))
+	subscriptions := newSubscriptionSupervisor(productionSubscriptionRunners(scanner))
+	defer subscriptions.Stop()
+	initialSubscriptions := subscriptionSymbols(marketCatalog, activeSymbols)
+	scanner.SetExpectedSubscriptions(initialSubscriptions)
+	subscriptions.Reconcile(initialSubscriptions)
+	networkCatalog := newProductionNetworkCatalog(
+		symbolsToAssets(activeSymbols), os.Getenv("BINANCE_API_KEY"), os.Getenv("BINANCE_API_SECRET"),
+	)
 	networkContext, stopNetworkCatalog := context.WithCancel(context.Background())
 	defer stopNetworkCatalog()
 	go networkCatalog.Run(networkContext)
 
+	watchlist := newWatchlistService(watchlistRepository, marketCatalog, func(symbols []string) {
+		scanner.SetWatchlist(symbols)
+		nextSubscriptions := subscriptionSymbols(marketCatalog, symbols)
+		scanner.SetExpectedSubscriptions(nextSubscriptions)
+		subscriptions.Reconcile(nextSubscriptions)
+		networkCatalog.SetAssets(symbolsToAssets(symbols))
+		go func() {
+			refreshContext, cancel := context.WithTimeout(networkContext, networkMetadataRequestTimeout)
+			defer cancel()
+			networkCatalog.RefreshAt(refreshContext, time.Now())
+		}()
+	})
+	marketCatalog.SetOnRefresh(func() {
+		symbols, listErr := watchlistRepository.ListWatchlist(marketContext)
+		if listErr != nil || len(symbols) == 0 {
+			return
+		}
+		nextSubscriptions := subscriptionSymbols(marketCatalog, symbols)
+		scanner.SetExpectedSubscriptions(nextSubscriptions)
+		subscriptions.Reconcile(nextSubscriptions)
+	})
+
+	// Start Pyth price feed connection
+	go exchanges.ConnectPythPrices([]string{"BTCUSDT"}, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", scanner.handleWebSocket)
-	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive, networkCatalog))
+	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive, networkCatalog, watchlist))
 	mux.Handle("/", newSPAHandler("./web/dist"))
 
 	port := os.Getenv("PORT")

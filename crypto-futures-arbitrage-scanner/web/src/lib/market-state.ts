@@ -1,5 +1,5 @@
 import {
-  SYMBOLS,
+  isSymbolName,
   type ArbitrageOpportunity,
   type AlertTrigger,
   type FeedEvent,
@@ -27,7 +27,7 @@ function isFinitePositive(value: unknown): value is number {
 }
 
 function isSymbol(value: unknown): value is SymbolName {
-  return typeof value === 'string' && SYMBOLS.includes(value as SymbolName);
+  return isSymbolName(value);
 }
 
 export function createInitialScannerState(): ScannerState {

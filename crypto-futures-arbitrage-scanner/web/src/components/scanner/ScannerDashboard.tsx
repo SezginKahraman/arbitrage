@@ -25,6 +25,7 @@ interface ScannerDashboardProps {
   now?: number;
   onNavigate?: (page: AppPage) => void;
   transferRouteFetcher?: TransferRouteFetcher;
+  symbols?: string[];
 }
 
 function routeKey(opportunity: ScannerState['opportunities'][number]): string {
@@ -66,6 +67,7 @@ export function ScannerDashboard({
   now,
   onNavigate,
   transferRouteFetcher,
+  symbols,
 }: ScannerDashboardProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const openSettings = useCallback(() => setSettingsOpen(true), []);
@@ -156,6 +158,7 @@ export function ScannerDashboard({
           onOpenSettings={openSettings}
           onPreferencesChange={onPreferencesChange}
           preferences={preferences}
+          symbols={symbols}
         />
       }
     >
@@ -227,6 +230,7 @@ export function ScannerDashboard({
         onPreferencesChange={onPreferencesChange}
         open={settingsOpen}
         preferences={preferences}
+        symbols={symbols}
       />
     </AppShell>
   );

@@ -1,11 +1,10 @@
 import {
-  SYMBOLS,
+  isSymbolName,
   type ChartRange,
   type ComparisonMode,
   type DashboardLayout,
   type OpportunitySortField,
   type SortDirection,
-  type SymbolName,
   type UiPreferences,
 } from '../app/types';
 import { DEFAULT_ENABLED_SOURCES } from './sources';
@@ -60,7 +59,7 @@ function normalizePreferences(value: Record<string, unknown> | null): UiPreferen
   const sort = isRecord(value?.sort) ? value.sort : null;
 
   return {
-    symbol: SYMBOLS.includes(value?.symbol as SymbolName) ? (value?.symbol as SymbolName) : DEFAULT_PREFERENCES.symbol,
+    symbol: isSymbolName(value?.symbol) ? value.symbol : DEFAULT_PREFERENCES.symbol,
     enabledSources: parseEnabledSources(value?.enabledSources),
     minSpread:
       typeof value?.minSpread === 'number' && Number.isFinite(value.minSpread) && value.minSpread >= 0

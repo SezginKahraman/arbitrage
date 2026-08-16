@@ -9,9 +9,10 @@ interface SettingsDrawerProps {
   preferences: UiPreferences;
   onClose: () => void;
   onPreferencesChange: Dispatch<SetStateAction<UiPreferences>>;
+  symbols?: string[];
 }
 
-export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange }: SettingsDrawerProps) {
+export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange, symbols = [...SYMBOLS] }: SettingsDrawerProps) {
   const panelRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -78,7 +79,7 @@ export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange
             onChange={(event) => onPreferencesChange((current) => ({ ...current, symbol: event.target.value as UiPreferences['symbol'] }))}
             value={preferences.symbol}
           >
-            {SYMBOLS.map((symbol) => <option key={symbol}>{symbol}</option>)}
+            {symbols.map((symbol) => <option key={symbol}>{symbol}</option>)}
           </select>
         </label>
 

@@ -255,6 +255,7 @@ func initializeKuCoinConnection(
 }
 
 func connectKuCoinPublic(
+	ctx context.Context,
 	name string,
 	source string,
 	bulletURL string,
@@ -265,13 +266,19 @@ func connectKuCoinPublic(
 	statusChan chan<- ConnectionStatus,
 ) {
 	client := &http.Client{Timeout: 10 * time.Second}
+	defer publishConnectionStatus(statusChan, source, false, symbols)
 
 	for {
-		config, err := requestKuCoinWebSocketConfig(context.Background(), client, bulletURL)
+		config, err := requestKuCoinWebSocketConfig(ctx, client, bulletURL)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s public token error: %v", name, err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -280,22 +287,33 @@ func connectKuCoinPublic(
 		if err != nil {
 			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s WebSocket URL error: %v", name, err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
-		conn, _, err := websocket.DefaultDialer.Dial(webSocketURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, webSocketURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s connection error: %v", name, err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 
 		if err := initializeKuCoinConnection(conn, connectID, symbols, topicForSymbol, 10*time.Second); err != nil {
 			publishConnectionStatus(statusChan, source, false, symbols)
 			log.Printf("%s initialization error: %v", name, err)
 			_ = conn.Close()
-			time.Sleep(2 * time.Second)
+			stopClose()
+			if !waitForReconnect(ctx, 2*time.Second) {
+				return
+			}
 			continue
 		}
 		log.Printf("Connected to %s WebSocket", name)
@@ -307,7 +325,9 @@ func connectKuCoinPublic(
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				log.Printf("%s read error: %v", name, err)
+				if ctx.Err() == nil {
+					log.Printf("%s read error: %v", name, err)
+				}
 				break
 			}
 			if orderbook, ok := parseTicker(message, time.Now()); ok {
@@ -318,7 +338,10 @@ func connectKuCoinPublic(
 		close(heartbeatDone)
 		publishConnectionStatus(statusChan, source, false, symbols)
 		_ = conn.Close()
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
 
@@ -355,7 +378,15 @@ func keepKuCoinConnectionAlive(
 
 // ConnectKuCoinSpot streams public best-bid/best-ask updates. It does not use API credentials.
 func ConnectKuCoinSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectKuCoinSpotContext(context.Background(), symbols, nil, orderbookChan, nil, statusChan)
+}
+
+func ConnectKuCoinSpotContext(ctx context.Context, symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
 	connectKuCoinPublic(
+		ctx,
 		"KuCoin spot", "kucoin_spot", kuCoinSpotBulletURL, symbols,
 		func(symbol string) string { return "/market/ticker:" + toKuCoinSpotSymbol(symbol) },
 		parseKuCoinSpotTicker, orderbookChan, statusChan,
@@ -364,7 +395,15 @@ func ConnectKuCoinSpot(symbols []string, _ chan<- PriceData, orderbookChan chan<
 
 // ConnectKuCoinFutures streams public best-bid/best-ask updates. It does not use API credentials.
 func ConnectKuCoinFutures(symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectKuCoinFuturesContext(context.Background(), symbols, nil, orderbookChan, nil, statusChan)
+}
+
+func ConnectKuCoinFuturesContext(ctx context.Context, symbols []string, _ chan<- PriceData, orderbookChan chan<- OrderbookData, _ chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
 	connectKuCoinPublic(
+		ctx,
 		"KuCoin futures", "kucoin_futures", kuCoinFuturesBulletURL, symbols,
 		func(symbol string) string { return "/contractMarket/tickerV2:" + toKuCoinFuturesSymbol(symbol) },
 		parseKuCoinFuturesTicker, orderbookChan, statusChan,

@@ -408,3 +408,22 @@ exact running container ID.
   count is zero. Docker Desktop restart had stopped Hummingbot; the exact prior
   container ID was restored to running without configuration changes. Temporary
   smoke/rollback containers and the temporary smoke volume were removed.
+
+## Dynamic Market Watchlist And Route-Aware Opportunities
+
+- [x] Discover active USDT Spot/Futures markets and retain last-good source catalogs.
+- [x] Persist a validated server-side watchlist with five defaults and a 20-coin limit.
+- [x] Reconcile live source subscriptions when the watchlist changes without restarting the service.
+- [x] Refresh network metadata for the active assets and expose batch transfer-route results.
+- [x] Add Opportunities coin add/remove controls, coverage details, and route-status filters.
+- [x] Feed the dynamic watchlist into Scanner and Alerts pair selectors.
+- [x] Run backend/frontend tests, build the production image, and verify live add/remove behavior.
+
+### Review
+
+- Production market discovery returned 1,137 common USDT candidates from 12/12 ready source catalogs.
+- Live A47 add/remove smoke proved that only relevant Gate/KuCoin subscriptions restart, removed quotes are purged, and the scanner container is not restarted.
+- Post-deploy WebSocket verification reported 13/13 connected feeds and eight live COTI Spot/Futures quote sources.
+- Batch transfer-route metadata returned 30 directional routes with non-null arrays: 26 ready, two check, and two blocked.
+- Backend race tests, vet, build, frontend tests/typecheck/build, Docker build, and the production health endpoint passed.
+- Hummingbot was not changed or restarted; its container identity remained unchanged.

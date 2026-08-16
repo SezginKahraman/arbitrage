@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -19,22 +20,32 @@ type apiServer struct {
 	alerts      storage.AlertStore
 	scannerLive func() bool
 	networks    networkCatalogReader
+	watchlist   *watchlistService
 }
 
 type networkCatalogReader interface {
 	Snapshots(asset string) map[string]networkVenueSnapshot
 }
 
-func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, scannerLive func() bool, networkReaders ...networkCatalogReader) http.Handler {
+func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, scannerLive func() bool, dependencies ...any) http.Handler {
 	var networks networkCatalogReader
-	if len(networkReaders) > 0 {
-		networks = networkReaders[0]
+	var watchlist *watchlistService
+	for _, dependency := range dependencies {
+		switch value := dependency.(type) {
+		case networkCatalogReader:
+			networks = value
+		case *watchlistService:
+			watchlist = value
+		}
 	}
-	server := &apiServer{store: store, alerts: alerts, scannerLive: scannerLive, networks: networks}
+	server := &apiServer{store: store, alerts: alerts, scannerLive: scannerLive, networks: networks, watchlist: watchlist}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/opportunities", server.handleOpportunities)
+	mux.HandleFunc("/api/markets", server.handleMarkets)
+	mux.HandleFunc("/api/watchlist", server.handleWatchlist)
 	mux.HandleFunc("/api/networks", server.handleNetworks)
 	mux.HandleFunc("/api/transfer-route", server.handleTransferRoute)
+	mux.HandleFunc("/api/transfer-routes", server.handleTransferRoutes)
 	mux.HandleFunc("/api/alert-rules", server.handleAlertRules)
 	mux.HandleFunc("/api/alert-rules/", server.handleAlertRule)
 	mux.HandleFunc("/api/alert-triggers", server.handleAlertTriggers)
@@ -43,12 +54,7 @@ func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, sc
 }
 
 func supportedNetworkAsset(asset string) bool {
-	switch asset {
-	case "BTC", "ETH", "XRP", "SOL", "COTI":
-		return true
-	default:
-		return false
-	}
+	return asset != "" && normalizeDiscoveredSymbol(asset+"USDT") == asset+"USDT"
 }
 
 func supportedNetworkSource(source string) bool {
@@ -65,7 +71,7 @@ func (s *apiServer) handleNetworks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	asset := strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("asset")))
-	if !supportedNetworkAsset(asset) {
+	if !supportedNetworkAsset(asset) || s.networks == nil || len(s.networks.Snapshots(asset)) == 0 {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid network asset"})
 		return
 	}
@@ -92,7 +98,7 @@ func (s *apiServer) handleTransferRoute(w http.ResponseWriter, r *http.Request) 
 	asset := strings.ToUpper(strings.TrimSpace(query.Get("asset")))
 	source := strings.ToLower(strings.TrimSpace(query.Get("source")))
 	destination := strings.ToLower(strings.TrimSpace(query.Get("destination")))
-	if !supportedNetworkAsset(asset) || !supportedNetworkSource(source) || !supportedNetworkSource(destination) || source == destination {
+	if !supportedNetworkAsset(asset) || s.networks == nil || len(s.networks.Snapshots(asset)) == 0 || !supportedNetworkSource(source) || !supportedNetworkSource(destination) || source == destination {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid transfer route"})
 		return
 	}
@@ -101,6 +107,62 @@ func (s *apiServer) handleTransferRoute(w http.ResponseWriter, r *http.Request) 
 		snapshots = s.networks.Snapshots(asset)
 	}
 	writeJSON(w, http.StatusOK, evaluateTransferRoute(asset, source, destination, snapshots))
+}
+
+func symbolsToAssets(symbols []string) []string {
+	assets := make([]string, 0, len(symbols))
+	for _, symbol := range symbols {
+		if strings.HasSuffix(symbol, "USDT") {
+			assets = append(assets, strings.TrimSuffix(symbol, "USDT"))
+		}
+	}
+	return normalizeNetworkAssets(assets)
+}
+
+func (s *apiServer) handleTransferRoutes(w http.ResponseWriter, r *http.Request) {
+	if !methodAllowed(w, r) {
+		return
+	}
+	if s.networks == nil || s.watchlist == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "transfer routes unavailable"})
+		return
+	}
+	symbols, err := s.watchlist.List(r.Context())
+	if err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "watchlist unavailable"})
+		return
+	}
+	requested := make(map[string]struct{})
+	if raw := strings.TrimSpace(r.URL.Query().Get("assets")); raw != "" {
+		for _, asset := range strings.Split(raw, ",") {
+			asset = strings.ToUpper(strings.TrimSpace(asset))
+			if supportedNetworkAsset(asset) {
+				requested[asset] = struct{}{}
+			}
+		}
+	}
+	assets := symbolsToAssets(symbols)
+	sources := []string{sourceBinanceSpot, sourceGateSpot, sourceKuCoinSpot}
+	items := make([]transferRouteEvaluation, 0, len(assets)*6)
+	for _, asset := range assets {
+		if len(requested) > 0 {
+			if _, exists := requested[asset]; !exists {
+				continue
+			}
+		}
+		snapshots := s.networks.Snapshots(asset)
+		for _, source := range sources {
+			for _, destination := range sources {
+				if source == destination {
+					continue
+				}
+				items = append(items, evaluateTransferRoute(asset, source, destination, snapshots))
+			}
+		}
+	}
+	writeJSON(w, http.StatusOK, struct {
+		Items []transferRouteEvaluation `json:"items"`
+	}{Items: items})
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {
@@ -119,19 +181,102 @@ func methodAllowed(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
+func (s *apiServer) handleMarkets(w http.ResponseWriter, r *http.Request) {
+	if !methodAllowed(w, r) {
+		return
+	}
+	if s.watchlist == nil || s.watchlist.markets == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "market catalog unavailable"})
+		return
+	}
+	writeJSON(w, http.StatusOK, struct {
+		Items        []marketCandidate   `json:"items"`
+		Sources      []marketSourceState `json:"sources"`
+		MaxWatchlist int                 `json:"maxWatchlist"`
+	}{
+		Items: s.watchlist.markets.Candidates(), Sources: s.watchlist.markets.SourceStates(), MaxWatchlist: maxWatchlistSymbols,
+	})
+}
+
+func (s *apiServer) handleWatchlist(w http.ResponseWriter, r *http.Request) {
+	if s.watchlist == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "watchlist unavailable"})
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		symbols, err := s.watchlist.List(r.Context())
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "watchlist unavailable"})
+			return
+		}
+		writeJSON(w, http.StatusOK, struct {
+			Symbols []string `json:"symbols"`
+			Limit   int      `json:"limit"`
+		}{Symbols: symbols, Limit: maxWatchlistSymbols})
+	case http.MethodPut:
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32<<10))
+		decoder.DisallowUnknownFields()
+		var input struct {
+			Symbols []string `json:"symbols"`
+		}
+		if err := decoder.Decode(&input); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid watchlist payload"})
+			return
+		}
+		if err := decoder.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid watchlist payload"})
+			return
+		}
+		if err := s.watchlist.Replace(r.Context(), input.Symbols); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return
+		}
+		symbols, err := s.watchlist.List(r.Context())
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "watchlist unavailable"})
+			return
+		}
+		writeJSON(w, http.StatusOK, struct {
+			Symbols []string `json:"symbols"`
+			Limit   int      `json:"limit"`
+		}{Symbols: symbols, Limit: maxWatchlistSymbols})
+	default:
+		w.Header().Set("Allow", "GET, PUT")
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+	}
+}
+
 func supportedSymbol(symbol string) bool {
 	if symbol == "" {
 		return true
 	}
-	if symbol == "COTIUSDT" {
-		return true
-	}
-	for _, candidate := range coreSymbols {
+	for _, candidate := range defaultWatchlistSymbols {
 		if symbol == candidate {
 			return true
 		}
 	}
 	return false
+}
+
+func (s *apiServer) supportsSymbol(ctx context.Context, symbol string) bool {
+	if symbol == "" {
+		return true
+	}
+	if s.watchlist != nil {
+		return s.watchlist.IsActive(ctx, symbol)
+	}
+	return supportedSymbol(symbol)
+}
+
+func (s *apiServer) supportsAlertSymbol(symbol string) bool {
+	if symbol == "" {
+		return true
+	}
+	if s.watchlist != nil && s.watchlist.markets != nil {
+		return s.watchlist.markets.Supports(symbol)
+	}
+	return supportedSymbol(symbol)
 }
 
 func supportedAlertSource(source string) bool {
@@ -149,10 +294,10 @@ func supportedAlertSource(source string) bool {
 	}
 }
 
-func parseOpportunityQuery(r *http.Request) (storage.Query, bool) {
+func (s *apiServer) parseOpportunityQuery(r *http.Request) (storage.Query, bool) {
 	values := r.URL.Query()
 	query := storage.Query{Symbol: values.Get("symbol"), Limit: 100}
-	if !supportedSymbol(query.Symbol) {
+	if !s.supportsSymbol(r.Context(), query.Symbol) {
 		return storage.Query{}, false
 	}
 
@@ -177,7 +322,7 @@ func (s *apiServer) handleOpportunities(w http.ResponseWriter, r *http.Request) 
 	if !methodAllowed(w, r) {
 		return
 	}
-	query, ok := parseOpportunityQuery(r)
+	query, ok := s.parseOpportunityQuery(r)
 	if !ok {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid opportunity filters"})
 		return
@@ -223,7 +368,7 @@ func normalizeAlertInput(input storage.AlertRuleInput) storage.AlertRuleInput {
 	return input
 }
 
-func decodeAlertInput(w http.ResponseWriter, r *http.Request) (storage.AlertRuleInput, bool) {
+func (s *apiServer) decodeAlertInput(w http.ResponseWriter, r *http.Request) (storage.AlertRuleInput, bool) {
 	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32<<10))
 	decoder.DisallowUnknownFields()
 	var input storage.AlertRuleInput
@@ -234,7 +379,7 @@ func decodeAlertInput(w http.ResponseWriter, r *http.Request) (storage.AlertRule
 		return storage.AlertRuleInput{}, false
 	}
 	input = normalizeAlertInput(input)
-	if !supportedSymbol(input.Symbol) || !supportedAlertSource(input.BuySource) ||
+	if !s.supportsAlertSymbol(input.Symbol) || !supportedAlertSource(input.BuySource) ||
 		!supportedAlertSource(input.SellSource) || storage.ValidateAlertRuleInput(input) != nil {
 		return storage.AlertRuleInput{}, false
 	}
@@ -253,7 +398,7 @@ func (s *apiServer) handleAlertRules(w http.ResponseWriter, r *http.Request) {
 			Items []storage.AlertRule `json:"items"`
 		}{Items: items})
 	case http.MethodPost:
-		input, ok := decodeAlertInput(w, r)
+		input, ok := s.decodeAlertInput(w, r)
 		if !ok {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid alert rule"})
 			return
@@ -282,7 +427,7 @@ func (s *apiServer) handleAlertRule(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "alert rule not found"})
 		return
 	}
-	input, ok := decodeAlertInput(w, r)
+	input, ok := s.decodeAlertInput(w, r)
 	if !ok {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid alert rule"})
 		return

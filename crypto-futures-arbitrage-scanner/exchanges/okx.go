@@ -1,6 +1,7 @@
 package exchanges
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -48,14 +49,27 @@ type OKXSubscribeMessage struct {
 }
 
 func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectOKXFuturesContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectOKXFuturesContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 	wsURL := "wss://ws.okx.com:8443/ws/v5/public"
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 			log.Printf("OKX connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
 
@@ -100,9 +114,12 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 			publishConnectionStatus(statusChan, "okx_futures", false, symbols)
 			log.Printf("OKX subscription error: %v", err)
 			conn.Close()
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 		publishConnectionStatus(statusChan, "okx_futures", true, symbols)
 
 		for {
@@ -110,7 +127,9 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				publishConnectionStatus(statusChan, "okx_futures", false, symbols)
-				log.Printf("OKX read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("OKX read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -185,7 +204,10 @@ func ConnectOKXFutures(symbols []string, priceChan chan<- PriceData, orderbookCh
 			}
 		}
 
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
 

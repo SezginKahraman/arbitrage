@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import {
-  SYMBOLS,
+	  isSymbolName,
   type AlertMarketMode,
   type AlertRule,
   type AlertRuleInput,
@@ -22,7 +22,6 @@ interface AlertState {
 }
 
 const marketModes = new Set<AlertMarketMode>(['all', 'spot', 'mixed', 'futures']);
-const symbols = new Set<string>(SYMBOLS);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -38,7 +37,7 @@ function normalizeRule(value: unknown): AlertRule | null {
   const marketMode = value.market_mode;
   if (
     !Number.isInteger(value.id) || typeof value.name !== 'string' || !value.name ||
-    typeof symbol !== 'string' || (symbol !== '' && !symbols.has(symbol)) ||
+    typeof symbol !== 'string' || (symbol !== '' && !isSymbolName(symbol)) ||
     typeof marketMode !== 'string' || !marketModes.has(marketMode as AlertMarketMode) ||
     typeof value.buy_source !== 'string' || typeof value.sell_source !== 'string' ||
     !finite(value.min_spread_pct) || !Number.isInteger(value.cooldown_seconds) ||
@@ -64,7 +63,7 @@ function normalizeRule(value: unknown): AlertRule | null {
 }
 
 function normalizeTrigger(value: unknown): AlertTrigger | null {
-  if (!isRecord(value) || typeof value.symbol !== 'string' || !symbols.has(value.symbol)) return null;
+  if (!isRecord(value) || !isSymbolName(value.symbol)) return null;
   if (
     !Number.isInteger(value.id) || !Number.isInteger(value.rule_id) ||
     typeof value.rule_name !== 'string' || typeof value.buy_source !== 'string' || typeof value.sell_source !== 'string' ||

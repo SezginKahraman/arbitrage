@@ -111,7 +111,7 @@ function parseArray<T>(value: unknown, parser: (item: unknown) => T | null): T[]
   return result;
 }
 
-function parseTransferRoute(value: unknown): TransferRouteEvaluation | null {
+export function parseTransferRoute(value: unknown): TransferRouteEvaluation | null {
   if (!isRecord(value)) return null;
   const asset = stringValue(value, 'asset');
   const source = stringValue(value, 'source');

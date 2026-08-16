@@ -3,6 +3,7 @@ package main
 import (
 	"slices"
 	"sort"
+	"time"
 
 	"futures-arbitrage-scanner/exchanges"
 )
@@ -18,6 +19,14 @@ func (s *FuturesScanner) updateConnectionStatus(status exchanges.ConnectionStatu
 		return
 	}
 	status.Symbols = append([]string(nil), status.Symbols...)
+	sort.Strings(status.Symbols)
+	s.subscriptionMutex.RLock()
+	expected, constrained := s.expectedSubscriptions[status.Source]
+	if constrained && !slices.Equal(expected, status.Symbols) {
+		s.subscriptionMutex.RUnlock()
+		return
+	}
+	s.subscriptionMutex.RUnlock()
 
 	s.connectionMutex.Lock()
 	previous, exists := s.connections[status.Source]
@@ -29,6 +38,25 @@ func (s *FuturesScanner) updateConnectionStatus(status exchanges.ConnectionStatu
 
 	if !unchanged {
 		s.broadcastMessage(sourceStatusMessage{Type: "source_status", Version: 1, Status: status})
+	}
+}
+
+func (s *FuturesScanner) SetExpectedSubscriptions(symbolsBySource map[string][]string) {
+	next := make(map[string][]string, len(symbolsBySource))
+	for source, symbols := range symbolsBySource {
+		next[source] = normalizedSubscriptionSymbols(symbols)
+	}
+	s.subscriptionMutex.Lock()
+	previous := s.expectedSubscriptions
+	s.expectedSubscriptions = next
+	s.subscriptionMutex.Unlock()
+	for source, symbols := range next {
+		if slices.Equal(previous[source], symbols) {
+			continue
+		}
+		s.updateConnectionStatus(exchanges.ConnectionStatus{
+			Source: source, Connected: false, Symbols: symbols, Timestamp: time.Now().UnixMilli(),
+		})
 	}
 }
 

@@ -52,7 +52,10 @@ type transferRouteEvaluation struct {
 }
 
 func evaluateTransferRoute(asset, source, destination string, snapshots map[string]networkVenueSnapshot) transferRouteEvaluation {
-	result := transferRouteEvaluation{Asset: asset, Source: source, Destination: destination, Status: transferRouteUnknown}
+	result := transferRouteEvaluation{
+		Asset: asset, Source: source, Destination: destination, Status: transferRouteUnknown,
+		Networks: []transferNetworkMatch{}, SourceNetworks: []exchanges.AssetNetwork{}, DestinationNetworks: []exchanges.AssetNetwork{},
+	}
 	if !strings.HasSuffix(source, "_spot") || !strings.HasSuffix(destination, "_spot") {
 		result.Status = transferRouteNotApplicable
 		result.Reason = "network checks apply to spot-to-spot routes"
@@ -62,10 +65,10 @@ func evaluateTransferRoute(asset, source, destination string, snapshots map[stri
 	sourceSnapshot, sourceExists := snapshots[source]
 	destinationSnapshot, destinationExists := snapshots[destination]
 	if sourceExists && sourceSnapshot.Status == networkVenueReady {
-		result.SourceNetworks = append([]exchanges.AssetNetwork(nil), sourceSnapshot.Networks...)
+		result.SourceNetworks = append([]exchanges.AssetNetwork{}, sourceSnapshot.Networks...)
 	}
 	if destinationExists && destinationSnapshot.Status == networkVenueReady {
-		result.DestinationNetworks = append([]exchanges.AssetNetwork(nil), destinationSnapshot.Networks...)
+		result.DestinationNetworks = append([]exchanges.AssetNetwork{}, destinationSnapshot.Networks...)
 	}
 	result.CheckedAt = oldestPositiveTimestamp(sourceSnapshot.CheckedAt, destinationSnapshot.CheckedAt)
 	if !sourceExists || sourceSnapshot.Status != networkVenueReady {

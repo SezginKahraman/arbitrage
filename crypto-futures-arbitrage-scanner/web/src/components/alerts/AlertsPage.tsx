@@ -18,6 +18,7 @@ interface AlertsPageProps {
   state: ScannerState;
   fetcher?: AlertFetcher;
   now?: number;
+  symbols?: string[];
 }
 
 const executableSources = SOURCES.filter((source) => source.market !== 'oracle');
@@ -93,11 +94,16 @@ function RuleList({ rules, now, onToggle, loading }: { rules: AlertRule[]; now: 
   );
 }
 
-function AlertEditor({ onSave }: { onSave: (input: AlertRuleInput) => Promise<void> }) {
+function AlertEditor({ onSave, symbols }: { onSave: (input: AlertRuleInput) => Promise<void>; symbols: string[] }) {
   const [draft, setDraft] = useState(initialDraft);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const update = <K extends keyof AlertRuleInput>(field: K, value: AlertRuleInput[K]) => setDraft((current) => ({ ...current, [field]: value }));
+  useEffect(() => {
+    if (draft.symbol && !symbols.includes(draft.symbol)) {
+      setDraft((current) => ({ ...current, symbol: symbols[0] ?? '' }));
+    }
+  }, [draft.symbol, symbols]);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!draft.name.trim()) { setError('Rule name is required.'); return; }
@@ -124,7 +130,7 @@ function AlertEditor({ onSave }: { onSave: (input: AlertRuleInput) => Promise<vo
       </header>
       <form className="grid gap-3 sm:grid-cols-2" onSubmit={submit}>
         <label className="sm:col-span-2"><span className="mb-1 block text-xs text-slate-400">Rule name</span><input aria-label="Rule name" className={fieldClass} onChange={(event) => update('name', event.target.value)} placeholder="e.g. COTI spot gap" value={draft.name} /></label>
-        <label><span className="mb-1 block text-xs text-slate-400">Pair</span><select aria-label="Alert pair" className={fieldClass} onChange={(event) => update('symbol', event.target.value as AlertRuleInput['symbol'])} value={draft.symbol}><option value="">All pairs</option>{SYMBOLS.map((symbol) => <option key={symbol} value={symbol}>{symbol.replace('USDT', '/USDT')}</option>)}</select></label>
+        <label><span className="mb-1 block text-xs text-slate-400">Pair</span><select aria-label="Alert pair" className={fieldClass} onChange={(event) => update('symbol', event.target.value as AlertRuleInput['symbol'])} value={draft.symbol}><option value="">All pairs</option>{symbols.map((symbol) => <option key={symbol} value={symbol}>{symbol.replace('USDT', '/USDT')}</option>)}</select></label>
         <label><span className="mb-1 block text-xs text-slate-400">Market type</span><select aria-label="Alert market type" className={fieldClass} onChange={(event) => update('marketMode', event.target.value as AlertMarketMode)} value={draft.marketMode}>{Object.entries(marketLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
         <label><span className="mb-1 block text-xs text-slate-400">Buy venue</span><select aria-label="Alert buy venue" className={fieldClass} onChange={(event) => update('buySource', event.target.value)} value={draft.buySource}><option value="">Any exchange</option>{executableSources.map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}</select></label>
         <label><span className="mb-1 block text-xs text-slate-400">Sell venue</span><select aria-label="Alert sell venue" className={fieldClass} onChange={(event) => update('sellSource', event.target.value)} value={draft.sellSource}><option value="">Any exchange</option>{executableSources.map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}</select></label>
@@ -149,7 +155,7 @@ function RecentTriggers({ triggers, now }: { triggers: AlertTrigger[]; now: numb
   );
 }
 
-export function AlertsPage({ state, fetcher = fetch, now = Date.now() }: AlertsPageProps) {
+export function AlertsPage({ state, fetcher = fetch, now = Date.now(), symbols = [...SYMBOLS] }: AlertsPageProps) {
   const { rules, triggers, status, createRule, updateRule, retry } = useAlerts(state.alertTriggers, fetcher);
   const [mutationError, setMutationError] = useState('');
   const notified = useRef(new Set<number>());
@@ -195,7 +201,7 @@ export function AlertsPage({ state, fetcher = fetch, now = Date.now() }: AlertsP
       {status === 'degraded' && <div className="flex items-center justify-between rounded-lg border border-red-400/25 bg-red-400/5 px-4 py-3 text-sm text-red-300" role="alert"><span>Alert storage is temporarily unavailable.</span><button className="underline" onClick={retry} type="button">Retry</button></div>}
       {mutationError && <p className="rounded-lg border border-red-400/25 bg-red-400/5 px-4 py-3 text-sm text-red-300" role="alert">{mutationError}</p>}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{stats.map(({ label, value, icon: Icon }) => <article className="rounded-xl border border-terminal-line bg-terminal-panel/65 p-4" key={label}><div className="flex items-center justify-between"><p className="text-xs text-slate-500">{label}</p><Icon className="text-slate-600" size={17} /></div><p className="mt-3 font-data text-2xl text-terminal-text">{value}</p></article>)}</section>
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(440px,0.95fr)]"><RuleList loading={status === 'loading'} now={now} onToggle={toggle} rules={rules} /><AlertEditor onSave={save} /><RecentTriggers now={now} triggers={triggers} /></div>
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(440px,0.95fr)]"><RuleList loading={status === 'loading'} now={now} onToggle={toggle} rules={rules} /><AlertEditor onSave={save} symbols={symbols} /><RecentTriggers now={now} triggers={triggers} /></div>
     </div>
   );
 }

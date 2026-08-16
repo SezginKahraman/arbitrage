@@ -10,6 +10,7 @@ interface TopBarProps {
   onPreferencesChange: Dispatch<SetStateAction<UiPreferences>>;
   onOpenSettings: () => void;
   showPairSelector?: boolean;
+  symbols?: string[];
 }
 
 const connectionCopy: Record<ConnectionStatus, string> = {
@@ -26,6 +27,7 @@ export function TopBar({
   onPreferencesChange,
   onOpenSettings,
   showPairSelector = true,
+  symbols = [...SYMBOLS],
 }: TopBarProps) {
   return (
     <header className="flex min-h-20 flex-wrap items-center gap-4 border-b border-terminal-line px-4 py-3 md:px-7">
@@ -47,7 +49,7 @@ export function TopBar({
           }
           value={preferences.symbol}
         >
-          {SYMBOLS.map((symbol) => (
+          {symbols.map((symbol) => (
             <option key={symbol} value={symbol}>
               {symbol.replace('USDT', '/USDT')}
             </option>

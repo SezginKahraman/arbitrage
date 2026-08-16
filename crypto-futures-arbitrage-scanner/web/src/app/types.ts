@@ -1,5 +1,9 @@
 export const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'XRPUSDT', 'SOLUSDT', 'COTIUSDT'] as const;
-export type SymbolName = (typeof SYMBOLS)[number];
+export type SymbolName = string;
+
+export function isSymbolName(value: unknown): value is SymbolName {
+  return typeof value === 'string' && /^[A-Z0-9]{2,24}USDT$/.test(value) && value !== 'USDTUSDT';
+}
 export type ChartRange = '15m' | '1h' | '4h';
 export type ComparisonMode = 'spot' | 'futures' | 'mixed';
 export type DashboardLayout = 'split' | 'stacked';
@@ -122,6 +126,25 @@ export interface TransferRouteEvaluation {
   networks: TransferNetworkMatch[];
   sourceNetworks: VenueAssetNetwork[];
   destinationNetworks: VenueAssetNetwork[];
+}
+
+export interface MarketCandidate {
+  symbol: SymbolName;
+  base: string;
+  spotSources: string[];
+  futuresSources: string[];
+  sources: string[];
+}
+
+export type MarketCatalogSourceStatus = 'loading' | 'ready' | 'stale' | 'unavailable';
+
+export interface MarketCatalogSource {
+  source: string;
+  market: 'spot' | 'futures';
+  status: MarketCatalogSourceStatus;
+  symbols: SymbolName[];
+  checkedAt: number;
+  errorCode?: string;
 }
 
 export type AlertMarketMode = 'all' | 'spot' | 'mixed' | 'futures';

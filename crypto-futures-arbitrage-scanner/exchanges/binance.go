@@ -1,6 +1,7 @@
 package exchanges
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -33,6 +34,14 @@ type BinanceFuturesBookTicker struct {
 }
 
 func ConnectBinanceFutures(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectBinanceFuturesContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectBinanceFuturesContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "binance_futures", false, symbols)
 	streamNames := make([]string, len(symbols)*2)
 	for i, symbol := range symbols {
 		streamNames[i*2] = strings.ToLower(symbol) + "@bookTicker"
@@ -43,13 +52,19 @@ func ConnectBinanceFutures(symbols []string, priceChan chan<- PriceData, orderbo
 	wsURL := fmt.Sprintf("wss://fstream.binance.com/stream?streams=%s", streamParam)
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "binance_futures", false, symbols)
 			log.Printf("Binance futures connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 
 		log.Printf("Connected to Binance futures WebSocket")
 		publishConnectionStatus(statusChan, "binance_futures", true, symbols)
@@ -63,7 +78,9 @@ func ConnectBinanceFutures(symbols []string, priceChan chan<- PriceData, orderbo
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				publishConnectionStatus(statusChan, "binance_futures", false, symbols)
-				log.Printf("Binance futures read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Binance futures read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -121,8 +138,10 @@ func ConnectBinanceFutures(symbols []string, priceChan chan<- PriceData, orderbo
 				tradeChan <- tradeData
 			}
 		}
-
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
 
@@ -171,6 +190,14 @@ func parseBinanceSpotBookTicker(message []byte, receivedAt time.Time) (Orderbook
 
 // ConnectBinanceSpot connects to Binance spot trading WebSocket API
 func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	ConnectBinanceSpotContext(context.Background(), symbols, priceChan, orderbookChan, tradeChan, statusChan)
+}
+
+func ConnectBinanceSpotContext(ctx context.Context, symbols []string, priceChan chan<- PriceData, orderbookChan chan<- OrderbookData, tradeChan chan<- TradeData, statusChan chan<- ConnectionStatus) {
+	if len(symbols) == 0 {
+		return
+	}
+	defer publishConnectionStatus(statusChan, "binance_spot", false, symbols)
 	streamNames := make([]string, len(symbols)*2)
 	for i, symbol := range symbols {
 		streamNames[i*2] = strings.ToLower(symbol) + "@bookTicker"
@@ -181,13 +208,19 @@ func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookC
 	wsURL := fmt.Sprintf("wss://stream.binance.com:9443/stream?streams=%s", streamParam)
 
 	for {
-		conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+		conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsURL, nil)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			publishConnectionStatus(statusChan, "binance_spot", false, symbols)
 			log.Printf("Binance spot connection error: %v", err)
-			time.Sleep(5 * time.Second)
+			if !waitForReconnect(ctx, 5*time.Second) {
+				return
+			}
 			continue
 		}
+		stopClose := closeWebSocketOnCancel(ctx, conn)
 
 		log.Printf("Connected to Binance spot WebSocket")
 		publishConnectionStatus(statusChan, "binance_spot", true, symbols)
@@ -201,7 +234,9 @@ func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookC
 			err := conn.ReadJSON(&message)
 			if err != nil {
 				publishConnectionStatus(statusChan, "binance_spot", false, symbols)
-				log.Printf("Binance spot read error: %v", err)
+				if ctx.Err() == nil {
+					log.Printf("Binance spot read error: %v", err)
+				}
 				conn.Close()
 				break
 			}
@@ -245,7 +280,9 @@ func ConnectBinanceSpot(symbols []string, priceChan chan<- PriceData, orderbookC
 				tradeChan <- tradeData
 			}
 		}
-
-		time.Sleep(2 * time.Second)
+		stopClose()
+		if ctx.Err() != nil || !waitForReconnect(ctx, 2*time.Second) {
+			return
+		}
 	}
 }
