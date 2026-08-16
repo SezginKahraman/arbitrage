@@ -119,4 +119,21 @@ describe('AllOpportunitiesPage', () => {
     expect(screen.queryByText('COTI/USDT')).not.toBeInTheDocument();
     expect(screen.queryByText('ETH/USDT')).not.toBeInTheDocument();
   });
+
+  it('removes disabled sources from routes, counts, and exchange filters', () => {
+    const bybitRoute = {
+      id: 'wal-bybit', symbol: 'WALUSDT', buySource: 'bybit_spot', sellSource: 'binance_spot',
+      buyPrice: 0.02223, sellPrice: 0.0224, profitPct: 0.76, timestamp: 20_000,
+    };
+    render(<AllOpportunitiesPage
+      enabledSources={{ bybit_spot: false, bybit_futures: false }}
+      now={20_000}
+      state={{ ...state, opportunities: [...state.opportunities, bybitRoute] }}
+    />);
+
+    expect(screen.queryByText('WAL/USDT')).not.toBeInTheDocument();
+    expect(screen.getByText('4 live routes')).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Bybit Spot' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Bybit Futures' })).not.toBeInTheDocument();
+  });
 });

@@ -14,9 +14,26 @@ describe('scanner preferences', () => {
 
   it('returns safe defaults when storage is empty or corrupt', () => {
     expect(loadPreferences(localStorage)).toEqual(DEFAULT_PREFERENCES);
+    expect(DEFAULT_PREFERENCES.enabledSources.bybit_spot).toBe(false);
+    expect(DEFAULT_PREFERENCES.enabledSources.bybit_futures).toBe(false);
 
     localStorage.setItem(PREFERENCES_KEY, '{bad json');
     expect(loadPreferences(localStorage)).toEqual(DEFAULT_PREFERENCES);
+  });
+
+  it('migrates v1 preferences once and disables Bybit without losing other choices', () => {
+    localStorage.setItem('arbitrage.ui.preferences.v1', JSON.stringify({
+      symbol: 'WALUSDT',
+      minSpread: 0.42,
+      enabledSources: { gate_spot: false, bybit_spot: true, bybit_futures: true },
+    }));
+
+    const preferences = loadPreferences(localStorage);
+
+    expect(preferences).toMatchObject({ symbol: 'WALUSDT', minSpread: 0.42 });
+    expect(preferences.enabledSources).toMatchObject({ gate_spot: false, bybit_spot: false, bybit_futures: false });
+    expect(JSON.parse(localStorage.getItem(PREFERENCES_KEY) ?? '{}')).toEqual(preferences);
+    expect(localStorage.getItem('arbitrage.ui.preferences.v1')).toBeNull();
   });
 
   it('validates fields independently instead of discarding valid values', () => {

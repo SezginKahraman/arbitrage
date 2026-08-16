@@ -440,3 +440,17 @@ exact running container ID.
 - Opportunities exposes a high-contrast `Add pair` action and explains the search-plus flow and two-feed eligibility rule in the opened catalog.
 - Frontend verification passed 18 files and 83 tests, TypeScript typecheck, and the Vite production build.
 - A 1280×640 production screenshot confirmed that Settings and Add pair are both visible; the deployed health endpoint remained healthy.
+
+## Account-Aware Market Visibility
+
+- [x] Disable Bybit Spot and Futures by default with a one-time preference migration.
+- [x] Apply enabled-market choices consistently to Scanner and Opportunities.
+- [x] Clarify where sources are enabled or disabled and verify the live WAL view.
+
+### Review
+
+- The v1-to-v2 preference migration preserves pair, threshold, and other source choices while disabling Bybit Spot and Futures once.
+- Disabled sources are removed before Scanner hero/table/chart selection and before Opportunities counts, rows, and exchange options.
+- Settings now states that source choices apply across Scanner, charts, and Opportunities; both Scanner source chips and Settings checkboxes remain reversible.
+- WAL live metadata reports its only Binance SUI network with deposit and withdrawal closed, so Gate/KuCoin to Binance is correctly blocked after Bybit is hidden.
+- Frontend verification passed 18 files and 85 tests, TypeScript typecheck, Vite production build, Docker build, and the deployed health check.

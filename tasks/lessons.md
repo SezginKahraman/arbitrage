@@ -89,3 +89,7 @@
   undiscoverable. Use the user's object name (for example, "pair" instead of
   "market") and place a short instruction beside the action that explains the
   exact add flow.
+- A source toggle is misleading if it filters one page while aggregate pages
+  continue ranking that source. Treat venue visibility as one workspace-wide
+  preference and apply it before hero selection, counts, tables, charts, and
+  filter options.

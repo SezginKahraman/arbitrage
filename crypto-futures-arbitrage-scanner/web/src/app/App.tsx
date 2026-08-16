@@ -66,7 +66,7 @@ export function App() {
         }
       >
         {page === 'opportunities'
-          ? <AllOpportunitiesPage marketCatalog={marketCatalog} state={scannerState} transferRoutes={transferRoutes} />
+          ? <AllOpportunitiesPage enabledSources={preferences.enabledSources} marketCatalog={marketCatalog} state={scannerState} transferRoutes={transferRoutes} />
           : <AlertsPage state={scannerState} symbols={activeSymbols} />}
         <SettingsDrawer
           onClose={() => setSettingsOpen(false)}

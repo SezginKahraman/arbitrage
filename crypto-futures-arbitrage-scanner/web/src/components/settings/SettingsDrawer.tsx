@@ -99,7 +99,8 @@ export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange
         </label>
 
         <fieldset className="mt-7">
-          <legend className="text-sm font-medium">Visible sources</legend>
+          <legend className="text-sm font-medium">Market sources</legend>
+          <p className="mt-1 text-xs text-slate-500">Turn off venues you cannot trade on. The choice applies to Scanner, charts, and Opportunities.</p>
           <div className="mt-3 space-y-2">
             {SOURCES.map((source) => (
               <label className="flex items-center justify-between rounded-lg border border-terminal-line bg-terminal-ink/45 px-3 py-3 text-sm" key={source.key}>

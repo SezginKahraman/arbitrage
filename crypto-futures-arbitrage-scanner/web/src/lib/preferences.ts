@@ -9,11 +9,18 @@ import {
 } from '../app/types';
 import { DEFAULT_ENABLED_SOURCES } from './sources';
 
-export const PREFERENCES_KEY = 'arbitrage.ui.preferences.v1';
+export const PREFERENCES_KEY = 'arbitrage.ui.preferences.v2';
+const LEGACY_PREFERENCES_KEY = 'arbitrage.ui.preferences.v1';
+
+const DEFAULT_WORKSPACE_SOURCES: Record<string, boolean> = {
+  ...DEFAULT_ENABLED_SOURCES,
+  bybit_spot: false,
+  bybit_futures: false,
+};
 
 export const DEFAULT_PREFERENCES: UiPreferences = {
   symbol: 'COTIUSDT',
-  enabledSources: { ...DEFAULT_ENABLED_SOURCES },
+  enabledSources: { ...DEFAULT_WORKSPACE_SOURCES },
   minSpread: 0.05,
   sort: { field: 'profit', direction: 'desc' },
   chartRange: '15m',
@@ -46,7 +53,7 @@ function parseObject(value: string | null): Record<string, unknown> | null {
 }
 
 function parseEnabledSources(value: unknown): Record<string, boolean> {
-  const enabledSources = { ...DEFAULT_ENABLED_SOURCES };
+  const enabledSources = { ...DEFAULT_WORKSPACE_SOURCES };
   if (!isRecord(value)) return enabledSources;
 
   for (const source of Object.keys(enabledSources)) {
@@ -105,10 +112,22 @@ export function loadPreferences(storage: Storage): UiPreferences {
   const current = parseObject(storage.getItem(PREFERENCES_KEY));
   if (current) return normalizePreferences(current);
 
+  const previous = parseObject(storage.getItem(LEGACY_PREFERENCES_KEY));
+  if (previous) {
+    const preferences = normalizePreferences(previous);
+    preferences.enabledSources.bybit_spot = false;
+    preferences.enabledSources.bybit_futures = false;
+    savePreferences(storage, preferences);
+    storage.removeItem(LEGACY_PREFERENCES_KEY);
+    return preferences;
+  }
+
   const legacySources = parseObject(storage.getItem('enabledSources'));
   const preferences = normalizePreferences(legacySources ? { enabledSources: legacySources } : null);
 
   if (legacySources) {
+    preferences.enabledSources.bybit_spot = false;
+    preferences.enabledSources.bybit_futures = false;
     savePreferences(storage, preferences);
     storage.removeItem('enabledSources');
   }

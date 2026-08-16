@@ -38,6 +38,7 @@ interface AllOpportunitiesPageProps {
   state: ScannerState;
   marketCatalog?: MarketCatalogState;
   transferRoutes?: TransferRoutesState;
+  enabledSources?: Record<string, boolean>;
   now?: number;
 }
 
@@ -175,7 +176,7 @@ function RouteDetails({ route }: { route: TransferRouteEvaluation }) {
   );
 }
 
-export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now }: AllOpportunitiesPageProps) {
+export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, enabledSources = {}, now }: AllOpportunitiesPageProps) {
   const [clock, setClock] = useState(() => now ?? Date.now());
   const [query, setQuery] = useState('');
   const [market, setMarket] = useState<MarketFilter>('all');
@@ -206,8 +207,12 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
     }),
     [currentTime, state.opportunities],
   );
+  const enabledRoutes = useMemo(
+    () => freshRoutes.filter((item) => enabledSources[item.buySource] !== false && enabledSources[item.sellSource] !== false),
+    [enabledSources, freshRoutes],
+  );
   const opportunities = useMemo(
-    () => freshRoutes
+    () => enabledRoutes
       .filter((item) => {
         if (Number.isFinite(minimum) && item.profitPct < minimum) return false;
         if (market !== 'all' && routeMarket(item) !== market) return false;
@@ -218,14 +223,17 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
           .join(' ').toLowerCase().includes(normalizedQuery);
       })
       .sort((left, right) => compare(left, right, sortField, sortDirection)),
-    [exchange, freshRoutes, market, minimum, normalizedQuery, routeFilter, routeMap, sortDirection, sortField],
+    [enabledRoutes, exchange, market, minimum, normalizedQuery, routeFilter, routeMap, sortDirection, sortField],
   );
 
   useEffect(() => setPage(1), [exchange, market, minimumSpread, normalizedQuery, routeFilter]);
+  useEffect(() => {
+    if (exchange !== 'all' && enabledSources[exchange] === false) setExchange('all');
+  }, [enabledSources, exchange]);
 
   const statusCounts = useMemo(() => {
     const counts = { ready: 0, check: 0, blocked: 0, unknown: 0 };
-    for (const opportunity of freshRoutes) {
+    for (const opportunity of enabledRoutes) {
       const status = routeFor(opportunity, routeMap).status;
       if (status === 'ready') counts.ready++;
       else if (status === 'check') counts.check++;
@@ -233,7 +241,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
       else counts.unknown++;
     }
     return counts;
-  }, [freshRoutes, routeMap]);
+  }, [enabledRoutes, routeMap]);
 
   const pageCount = Math.max(1, Math.ceil(opportunities.length / pageSize));
   const visiblePage = Math.min(page, pageCount);
@@ -420,7 +428,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, now
             <span className="sr-only">Filter by exchange</span>
             <select aria-label="Filter by exchange" className="h-11 w-full rounded-lg border border-terminal-line bg-terminal-ink/70 px-3 text-sm" onChange={(event) => setExchange(event.target.value)} value={exchange}>
               <option value="all">All exchanges</option>
-              {SOURCES.filter((source) => source.market !== 'oracle').map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}
+              {SOURCES.filter((source) => source.market !== 'oracle' && enabledSources[source.key] !== false).map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}
             </select>
           </label>
           <label>

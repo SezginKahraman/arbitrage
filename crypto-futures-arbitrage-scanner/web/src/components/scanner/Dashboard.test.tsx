@@ -353,7 +353,10 @@ describe('ScannerDashboard', () => {
   });
 
   it('labels persisted opportunity sessions as history', () => {
-    renderDashboard(DEFAULT_PREFERENCES, {
+    renderDashboard({
+      ...DEFAULT_PREFERENCES,
+      enabledSources: { ...DEFAULT_PREFERENCES.enabledSources, bybit_spot: true },
+    }, {
       status: 'ready',
       retry: vi.fn(),
       items: [
@@ -377,7 +380,10 @@ describe('ScannerDashboard', () => {
   });
 
   it('shows only the latest historical session per route and counts live routes separately', () => {
-    renderDashboard(DEFAULT_PREFERENCES, {
+    renderDashboard({
+      ...DEFAULT_PREFERENCES,
+      enabledSources: { ...DEFAULT_PREFERENCES.enabledSources, bybit_spot: true },
+    }, {
       status: 'ready',
       retry: vi.fn(),
       items: [
