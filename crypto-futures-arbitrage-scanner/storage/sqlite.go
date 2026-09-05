@@ -107,6 +107,31 @@ func (s *SQLiteStore) initialize(ctx context.Context) error {
 			position INTEGER NOT NULL UNIQUE,
 			created_at_ms INTEGER NOT NULL DEFAULT (unixepoch('subsec') * 1000)
 		)`,
+		`CREATE TABLE IF NOT EXISTS paper_positions (
+			id INTEGER PRIMARY KEY,
+			contract TEXT NOT NULL,
+			direction TEXT NOT NULL,
+			strategy TEXT NOT NULL,
+			interval TEXT NOT NULL,
+			entry_price REAL NOT NULL,
+			stop_price REAL NOT NULL,
+			target_price REAL NOT NULL,
+			contracts REAL NOT NULL,
+			base_quantity REAL NOT NULL,
+			notional REAL NOT NULL,
+			risk_amount REAL NOT NULL,
+			estimated_fees REAL NOT NULL,
+			analysis_at_ms INTEGER NOT NULL,
+			status TEXT NOT NULL,
+			opened_at_ms INTEGER NOT NULL,
+			closed_at_ms INTEGER,
+			exit_price REAL NOT NULL DEFAULT 0,
+			realized_pnl REAL NOT NULL DEFAULT 0,
+			CHECK(direction IN ('long', 'short')),
+			CHECK(status IN ('open', 'closed'))
+		)`,
+		`CREATE INDEX IF NOT EXISTS paper_positions_recent
+			ON paper_positions(opened_at_ms DESC, id DESC)`,
 		`UPDATE opportunities SET ended_at_ms = last_seen_at_ms WHERE ended_at_ms IS NULL`,
 	}
 

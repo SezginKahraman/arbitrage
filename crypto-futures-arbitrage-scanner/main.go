@@ -11,12 +11,14 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
 	"futures-arbitrage-scanner/exchanges"
+	futuresdomain "futures-arbitrage-scanner/futures"
 	"futures-arbitrage-scanner/storage"
 
 	"github.com/gorilla/websocket"
@@ -544,16 +546,19 @@ func run() error {
 	}
 	var opportunityStore storage.OpportunityStore
 	var alertStore storage.AlertStore
+	var paperStore storage.PaperPositionStore
 	var watchlistRepository watchlistRepository
 	sqliteStore, err := storage.OpenSQLite(databasePath)
 	if err != nil {
 		log.Printf("SQLite history unavailable; live scanner will continue: %v", err)
 		opportunityStore = storage.NewUnavailable(err)
 		alertStore = storage.NewUnavailableAlerts(err)
+		paperStore = storage.NewUnavailablePaperPositions(err)
 		watchlistRepository = newMemoryWatchlistRepository(defaultWatchlistSymbols)
 	} else {
 		opportunityStore = sqliteStore
 		alertStore = sqliteStore
+		paperStore = sqliteStore
 		if err := sqliteStore.SeedWatchlist(context.Background(), defaultWatchlistSymbols); err != nil {
 			log.Printf("SQLite watchlist unavailable; using in-memory defaults: %v", err)
 			watchlistRepository = newMemoryWatchlistRepository(defaultWatchlistSymbols)
@@ -626,9 +631,30 @@ func run() error {
 	// Start Pyth price feed connection
 	go exchanges.ConnectPythPrices([]string{"BTCUSDT"}, scanner.priceChan, scanner.orderbookChan, scanner.tradeChan, scanner.connectionChan)
 
+	binanceTakerFee := 0.0005
+	if configuredFee, parseErr := strconv.ParseFloat(strings.TrimSpace(os.Getenv("BINANCE_FUTURES_TAKER_FEE")), 64); parseErr == nil && configuredFee > 0 && configuredFee < 0.01 {
+		binanceTakerFee = configuredFee
+	}
+	gateMarketService := futuresdomain.NewGateService()
+	binanceMarketService := futuresdomain.NewBinancePublicClient(binanceTakerFee)
+	futuresWorkspace := futuresdomain.NewWorkspaceService(gateMarketService, binanceMarketService)
+	liveTradingEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("LIVE_FUTURES_TRADING_ENABLED")), "true")
+	gateTrader := futuresdomain.NewGateTrader(os.Getenv("GATEIO_API_KEY"), os.Getenv("GATEIO_API_SECRET"))
+	binanceTrader := futuresdomain.NewBinanceTrader(os.Getenv("BINANCE_API_KEY"), os.Getenv("BINANCE_API_SECRET"))
+	futuresExecutor := futuresdomain.NewExecutionService(
+		liveTradingEnabled, gateMarketService, binanceMarketService,
+		gateTrader, binanceTrader,
+	)
+	futuresAccess := futuresdomain.NewAccessService(
+		liveTradingEnabled, gateMarketService, binanceMarketService, gateTrader, binanceTrader,
+	)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", scanner.handleWebSocket)
-	mux.Handle("/api/", newAPIHandler(opportunityStore, alertStore, scanner.IsLive, networkCatalog, watchlist))
+	mux.Handle("/api/", newAPIHandler(
+		opportunityStore, alertStore, scanner.IsLive, networkCatalog, watchlist,
+		futuresWorkspace, futuresExecutor, futuresAccess, paperStore,
+	))
 	mux.Handle("/", newSPAHandler("./web/dist"))
 
 	port := os.Getenv("PORT")

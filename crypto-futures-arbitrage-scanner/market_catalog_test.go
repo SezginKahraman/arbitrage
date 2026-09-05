@@ -64,6 +64,7 @@ func TestMarketCatalogRetainsLastGoodSourceDataWhenRefreshFails(t *testing.T) {
 
 func TestNormalizeDiscoveredSymbolAcceptsOnlySimpleUSDTMarkets(t *testing.T) {
 	for input, want := range map[string]string{
+		"H-USDT":       "HUSDT",
 		"btc-usdt":     "BTCUSDT",
 		"SOL_USDT":     "SOLUSDT",
 		"ETHUSDT":      "ETHUSDT",

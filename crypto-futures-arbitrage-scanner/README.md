@@ -2,7 +2,7 @@
 
 Real-time spot and futures market scanner with a Go backend and a React dashboard. It compares executable best ask → best bid routes, streams quotes over WebSocket, and keeps short opportunity sessions in SQLite.
 
-The scanner is observation-only. It does not place orders, transfer assets, or use exchange credentials.
+The Scanner and Opportunities screens remain observation-only and never place orders or transfer assets. The separate Futures workspace can place a manually confirmed, delta-neutral Binance Futures ↔ Gate Futures entry when live trading is explicitly enabled on the server.
 
 ## Markets
 
@@ -28,6 +28,36 @@ The React + Tailwind dashboard provides:
 - persistent pair, threshold, chart range, and source selections
 - SQLite-backed opportunity history with live/history labels and peak spread
 - explicit unknown states for network, fee, and transfer checks that are not yet verified
+
+## Futures decision lab
+
+Open `/futures` or choose **Futures** in the sidebar to analyze a selected Gate.io USDT perpetual contract on demand. The workspace provides:
+
+- `15m`, `1h`, and `4h` candlestick analysis
+- trend pullback, range breakout, and mean-reversion strategies
+- separate `ready`, `watch`, or `no trade` long and short plans
+- entry, invalidation stop, liquidity-aware target, gross risk/reward, contract sizing, and estimated round-trip fees
+- EMA20/EMA50, ATR14, RSI14, volatility bands, funding, mark/index price, and visible bid/ask liquidity walls
+- a live-updating Gate candle after analysis
+- Binance Futures ↔ Gate Futures order-book comparison in both long/short directions
+- contract-multiplier-aware matched quantities, four taker fees, depth, next-funding carry, and index-divergence checks
+- an explicit two-leg execution button that revalidates both books after private account preflight
+- immediate reduce-only compensation if one order fails or either order partially fills
+
+`Analyze market` only uses public data and never places an order. `Execute both futures legs` is the only UI action that can submit real orders. It opens the cheaper venue long and the richer venue short only when the revalidated projected convergence return still clears the selected threshold. A separate localhost API probe can submit one post-only order capped at 10 USDT, cancel it immediately, and verify the venue is flat; it also requires explicit confirmation and the server kill-switch. Funding is displayed separately and is not included in projected net return.
+
+Live entry requires all of the following environment variables:
+
+```sh
+LIVE_FUTURES_TRADING_ENABLED=true
+BINANCE_API_KEY=...
+BINANCE_API_SECRET=...
+GATEIO_API_KEY=...
+GATEIO_API_SECRET=...
+BINANCE_FUTURES_TAKER_FEE=0.0005
+```
+
+Use futures-trading permission only; withdrawal permission is not required and should remain disabled. The current release opens and compensates the entry legs but does not automatically take profit or close a converged pair. After an opened result, manage or close both positions directly on Binance and Gate until an explicit paired-exit workflow is added. Existing SQLite paper-position records and legacy API routes are retained for compatibility but are no longer shown in the Futures UI.
 
 ## Run with Docker
 
@@ -79,6 +109,14 @@ npm run build
 
 - `GET /api/health` — scanner/database health
 - `GET /api/opportunities?symbol=COTIUSDT&minSpread=0.5&limit=100` — recent opportunity sessions
+- `GET /api/futures/contracts` — active Gate.io USDT perpetual contracts
+- `POST /api/futures/analyze` — on-demand public-data technical and cross-venue analysis
+- `GET /api/futures/live` — refreshed candle, Binance/Gate books, and neutral route for the selected market
+- `GET /api/futures/access` — read-only Binance/Gate Futures credential, margin, and flat-position preflight
+- `POST /api/futures/order-probe` — explicitly confirmed, at-most-10-USDT post-only order/cancel access probe
+- `POST /api/futures/execute` — manually confirmed, server-revalidated live two-leg entry
+- `GET|POST /api/futures/paper-positions` — retained legacy local paper-position API
+- `PUT /api/futures/paper-positions/{id}/close` — retained legacy paper close API
 - `GET /ws` — live versioned quote, reference-price, and opportunity messages
 
 Opportunity history is retained for seven days. If SQLite is unavailable, live scanning continues and the UI reports history as degraded.

@@ -63,16 +63,16 @@ export const LiveFeedTerminal = memo(function LiveFeedTerminal({ collapsed, even
   );
 
   return (
-    <section className="overflow-hidden rounded-xl border border-terminal-line bg-[#061014] shadow-[inset_0_1px_rgba(255,255,255,0.025)]" aria-label="Live feed terminal">
-      <header className="flex min-h-14 items-center justify-between gap-3 border-b border-terminal-line px-4 py-3">
+    <section className="overflow-hidden rounded-xl border border-[#263a42] bg-[#061014] shadow-[0_12px_30px_rgba(15,56,45,0.10)]" aria-label="Live feed terminal">
+      <header className="flex min-h-14 items-center justify-between gap-3 border-b border-[#263a42] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-signal-mint/20 bg-signal-mint/10 text-signal-mint">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-[#42e7a2]/25 bg-[#42e7a2]/10 text-[#42e7a2]">
             <Radio size={16} />
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="font-semibold text-slate-100">Live feed terminal</h2>
-              <span className="flex items-center gap-1.5 font-data text-[10px] uppercase tracking-[0.16em] text-signal-mint">
+              <span className="flex items-center gap-1.5 font-data text-[10px] uppercase tracking-[0.16em] text-[#42e7a2]">
                 <Circle className="fill-current" size={7} /> streaming
               </span>
             </div>
@@ -93,7 +93,7 @@ export const LiveFeedTerminal = memo(function LiveFeedTerminal({ collapsed, even
           <button
             aria-expanded={!collapsed}
             aria-label={collapsed ? 'Expand live feed terminal' : 'Collapse live feed terminal'}
-            className="rounded-lg border border-terminal-line p-2 text-slate-400 transition hover:border-slate-600 hover:text-slate-100"
+            className="rounded-lg border border-[#263a42] p-2 text-slate-400 transition hover:border-slate-500 hover:text-slate-100"
             onClick={() => onCollapsedChange(!collapsed)}
             type="button"
           >
@@ -105,11 +105,11 @@ export const LiveFeedTerminal = memo(function LiveFeedTerminal({ collapsed, even
       {!collapsed && (
         <div className="max-h-64 min-h-36 overflow-auto font-data text-xs" aria-live="off">
           {visibleEvents.length ? (
-            <ol className="divide-y divide-terminal-line/55">
+            <ol className="divide-y divide-[#263a42]/70">
               {visibleEvents.map((event) => (
                 <li className="grid gap-2 px-4 py-2.5 text-slate-400 sm:grid-cols-[96px_76px_minmax(140px,220px)_1fr]" key={event.id}>
                   <time className="text-slate-600">{formatEventTime(event.receivedAt)}</time>
-                  <span className={event.connected === false ? 'text-amber-400' : 'text-signal-mint'}>{eventLabel(event)}</span>
+                  <span className={event.connected === false ? 'text-amber-400' : 'text-[#42e7a2]'}>{eventLabel(event)}</span>
                   <span className="truncate text-slate-200">{eventSource(event)}</span>
                   <span className="min-w-0 break-words text-slate-400">{eventDetail(event)}</span>
                 </li>

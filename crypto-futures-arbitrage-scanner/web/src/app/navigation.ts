@@ -1,12 +1,14 @@
-export type AppPage = 'scanner' | 'opportunities' | 'alerts';
+export type AppPage = 'scanner' | 'futures' | 'opportunities' | 'alerts';
 
 const pathByPage: Record<AppPage, string> = {
   scanner: '/',
+  futures: '/futures',
   opportunities: '/opportunities',
   alerts: '/alerts',
 };
 
 export function pageFromPath(pathname: string): AppPage {
+  if (pathname.startsWith('/futures')) return 'futures';
   if (pathname.startsWith('/opportunities')) return 'opportunities';
   if (pathname.startsWith('/alerts')) return 'alerts';
   return 'scanner';

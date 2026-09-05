@@ -21,7 +21,7 @@ const (
 	marketCatalogRefreshInterval = 10 * time.Minute
 )
 
-var discoveredSymbolPattern = regexp.MustCompile(`^[A-Z0-9]{2,24}USDT$`)
+var discoveredSymbolPattern = regexp.MustCompile(`^[A-Z0-9]{1,24}USDT$`)
 
 type marketSourceFetcher func(context.Context) ([]string, error)
 

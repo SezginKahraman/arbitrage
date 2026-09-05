@@ -1,0 +1,138 @@
+{
+  "warning": "Selected using current rates, thus selection biased. Constant-notional historical carry diagnostic; NOT a backtest, no basis or order-book costs; account fee unknown.",
+  "rows": [
+    {
+      "coin": "4",
+      "long": "binance",
+      "short": "gate",
+      "historical_7d_rate_difference_pct": 0.18134300000000006,
+      "daily_median_pct": -0.019034,
+      "positive_24h_windows": 2,
+      "roundtrip_fee_assumption_pct": 0.25,
+      "carry_less_fees_pct_ignoring_basis_slippage": -0.06865699999999994,
+      "daily_windows_pct": [
+        0.16989699999999996,
+        -0.06360099999999998,
+        -0.019707000000000002,
+        -0.0015470000000000067,
+        -0.019034,
+        -0.064075,
+        0.17941000000000007
+      ]
+    },
+    {
+      "coin": "AKE",
+      "long": "binance",
+      "short": "gate",
+      "historical_7d_rate_difference_pct": 0.002957999999999961,
+      "daily_median_pct": -0.00010000000000000243,
+      "positive_24h_windows": 1,
+      "roundtrip_fee_assumption_pct": 0.25,
+      "carry_less_fees_pct_ignoring_basis_slippage": -0.24704200000000004,
+      "daily_windows_pct": [
+        0.17136199999999996,
+        -0.02429600000000001,
+        -0.07483399999999998,
+        -0.069174,
+        -0.00010000000000000243,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "coin": "VELVET",
+      "long": "gate",
+      "short": "binance",
+      "historical_7d_rate_difference_pct": 0.121544,
+      "daily_median_pct": 0.03342200000000001,
+      "positive_24h_windows": 5,
+      "roundtrip_fee_assumption_pct": 0.25,
+      "carry_less_fees_pct_ignoring_basis_slippage": -0.12845600000000001,
+      "daily_windows_pct": [
+        -0.09677,
+        0.104544,
+        0.04312999999999999,
+        -0.006848,
+        0.042201999999999996,
+        0.0018639999999999998,
+        0.03342200000000001
+      ]
+    },
+    {
+      "coin": "FF",
+      "long": "binance",
+      "short": "gate",
+      "historical_7d_rate_difference_pct": 0.0854,
+      "daily_median_pct": 0.0,
+      "positive_24h_windows": 2,
+      "roundtrip_fee_assumption_pct": 0.25,
+      "carry_less_fees_pct_ignoring_basis_slippage": -0.1646,
+      "daily_windows_pct": [
+        0.0509,
+        0.0,
+        0.0345,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "coin": "KOMA",
+      "long": "kucoin",
+      "short": "binance",
+      "historical_7d_rate_difference_pct": 0.38672,
+      "daily_median_pct": 0.116897,
+      "positive_24h_windows": 5,
+      "roundtrip_fee_assumption_pct": 0.21999999999999997,
+      "carry_less_fees_pct_ignoring_basis_slippage": 0.16672000000000003,
+      "daily_windows_pct": [
+        0.116897,
+        0.17739100000000002,
+        0.13562600000000002,
+        -0.136189,
+        0.085928,
+        0.11865999999999999,
+        -0.111593
+      ]
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "gate",
+      "short": "kucoin",
+      "historical_7d_rate_difference_pct": 0.5629000000000001,
+      "daily_median_pct": 0.0684,
+      "positive_24h_windows": 7,
+      "roundtrip_fee_assumption_pct": 0.27,
+      "carry_less_fees_pct_ignoring_basis_slippage": 0.29290000000000005,
+      "daily_windows_pct": [
+        0.23750000000000004,
+        0.038,
+        0.1316,
+        0.0684,
+        0.0043999999999999985,
+        0.07010000000000001,
+        0.012899999999999998
+      ]
+    },
+    {
+      "coin": "BTC",
+      "long": "gate",
+      "short": "binance",
+      "historical_7d_rate_difference_pct": 0.06179400000000001,
+      "daily_median_pct": 0.006587000000000001,
+      "positive_24h_windows": 7,
+      "roundtrip_fee_assumption_pct": 0.25,
+      "carry_less_fees_pct_ignoring_basis_slippage": -0.18820599999999998,
+      "daily_windows_pct": [
+        0.006587000000000001,
+        0.005110999999999999,
+        0.006345999999999999,
+        0.004812000000000002,
+        0.006926,
+        0.010171,
+        0.021841000000000006
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5225 @@
+{
+  "warning": "Current rate extrapolation only, no forecast or profitability claim; turnover filter from earlier snapshot; ignores basis, costs, cashflow schedule and rate changes.",
+  "rows": [
+    {
+      "coin": "4",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.9447540000000001,
+      "long_rate": 0.00087941,
+      "long_hours": 4.0,
+      "short_rate": 0.002454,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "4",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.8088,
+      "long_rate": 0.001106,
+      "long_hours": 4.0,
+      "short_rate": 0.002454,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AKE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.6759120000000001,
+      "long_rate": -0.00109252,
+      "long_hours": 4.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.4866,
+      "long_rate": -0.000761,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FF",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.4308,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000768,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FF",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.4308,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000768,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.41305200000000003,
+      "long_rate": -0.000239,
+      "long_hours": 4.0,
+      "short_rate": 0.00044942,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AKE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.3972,
+      "long_rate": -0.000628,
+      "long_hours": 4.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.3828,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.000688,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.354,
+      "long_rate": -0.000761,
+      "long_hours": 4.0,
+      "short_rate": -0.000171,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TUT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.32399999999999995,
+      "long_rate": -0.00049,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.31739999999999996,
+      "long_rate": -0.000239,
+      "long_hours": 4.0,
+      "short_rate": 0.00029,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.31500000000000006,
+      "long_rate": 0.000385,
+      "long_hours": 4.0,
+      "short_rate": 0.00091,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.3063660000000001,
+      "long_rate": -0.00229261,
+      "long_hours": 4.0,
+      "short_rate": -0.001782,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.299034,
+      "long_rate": 0.00018961,
+      "long_hours": 4.0,
+      "short_rate": 0.000688,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.28340999999999994,
+      "long_rate": -0.00258935,
+      "long_hours": 4.0,
+      "short_rate": -0.002117,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AKE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.27871200000000007,
+      "long_rate": -0.00109252,
+      "long_hours": 4.0,
+      "short_rate": -0.000628,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CYS",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.26345399999999997,
+      "long_rate": -0.00038909,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XAN",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.25821,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.00048035,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "SKR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.24357600000000004,
+      "long_rate": -0.00029849,
+      "long_hours": 1.0,
+      "short_rate": -0.000197,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.24030000000000007,
+      "long_rate": -0.002743,
+      "long_hours": 8.0,
+      "short_rate": -0.000971,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTW",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.23526000000000002,
+      "long_rate": 8.8e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0004801,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTW",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.23346,
+      "long_rate": 9.1e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0004801,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.22110000000000002,
+      "long_rate": 0.000261,
+      "long_hours": 8.0,
+      "short_rate": 0.000499,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.22100999999999996,
+      "long_rate": -0.00258935,
+      "long_hours": 4.0,
+      "short_rate": -0.002221,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.21873,
+      "long_rate": 0.00013445,
+      "long_hours": 4.0,
+      "short_rate": 0.000499,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "B",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.20639999999999997,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000394,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.2021999999999999,
+      "long_rate": -0.002119,
+      "long_hours": 4.0,
+      "short_rate": -0.001782,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UAI",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.20194799999999996,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.00038658,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.20093999999999998,
+      "long_rate": 0.0005751,
+      "long_hours": 4.0,
+      "short_rate": 0.00091,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XAN",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.19520999999999997,
+      "long_rate": 0.000155,
+      "long_hours": 4.0,
+      "short_rate": 0.00048035,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "B",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.18896999999999997,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.00036495,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CYS",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.18780000000000002,
+      "long_rate": -0.000263,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.17513399999999996,
+      "long_rate": -0.00278189,
+      "long_hours": 4.0,
+      "short_rate": -0.00249,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TUT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.172938,
+      "long_rate": -0.00023823,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "SKR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.171576,
+      "long_rate": -0.00029849,
+      "long_hours": 1.0,
+      "short_rate": -0.000227,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "PROM",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.16979999999999998,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000333,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PROM",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.16979999999999998,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000333,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "H",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.16739999999999997,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000329,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "APR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.1626,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000321,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.1626,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000321,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.1626,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000321,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.1524,
+      "long_rate": -0.000378,
+      "long_hours": 4.0,
+      "short_rate": -0.000124,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TUT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.151062,
+      "long_rate": -0.00049,
+      "long_hours": 4.0,
+      "short_rate": -0.00023823,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "4",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.13595400000000002,
+      "long_rate": 0.00087941,
+      "long_hours": 4.0,
+      "short_rate": 0.001106,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.1326,
+      "long_rate": -0.000171,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.1325999999999999,
+      "long_rate": -0.002711,
+      "long_hours": 4.0,
+      "short_rate": -0.00249,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.13143000000000002,
+      "long_rate": -0.00119005,
+      "long_hours": 4.0,
+      "short_rate": -0.000971,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XMR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.128118,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.00052706,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "COTI",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.124902,
+      "long_rate": -0.00015817,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UAI",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.12034799999999998,
+      "long_rate": 0.000372,
+      "long_hours": 8.0,
+      "short_rate": 0.00038658,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XMR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.12001799999999999,
+      "long_rate": 0.000127,
+      "long_hours": 8.0,
+      "short_rate": 0.00052706,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.11519999999999998,
+      "long_rate": -0.000316,
+      "long_hours": 4.0,
+      "short_rate": -0.000124,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.11406000000000002,
+      "long_rate": 0.000385,
+      "long_hours": 4.0,
+      "short_rate": 0.0005751,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "H",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.11365799999999998,
+      "long_rate": 0.00013957,
+      "long_hours": 4.0,
+      "short_rate": 0.000329,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.10887000000000006,
+      "long_rate": -0.002743,
+      "long_hours": 8.0,
+      "short_rate": -0.00119005,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.10416600000000015,
+      "long_rate": -0.00229261,
+      "long_hours": 4.0,
+      "short_rate": -0.002119,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.09704400000000003,
+      "long_rate": 0.00049426,
+      "long_hours": 4.0,
+      "short_rate": 0.000656,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.09565200000000001,
+      "long_rate": 0.00029,
+      "long_hours": 4.0,
+      "short_rate": 0.00044942,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "APR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.093,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000205,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ICP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0843,
+      "long_rate": -0.000181,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ICP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0843,
+      "long_rate": -0.000181,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.08376600000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.00018961,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.08370000000000001,
+      "long_rate": -0.000179,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UAI",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0816,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000372,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "COTI",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.079902,
+      "long_rate": -0.00015817,
+      "long_hours": 4.0,
+      "short_rate": -2.5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.07680000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.000178,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CYS",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.07565399999999999,
+      "long_rate": -0.00038909,
+      "long_hours": 4.0,
+      "short_rate": -0.000263,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "SKR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.072,
+      "long_rate": -0.000227,
+      "long_hours": 1.0,
+      "short_rate": -0.000197,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "APR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0696,
+      "long_rate": 0.000205,
+      "long_hours": 4.0,
+      "short_rate": 0.000321,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.06935100000000001,
+      "long_rate": -0.000179,
+      "long_hours": 8.0,
+      "short_rate": 5.217e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ENA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.064374,
+      "long_rate": -5.729e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XAN",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.063,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000155,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.062399999999999956,
+      "long_rate": -0.002221,
+      "long_hours": 4.0,
+      "short_rate": -0.002117,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.059399999999999994,
+      "long_rate": -4.9e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.059399999999999994,
+      "long_rate": -4.9e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.05744400000000005,
+      "long_rate": 0.00049426,
+      "long_hours": 4.0,
+      "short_rate": 0.00059,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.05618400000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.00014364,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "H",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.053742000000000005,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.00013957,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BCH",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.045170999999999996,
+      "long_rate": -5.057e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "COTI",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.045000000000000005,
+      "long_rate": -2.5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.04440000000000001,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000124,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.04440000000000001,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000124,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ETH",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.04421999999999999,
+      "long_rate": -0.00013,
+      "long_hours": 8.0,
+      "short_rate": 1.74e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TAO",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.043800000000000006,
+      "long_rate": -2.3e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TAO",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.043800000000000006,
+      "long_rate": -2.3e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.04253400000000006,
+      "long_rate": -0.00278189,
+      "long_hours": 4.0,
+      "short_rate": -0.002711,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CLO",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0414,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000238,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "CLO",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0414,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.000238,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.03959999999999999,
+      "long_rate": 0.00059,
+      "long_hours": 4.0,
+      "short_rate": 0.000656,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FIL",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.03900000000000001,
+      "long_rate": -3e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FIL",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.03900000000000001,
+      "long_rate": -3e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.037200000000000025,
+      "long_rate": -0.000378,
+      "long_hours": 4.0,
+      "short_rate": -0.000316,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "INJ",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.037200000000000004,
+      "long_rate": -9.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BCH",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.034371,
+      "long_rate": -5.057e-05,
+      "long_hours": 8.0,
+      "short_rate": 6.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ENA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.033774,
+      "long_rate": -5.729e-05,
+      "long_hours": 4.0,
+      "short_rate": -1e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.032724,
+      "long_rate": -4.54e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0324,
+      "long_rate": -4e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0324,
+      "long_rate": -4e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ETH",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0324,
+      "long_rate": -0.00013,
+      "long_hours": 8.0,
+      "short_rate": -2.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ADA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.030900000000000004,
+      "long_rate": -8e-06,
+      "long_hours": 8.0,
+      "short_rate": 9.5e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.030792000000000003,
+      "long_rate": -1.32e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.030792000000000003,
+      "long_rate": -1.32e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ENA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.030600000000000002,
+      "long_rate": -1e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.030000000000000002,
+      "long_rate": 0.0,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ADA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.02832,
+      "long_rate": 6e-07,
+      "long_hours": 8.0,
+      "short_rate": 9.5e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTC",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.026250000000000002,
+      "long_rate": -6.6e-05,
+      "long_hours": 8.0,
+      "short_rate": 2.15e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WIF",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0246,
+      "long_rate": 9e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "WIF",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0246,
+      "long_rate": 9e-06,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XLM",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0246,
+      "long_rate": 1.8e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XLM",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0246,
+      "long_rate": 1.8e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTC",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.023700000000000002,
+      "long_rate": -6.6e-05,
+      "long_hours": 8.0,
+      "short_rate": 1.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XPL",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.022926000000000002,
+      "long_rate": 1.179e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XPL",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.022926000000000002,
+      "long_rate": 1.179e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.020615999999999995,
+      "long_rate": 0.00014364,
+      "long_hours": 4.0,
+      "short_rate": 0.000178,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "INJ",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.020460000000000002,
+      "long_rate": -3.82e-05,
+      "long_hours": 8.0,
+      "short_rate": 3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LINK",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0198,
+      "long_rate": 3.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LINK",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0198,
+      "long_rate": 3.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XRP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.018249,
+      "long_rate": -3.883e-05,
+      "long_hours": 8.0,
+      "short_rate": 2.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TIA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.018000000000000002,
+      "long_rate": 2e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TIA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.018000000000000002,
+      "long_rate": 2e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "B",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.017429999999999984,
+      "long_rate": 0.00036495,
+      "long_hours": 4.0,
+      "short_rate": 0.000394,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "APT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.016800000000000002,
+      "long_rate": 4.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.016800000000000002,
+      "long_rate": 4.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "INJ",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.016739999999999998,
+      "long_rate": -9.4e-05,
+      "long_hours": 8.0,
+      "short_rate": -3.82e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.015,
+      "long_rate": -1.6e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.014873999999999998,
+      "long_rate": -1.6e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.358e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.014349000000000002,
+      "long_rate": 5.217e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.014076000000000003,
+      "long_rate": -1.392e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LIT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.013200000000000002,
+      "long_rate": 2.8e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.013200000000000002,
+      "long_rate": 2.8e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.013176,
+      "long_rate": -1.392e-05,
+      "long_hours": 8.0,
+      "short_rate": 3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ETH",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.011819999999999999,
+      "long_rate": -2.2e-05,
+      "long_hours": 8.0,
+      "short_rate": 1.74e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BCH",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.010800000000000002,
+      "long_rate": 6.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "OP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.010119000000000001,
+      "long_rate": 6.627e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.009633000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.00013211,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.009633000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.00013211,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XRP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.009600000000000001,
+      "long_rate": -1e-05,
+      "long_hours": 8.0,
+      "short_rate": 2.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DASH",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.009087000000000003,
+      "long_rate": 6.971e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XRP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.008648999999999999,
+      "long_rate": -3.883e-05,
+      "long_hours": 8.0,
+      "short_rate": -1e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "OP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.008619000000000002,
+      "long_rate": 6.627e-05,
+      "long_hours": 8.0,
+      "short_rate": 9.5e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XMR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.008099999999999998,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.000127,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.007203000000000003,
+      "long_rate": 7.599e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.007203000000000003,
+      "long_rate": 7.599e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DASH",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.006600000000000002,
+      "long_rate": 7.8e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.005741999999999999,
+      "long_rate": -4.2e-05,
+      "long_hours": 8.0,
+      "short_rate": -2.286e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.005699999999999999,
+      "long_rate": -4.2e-05,
+      "long_hours": 8.0,
+      "short_rate": -2.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ARB",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.005400000000000001,
+      "long_rate": 8.2e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ARB",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.005400000000000001,
+      "long_rate": 8.2e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.002724,
+      "long_rate": -4.54e-06,
+      "long_hours": 4.0,
+      "short_rate": 0.0,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ADA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.00258,
+      "long_rate": -8e-06,
+      "long_hours": 8.0,
+      "short_rate": 6e-07,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTC",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.00255,
+      "long_rate": 1.3e-05,
+      "long_hours": 8.0,
+      "short_rate": 2.15e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DASH",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.002487000000000001,
+      "long_rate": 6.971e-05,
+      "long_hours": 8.0,
+      "short_rate": 7.8e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NOM",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.002399999999999997,
+      "long_rate": 1.2e-05,
+      "long_hours": 1.0,
+      "short_rate": 1.3e-05,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0023699999999999928,
+      "long_rate": 0.000261,
+      "long_hours": 8.0,
+      "short_rate": 0.00013445,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTW",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.001800000000000003,
+      "long_rate": 8.8e-05,
+      "long_hours": 4.0,
+      "short_rate": 9.1e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "OP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0014999999999999998,
+      "long_rate": 9.5e-05,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NOM",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0012000000000000008,
+      "long_rate": 1.2e-05,
+      "long_hours": 1.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NOM",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0011999999999999966,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 1.3e-05,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0009000000000000005,
+      "long_rate": 3e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0001259999999999998,
+      "long_rate": 3.358e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 4.19999999999996e-05,
+      "long_rate": -2.3e-05,
+      "long_hours": 8.0,
+      "short_rate": -2.286e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ICP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ICP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FARTCOIN",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRUMP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CHIP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GIGGLE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FET",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AVAX",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UNI",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VIRTUAL",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GRAM",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "WLD",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WLD",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WLD",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WLD",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WLD",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WLD",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ARB",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ARB",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LTC",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LAB",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LAB",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LAB",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LAB",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LAB",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LAB",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XPL",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XPL",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TIA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TIA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PIEVERSE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOGE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WIF",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "WIF",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LINK",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LINK",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FF",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FF",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PUMP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TAO",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TAO",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HYPE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UB",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "DOT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOT",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOT",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DOT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "GALA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GALA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GALA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GALA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GALA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "GALA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PENGU",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PROM",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PROM",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FIL",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FIL",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "RE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "RE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "RE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "RE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "RE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "RE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "HBAR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SUI",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAKE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CLO",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CLO",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "APT",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XLM",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XLM",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": 0.0,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -4.19999999999996e-05,
+      "long_rate": -2.286e-05,
+      "long_hours": 8.0,
+      "short_rate": -2.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.0001259999999999998,
+      "long_rate": 3.4e-05,
+      "long_hours": 8.0,
+      "short_rate": 3.358e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0009000000000000005,
+      "long_rate": 3.3e-05,
+      "long_hours": 8.0,
+      "short_rate": 3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NOM",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.0011999999999999966,
+      "long_rate": 1.3e-05,
+      "long_hours": 1.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NOM",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0012000000000000008,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 1.2e-05,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "OP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0014999999999999998,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 9.5e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTW",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.001800000000000003,
+      "long_rate": 9.1e-05,
+      "long_hours": 4.0,
+      "short_rate": 8.8e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0023699999999999928,
+      "long_rate": 0.00013445,
+      "long_hours": 4.0,
+      "short_rate": 0.000261,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NOM",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.002399999999999997,
+      "long_rate": 1.3e-05,
+      "long_hours": 1.0,
+      "short_rate": 1.2e-05,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "DASH",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.002487000000000001,
+      "long_rate": 7.8e-05,
+      "long_hours": 8.0,
+      "short_rate": 6.971e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTC",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.00255,
+      "long_rate": 2.15e-05,
+      "long_hours": 8.0,
+      "short_rate": 1.3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ADA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.00258,
+      "long_rate": 6e-07,
+      "long_hours": 8.0,
+      "short_rate": -8e-06,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.002724,
+      "long_rate": 0.0,
+      "long_hours": 8.0,
+      "short_rate": -4.54e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ARB",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.005400000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 8.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ARB",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.005400000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 8.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.005699999999999999,
+      "long_rate": -2.3e-05,
+      "long_hours": 8.0,
+      "short_rate": -4.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRX",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.005741999999999999,
+      "long_rate": -2.286e-05,
+      "long_hours": 8.0,
+      "short_rate": -4.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DASH",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.006600000000000002,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 7.8e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.007203000000000003,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 7.599e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AAVE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.007203000000000003,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 7.599e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XMR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.008099999999999998,
+      "long_rate": 0.000127,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "OP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.008619000000000002,
+      "long_rate": 9.5e-05,
+      "long_hours": 8.0,
+      "short_rate": 6.627e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XRP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.008648999999999999,
+      "long_rate": -1e-05,
+      "long_hours": 8.0,
+      "short_rate": -3.883e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "DASH",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.009087000000000003,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 6.971e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XRP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.009600000000000001,
+      "long_rate": 2.2e-05,
+      "long_hours": 8.0,
+      "short_rate": -1e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.009633000000000001,
+      "long_rate": 0.00013211,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BNB",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.009633000000000001,
+      "long_rate": 0.00013211,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "OP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.010119000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 6.627e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BCH",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.010800000000000002,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 6.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ETH",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.011819999999999999,
+      "long_rate": 1.74e-05,
+      "long_hours": 8.0,
+      "short_rate": -2.2e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.013176,
+      "long_rate": 3e-05,
+      "long_hours": 8.0,
+      "short_rate": -1.392e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LIT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.013200000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 2.8e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.013200000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 2.8e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ZEC",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.014076000000000003,
+      "long_rate": 3.3e-05,
+      "long_hours": 8.0,
+      "short_rate": -1.392e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.014349000000000002,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 5.217e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.014873999999999998,
+      "long_rate": 3.358e-05,
+      "long_hours": 8.0,
+      "short_rate": -1.6e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SOL",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.015,
+      "long_rate": 3.4e-05,
+      "long_hours": 8.0,
+      "short_rate": -1.6e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "INJ",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.016739999999999998,
+      "long_rate": -3.82e-05,
+      "long_hours": 8.0,
+      "short_rate": -9.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.016800000000000002,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 4.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.016800000000000002,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 4.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "B",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.017429999999999984,
+      "long_rate": 0.000394,
+      "long_hours": 4.0,
+      "short_rate": 0.00036495,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TIA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.018000000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 2e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TIA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.018000000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 2e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XRP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.018249,
+      "long_rate": 2.2e-05,
+      "long_hours": 8.0,
+      "short_rate": -3.883e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LINK",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0198,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "LINK",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0198,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 3.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "INJ",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.020460000000000002,
+      "long_rate": 3e-05,
+      "long_hours": 8.0,
+      "short_rate": -3.82e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.020615999999999995,
+      "long_rate": 0.000178,
+      "long_hours": 4.0,
+      "short_rate": 0.00014364,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XPL",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.022926000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 1.179e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XPL",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.022926000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 1.179e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTC",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.023700000000000002,
+      "long_rate": 1.3e-05,
+      "long_hours": 8.0,
+      "short_rate": -6.6e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "WIF",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.0246,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 9e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "WIF",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.0246,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 9e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XLM",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0246,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 1.8e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "XLM",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0246,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": 1.8e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTC",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.026250000000000002,
+      "long_rate": 2.15e-05,
+      "long_hours": 8.0,
+      "short_rate": -6.6e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ADA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.02832,
+      "long_rate": 9.5e-05,
+      "long_hours": 8.0,
+      "short_rate": 6e-07,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.030000000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": 0.0,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ENA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.030600000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -1e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.030792000000000003,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -1.32e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "HEMI",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.030792000000000003,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -1.32e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ADA",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.030900000000000004,
+      "long_rate": 9.5e-05,
+      "long_hours": 8.0,
+      "short_rate": -8e-06,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0324,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -4e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ASTER",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0324,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -4e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ETH",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0324,
+      "long_rate": -2.2e-05,
+      "long_hours": 8.0,
+      "short_rate": -0.00013,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "PAXG",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.032724,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -4.54e-06,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ENA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.033774,
+      "long_rate": -1e-06,
+      "long_hours": 4.0,
+      "short_rate": -5.729e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BCH",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.034371,
+      "long_rate": 6.4e-05,
+      "long_hours": 8.0,
+      "short_rate": -5.057e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "INJ",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.037200000000000004,
+      "long_rate": 3e-05,
+      "long_hours": 8.0,
+      "short_rate": -9.4e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.037200000000000025,
+      "long_rate": -0.000316,
+      "long_hours": 4.0,
+      "short_rate": -0.000378,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FIL",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.03900000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FIL",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.03900000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -3e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.03959999999999999,
+      "long_rate": 0.000656,
+      "long_hours": 4.0,
+      "short_rate": 0.00059,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CLO",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.0414,
+      "long_rate": 0.000238,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CLO",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.0414,
+      "long_rate": 0.000238,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.04253400000000006,
+      "long_rate": -0.002711,
+      "long_hours": 4.0,
+      "short_rate": -0.00278189,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TAO",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.043800000000000006,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -2.3e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TAO",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.043800000000000006,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -2.3e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ETH",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.04421999999999999,
+      "long_rate": 1.74e-05,
+      "long_hours": 8.0,
+      "short_rate": -0.00013,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.04440000000000001,
+      "long_rate": 0.000124,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MAGMA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.04440000000000001,
+      "long_rate": 0.000124,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "COTI",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.045000000000000005,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -2.5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BCH",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.045170999999999996,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -5.057e-05,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "H",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.053742000000000005,
+      "long_rate": 0.00013957,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.05618400000000001,
+      "long_rate": 0.00014364,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.05744400000000005,
+      "long_rate": 0.00059,
+      "long_hours": 4.0,
+      "short_rate": 0.00049426,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.059399999999999994,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -4.9e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ONDO",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.059399999999999994,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -4.9e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.062399999999999956,
+      "long_rate": -0.002117,
+      "long_hours": 4.0,
+      "short_rate": -0.002221,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XAN",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.063,
+      "long_rate": 0.000155,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ENA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.064374,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -5.729e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.06935100000000001,
+      "long_rate": 5.217e-05,
+      "long_hours": 8.0,
+      "short_rate": -0.000179,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.0696,
+      "long_rate": 0.000321,
+      "long_hours": 4.0,
+      "short_rate": 0.000205,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "SKR",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.072,
+      "long_rate": -0.000197,
+      "long_hours": 1.0,
+      "short_rate": -0.000227,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "CYS",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.07565399999999999,
+      "long_rate": -0.000263,
+      "long_hours": 4.0,
+      "short_rate": -0.00038909,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BEAT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.07680000000000001,
+      "long_rate": 0.000178,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "COTI",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.079902,
+      "long_rate": -2.5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00015817,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UAI",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.0816,
+      "long_rate": 0.000372,
+      "long_hours": 8.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "NEAR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.08370000000000001,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -0.000179,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.08376600000000001,
+      "long_rate": 0.00018961,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ICP",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0843,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -0.000181,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "ICP",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.0843,
+      "long_rate": 0.0001,
+      "long_hours": 8.0,
+      "short_rate": -0.000181,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "APR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.093,
+      "long_rate": 0.000205,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.09565200000000001,
+      "long_rate": 0.00044942,
+      "long_hours": 4.0,
+      "short_rate": 0.00029,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "USELESS",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.09704400000000003,
+      "long_rate": 0.000656,
+      "long_hours": 4.0,
+      "short_rate": 0.00049426,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.10416600000000015,
+      "long_rate": -0.002119,
+      "long_hours": 4.0,
+      "short_rate": -0.00229261,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.10887000000000006,
+      "long_rate": -0.00119005,
+      "long_hours": 4.0,
+      "short_rate": -0.002743,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "H",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.11365799999999998,
+      "long_rate": 0.000329,
+      "long_hours": 4.0,
+      "short_rate": 0.00013957,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.11406000000000002,
+      "long_rate": 0.0005751,
+      "long_hours": 4.0,
+      "short_rate": 0.000385,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.11519999999999998,
+      "long_rate": -0.000124,
+      "long_hours": 4.0,
+      "short_rate": -0.000316,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XMR",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.12001799999999999,
+      "long_rate": 0.00052706,
+      "long_hours": 8.0,
+      "short_rate": 0.000127,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "UAI",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.12034799999999998,
+      "long_rate": 0.00038658,
+      "long_hours": 4.0,
+      "short_rate": 0.000372,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "COTI",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.124902,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00015817,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XMR",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.128118,
+      "long_rate": 0.00052706,
+      "long_hours": 8.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.13143000000000002,
+      "long_rate": -0.000971,
+      "long_hours": 4.0,
+      "short_rate": -0.00119005,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.1325999999999999,
+      "long_rate": -0.00249,
+      "long_hours": 4.0,
+      "short_rate": -0.002711,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.1326,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.000171,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "4",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.13595400000000002,
+      "long_rate": 0.001106,
+      "long_hours": 4.0,
+      "short_rate": 0.00087941,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TUT",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.151062,
+      "long_rate": -0.00023823,
+      "long_hours": 4.0,
+      "short_rate": -0.00049,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ZORA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.1524,
+      "long_rate": -0.000124,
+      "long_hours": 4.0,
+      "short_rate": -0.000378,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "APR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.1626,
+      "long_rate": 0.000321,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.1626,
+      "long_rate": 0.000321,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MUBARAK",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.1626,
+      "long_rate": 0.000321,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "H",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.16739999999999997,
+      "long_rate": 0.000329,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PROM",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.16979999999999998,
+      "long_rate": 0.000333,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "PROM",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.16979999999999998,
+      "long_rate": 0.000333,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "SKR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.171576,
+      "long_rate": -0.000227,
+      "long_hours": 1.0,
+      "short_rate": -0.00029849,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "TUT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.172938,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00023823,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "ACE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.17513399999999996,
+      "long_rate": -0.00249,
+      "long_hours": 4.0,
+      "short_rate": -0.00278189,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CYS",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.18780000000000002,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.000263,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "B",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.18896999999999997,
+      "long_rate": 0.00036495,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "XAN",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.19520999999999997,
+      "long_rate": 0.00048035,
+      "long_hours": 4.0,
+      "short_rate": 0.000155,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.20093999999999998,
+      "long_rate": 0.00091,
+      "long_hours": 4.0,
+      "short_rate": 0.0005751,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "UAI",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.20194799999999996,
+      "long_rate": 0.00038658,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.2021999999999999,
+      "long_rate": -0.001782,
+      "long_hours": 4.0,
+      "short_rate": -0.002119,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "B",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.20639999999999997,
+      "long_rate": 0.000394,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.21873,
+      "long_rate": 0.000499,
+      "long_hours": 4.0,
+      "short_rate": 0.00013445,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.22100999999999996,
+      "long_rate": -0.002221,
+      "long_hours": 4.0,
+      "short_rate": -0.00258935,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LIGHT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.22110000000000002,
+      "long_rate": 0.000499,
+      "long_hours": 4.0,
+      "short_rate": 0.000261,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "BTW",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.23346,
+      "long_rate": 0.0004801,
+      "long_hours": 4.0,
+      "short_rate": 9.1e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "BTW",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.23526000000000002,
+      "long_rate": 0.0004801,
+      "long_hours": 4.0,
+      "short_rate": 8.8e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FLOCK",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.24030000000000007,
+      "long_rate": -0.000971,
+      "long_hours": 4.0,
+      "short_rate": -0.002743,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "SKR",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.24357600000000004,
+      "long_rate": -0.000197,
+      "long_hours": 1.0,
+      "short_rate": -0.00029849,
+      "short_hours": 1.0
+    },
+    {
+      "coin": "XAN",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.25821,
+      "long_rate": 0.00048035,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CYS",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.26345399999999997,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00038909,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AKE",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.27871200000000007,
+      "long_rate": -0.000628,
+      "long_hours": 4.0,
+      "short_rate": -0.00109252,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "LA",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.28340999999999994,
+      "long_rate": -0.002117,
+      "long_hours": 4.0,
+      "short_rate": -0.00258935,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "kucoin",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.299034,
+      "long_rate": 0.000688,
+      "long_hours": 4.0,
+      "short_rate": 0.00018961,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "CAP",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.3063660000000001,
+      "long_rate": -0.001782,
+      "long_hours": 4.0,
+      "short_rate": -0.00229261,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "MARSCOIN",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.31500000000000006,
+      "long_rate": 0.00091,
+      "long_hours": 4.0,
+      "short_rate": 0.000385,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.31739999999999996,
+      "long_rate": 0.00029,
+      "long_hours": 4.0,
+      "short_rate": -0.000239,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TUT",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.32399999999999995,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00049,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.354,
+      "long_rate": -0.000171,
+      "long_hours": 4.0,
+      "short_rate": -0.000761,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "TRADOOR",
+      "long": "kucoin",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.3828,
+      "long_rate": 0.000688,
+      "long_hours": 4.0,
+      "short_rate": 0.0001,
+      "short_hours": 8.0
+    },
+    {
+      "coin": "AKE",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.3972,
+      "long_rate": 3.4e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.000628,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "KOMA",
+      "long": "binance",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.41305200000000003,
+      "long_rate": 0.00044942,
+      "long_hours": 4.0,
+      "short_rate": -0.000239,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FF",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.4308,
+      "long_rate": 0.000768,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "FF",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.4308,
+      "long_rate": 0.000768,
+      "long_hours": 4.0,
+      "short_rate": 5e-05,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "VELVET",
+      "long": "binance",
+      "short": "gate",
+      "current_daily_pct_extrapolation": -0.4866,
+      "long_rate": 5e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.000761,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "AKE",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.6759120000000001,
+      "long_rate": 3.4e-05,
+      "long_hours": 4.0,
+      "short_rate": -0.00109252,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "4",
+      "long": "gate",
+      "short": "kucoin",
+      "current_daily_pct_extrapolation": -0.8088,
+      "long_rate": 0.002454,
+      "long_hours": 4.0,
+      "short_rate": 0.001106,
+      "short_hours": 4.0
+    },
+    {
+      "coin": "4",
+      "long": "gate",
+      "short": "binance",
+      "current_daily_pct_extrapolation": -0.9447540000000001,
+      "long_rate": 0.002454,
+      "long_hours": 4.0,
+      "short_rate": 0.00087941,
+      "short_hours": 4.0
+    }
+  ]
+}

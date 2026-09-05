@@ -2,7 +2,7 @@ export const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'XRPUSDT', 'SOLUSDT', 'COTIUSDT'] 
 export type SymbolName = string;
 
 export function isSymbolName(value: unknown): value is SymbolName {
-  return typeof value === 'string' && /^[A-Z0-9]{2,24}USDT$/.test(value) && value !== 'USDTUSDT';
+  return typeof value === 'string' && /^[A-Z0-9]{1,24}USDT$/.test(value) && value !== 'USDTUSDT';
 }
 export type ChartRange = '15m' | '1h' | '4h';
 export type ComparisonMode = 'spot' | 'futures' | 'mixed';
@@ -192,4 +192,157 @@ export interface ScannerState {
   connections: Record<string, SourceConnection>;
   feedEvents: FeedEvent[];
   lastUpdatedAt: number | null;
+}
+
+export type FuturesInterval = '15m' | '1h' | '4h';
+export type FuturesStrategy = 'trend_pullback' | 'breakout' | 'mean_reversion';
+export type FuturesScenarioStatus = 'ready' | 'watch' | 'no_trade';
+export type FuturesResourceStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+export interface FuturesAnalyzeInput {
+  contract: string;
+  interval: FuturesInterval;
+  strategy: FuturesStrategy;
+  accountBalance: number;
+  riskPercent: number;
+  tradeNotional: number;
+  minNetSpreadPct: number;
+}
+
+export type NeutralRouteStatus = 'executable' | 'watch' | 'rejected';
+
+export interface FuturesVenueMarket {
+  venue: string;
+  symbol: string;
+  indexPrice: number;
+  markPrice: number;
+  fundingRate: number;
+  nextFundingAt: number;
+}
+
+export interface NeutralRoute {
+  status: NeutralRouteStatus;
+  reasonCode: string;
+  reasons: string[];
+  symbol: string;
+  longVenue: string;
+  shortVenue: string;
+  longEntry: number;
+  shortEntry: number;
+  baseQuantity: number;
+  longContracts: number;
+  shortContracts: number;
+  longNotional: number;
+  shortNotional: number;
+  grossSpreadPct: number;
+  openFees: number;
+  estimatedCloseFees: number;
+  netConvergenceSpreadPct: number;
+  nextFundingCarryPct: number;
+  indexDivergencePct: number;
+}
+
+export interface FuturesLiveSnapshot {
+  capturedAt: number;
+  candle: FuturesCandle;
+  gate: FuturesVenueMarket;
+  binance: FuturesVenueMarket;
+  route: NeutralRoute;
+}
+
+export type FuturesExecutionStatus = 'opened' | 'failed' | 'compensated' | 'exposed';
+
+export interface FuturesOrderFill {
+  venue: string;
+  orderId: string;
+  filledContracts: number;
+  averagePrice: number;
+}
+
+export interface FuturesExecutionResult {
+  status: FuturesExecutionStatus;
+  reasonCode: string;
+  route: NeutralRoute;
+  fills: FuturesOrderFill[];
+  compensation: FuturesOrderFill | null;
+  compensations: FuturesOrderFill[];
+}
+
+export interface FuturesContract {
+  symbol: string;
+  status: string;
+  quantoMultiplier: number;
+  markPrice: number;
+  indexPrice: number;
+  lastPrice: number;
+  makerFeeRate: number;
+  takerFeeRate: number;
+  orderSizeMin: number;
+  orderSizeMax: number;
+  priceIncrement: number;
+  leverageMin: number;
+  leverageMax: number;
+  fundingRate: number;
+  fundingInterval: number;
+}
+
+export interface FuturesCandle {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface FuturesBookLevel {
+  price: number;
+  size: number;
+  notional: number;
+}
+
+export interface FuturesIndicators {
+  ema20: number;
+  ema50: number;
+  atr14: number;
+  rsi14: number;
+  mean20: number;
+  upperBand: number;
+  lowerBand: number;
+  swingHigh: number;
+  swingLow: number;
+  marketBias: 'bullish' | 'bearish' | 'neutral';
+}
+
+export interface FuturesScenario {
+  direction: 'long' | 'short';
+  status: FuturesScenarioStatus;
+  score: number;
+  entry: number;
+  stop: number;
+  targets: number[];
+  riskReward: number;
+  riskAmount: number;
+  contracts: number;
+  baseQuantity: number;
+  notional: number;
+  estimatedFees: number;
+  liquidationNote: string;
+  reasons: string[];
+}
+
+export interface FuturesAnalysis {
+  contract: FuturesContract;
+  interval: FuturesInterval;
+  strategy: FuturesStrategy;
+  analyzedAt: number;
+  candles: FuturesCandle[];
+  indicators: FuturesIndicators;
+  liquidity: {
+    bidWalls: FuturesBookLevel[];
+    askWalls: FuturesBookLevel[];
+  };
+  long: FuturesScenario;
+  short: FuturesScenario;
+  neutralRoute: NeutralRoute | null;
 }

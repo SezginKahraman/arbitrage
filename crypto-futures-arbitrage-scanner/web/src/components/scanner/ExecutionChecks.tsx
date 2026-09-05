@@ -79,7 +79,7 @@ export function ExecutionChecks({ route, requestStatus }: ExecutionChecksProps) 
         <article className="rounded-lg border border-terminal-line bg-black/10 p-3">
           <CircleHelp aria-hidden="true" className="mb-3 text-signal-amber" size={18} />
           <p className="text-sm">Common network</p>
-          <p className="mt-1 text-sm font-medium text-slate-300">{commonNetwork?.name || 'Not verified'}</p>
+          <p className="mt-1 text-sm font-medium text-slate-700">{commonNetwork?.name || 'Not verified'}</p>
           <p className="mt-2 text-xs leading-5 text-slate-500">Direction must support source withdrawal and destination deposit.</p>
         </article>
         <article className="rounded-lg border border-terminal-line bg-black/10 p-3">

@@ -65,7 +65,7 @@ export function OpportunitiesTable({
             aria-controls="opportunities-table-body"
             aria-expanded={!collapsed}
             aria-label={collapsed ? 'Expand live opportunities' : 'Collapse live opportunities'}
-            className="grid size-9 place-items-center rounded-lg border border-terminal-line text-slate-400 transition hover:bg-white/[0.035] hover:text-terminal-text"
+            className="grid size-9 place-items-center rounded-lg border border-terminal-line text-slate-500 transition hover:bg-slate-900/[0.04] hover:text-terminal-text"
             onClick={onToggleCollapsed}
             type="button"
           >
@@ -104,14 +104,14 @@ export function OpportunitiesTable({
             {opportunities.length ? (
               opportunities.map((opportunity, index) => (
                 <tr
-                  className={`border-b border-terminal-line/70 last:border-0 ${index === 0 ? 'bg-signal-mint/[0.045]' : 'hover:bg-white/[0.025]'}`}
+                  className={`border-b border-terminal-line/70 last:border-0 ${index === 0 ? 'bg-signal-mint/[0.045]' : 'hover:bg-slate-900/[0.025]'}`}
                   key={opportunity.id}
                 >
                   <td className="px-5 py-4 font-data font-medium">
                     <div className="flex items-center gap-2">
                       {opportunity.symbol.replace('USDT', '/USDT')}
                       {opportunity.historical ? (
-                        <span className="rounded border border-terminal-line bg-white/[0.035] px-1.5 py-0.5 font-sans text-[10px] font-medium text-slate-400">
+                        <span className="rounded border border-terminal-line bg-slate-900/[0.035] px-1.5 py-0.5 font-sans text-[10px] font-medium text-slate-500">
                           History
                         </span>
                       ) : (

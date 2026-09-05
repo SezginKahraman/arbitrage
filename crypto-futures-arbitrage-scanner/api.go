@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"sort"
@@ -12,15 +13,21 @@ import (
 	"strings"
 	"time"
 
+	futuresdomain "futures-arbitrage-scanner/futures"
 	"futures-arbitrage-scanner/storage"
 )
 
 type apiServer struct {
-	store       storage.OpportunityStore
-	alerts      storage.AlertStore
-	scannerLive func() bool
-	networks    networkCatalogReader
-	watchlist   *watchlistService
+	store            storage.OpportunityStore
+	alerts           storage.AlertStore
+	scannerLive      func() bool
+	networks         networkCatalogReader
+	watchlist        *watchlistService
+	futures          futuresdomain.Service
+	futuresLive      futuresdomain.LiveService
+	futuresExecution futuresdomain.ExecutionService
+	futuresAccess    futuresdomain.AccessService
+	paper            storage.PaperPositionStore
 }
 
 type networkCatalogReader interface {
@@ -39,6 +46,23 @@ func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, sc
 		}
 	}
 	server := &apiServer{store: store, alerts: alerts, scannerLive: scannerLive, networks: networks, watchlist: watchlist}
+	for _, dependency := range dependencies {
+		if value, ok := dependency.(futuresdomain.Service); ok {
+			server.futures = value
+		}
+		if value, ok := dependency.(futuresdomain.LiveService); ok {
+			server.futuresLive = value
+		}
+		if value, ok := dependency.(futuresdomain.ExecutionService); ok {
+			server.futuresExecution = value
+		}
+		if value, ok := dependency.(futuresdomain.AccessService); ok {
+			server.futuresAccess = value
+		}
+		if value, ok := dependency.(storage.PaperPositionStore); ok {
+			server.paper = value
+		}
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/opportunities", server.handleOpportunities)
 	mux.HandleFunc("/api/markets", server.handleMarkets)
@@ -49,8 +73,298 @@ func newAPIHandler(store storage.OpportunityStore, alerts storage.AlertStore, sc
 	mux.HandleFunc("/api/alert-rules", server.handleAlertRules)
 	mux.HandleFunc("/api/alert-rules/", server.handleAlertRule)
 	mux.HandleFunc("/api/alert-triggers", server.handleAlertTriggers)
+	mux.HandleFunc("/api/futures/contracts", server.handleFuturesContracts)
+	mux.HandleFunc("/api/futures/analyze", server.handleFuturesAnalyze)
+	mux.HandleFunc("/api/futures/live", server.handleFuturesLive)
+	mux.HandleFunc("/api/futures/execute", server.handleFuturesExecute)
+	mux.HandleFunc("/api/futures/access", server.handleFuturesAccess)
+	mux.HandleFunc("/api/futures/order-probe", server.handleFuturesOrderProbe)
+	mux.HandleFunc("/api/futures/paper-positions", server.handlePaperPositions)
+	mux.HandleFunc("/api/futures/paper-positions/", server.handlePaperPosition)
 	mux.HandleFunc("/api/health", server.handleHealth)
 	return mux
+}
+
+func (s *apiServer) handleFuturesAccess(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodGet) {
+		return
+	}
+	if s.futuresAccess == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Futures private access checks unavailable"})
+		return
+	}
+	requiredNotional, err := strconv.ParseFloat(r.URL.Query().Get("required_notional"), 64)
+	request := futuresdomain.AccessRequest{
+		Contract:         strings.ToUpper(strings.TrimSpace(r.URL.Query().Get("contract"))),
+		RequiredNotional: requiredNotional,
+	}
+	if err != nil || requiredNotional <= 0 || requiredNotional > 1_000_000 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid futures access request"})
+		return
+	}
+	report, accessErr := s.futuresAccess.Access(r.Context(), request)
+	if accessErr != nil {
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "Futures private access checks failed"})
+		return
+	}
+	writeJSON(w, http.StatusOK, report)
+}
+
+func (s *apiServer) handleFuturesOrderProbe(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodPost) {
+		return
+	}
+	if s.futuresAccess == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Live futures order probes unavailable"})
+		return
+	}
+	var request futuresdomain.OrderProbeRequest
+	if !decodeStrictJSON(w, r, &request) || !request.ConfirmLive ||
+		(request.Venue != "binance_futures" && request.Venue != "gate_futures") {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid live futures order probe request"})
+		return
+	}
+	request.Contract = strings.ToUpper(strings.TrimSpace(request.Contract))
+	result, err := s.futuresAccess.Probe(r.Context(), request)
+	if err == nil {
+		writeJSON(w, http.StatusOK, result)
+		return
+	}
+	status := http.StatusBadGateway
+	message := "Futures order probe failed before cleanup could be verified"
+	if errors.Is(err, futuresdomain.ErrLiveTradingDisabled) {
+		status, message = http.StatusServiceUnavailable, "Live futures order probes are disabled on the server"
+	} else if errors.Is(err, futuresdomain.ErrLiveConfirmationRequired) {
+		status, message = http.StatusBadRequest, "Explicit live futures confirmation is required"
+	} else if errors.Is(err, futuresdomain.ErrPreflightFailed) {
+		status, message = http.StatusUnprocessableEntity, "Futures order probe preflight failed"
+	} else if errors.Is(err, futuresdomain.ErrOrderProbeInProgress) {
+		status, message = http.StatusConflict, "A live futures order probe is already in progress for this venue and contract"
+	} else if errors.Is(err, futuresdomain.ErrOrderProbeExposed) {
+		status, message = http.StatusInternalServerError, "Order probe cleanup is unverified; inspect the venue immediately"
+	}
+	writeJSON(w, status, struct {
+		Error  string                         `json:"error"`
+		Result futuresdomain.OrderProbeResult `json:"result"`
+	}{Error: message, Result: result})
+}
+
+func (s *apiServer) handleFuturesExecute(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodPost) {
+		return
+	}
+	if s.futuresExecution == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Live futures execution unavailable"})
+		return
+	}
+	var input futuresdomain.ExecuteRequest
+	if !decodeStrictJSON(w, r, &input) || !input.ConfirmLive || input.TradeNotional < 5 || input.TradeNotional > 1_000_000 ||
+		input.MinNetSpreadPct < 0 || input.MinNetSpreadPct > 100 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid live futures execution request"})
+		return
+	}
+	result, err := s.futuresExecution.Execute(r.Context(), input)
+	if err == nil {
+		writeJSON(w, http.StatusOK, result)
+		return
+	}
+	status := http.StatusBadGateway
+	message := "One or more futures order legs failed; inspect the sanitized execution status"
+	if errors.Is(err, futuresdomain.ErrLiveTradingDisabled) {
+		status, message = http.StatusServiceUnavailable, "Live futures execution is disabled on the server"
+	} else if errors.Is(err, futuresdomain.ErrLiveConfirmationRequired) {
+		status, message = http.StatusBadRequest, "Explicit live futures confirmation is required"
+	} else if errors.Is(err, futuresdomain.ErrRouteChanged) {
+		status, message = http.StatusConflict, "The executable route changed; analyze the market again"
+	} else if errors.Is(err, futuresdomain.ErrExecutionInProgress) {
+		status, message = http.StatusConflict, "A live futures execution is already in progress for this contract"
+	} else if errors.Is(err, futuresdomain.ErrPreflightFailed) {
+		status = http.StatusUnprocessableEntity
+		message = "Futures account preflight failed; verify venue margin, trade permission, and existing positions"
+		if result.ReasonCode == "binance_futures_preflight_failed" {
+			message = "Binance Futures preflight failed; verify USDT margin, trade permission, and existing positions"
+		} else if result.ReasonCode == "gate_futures_preflight_failed" {
+			message = "Gate Futures preflight failed; verify USDT margin, trade permission, and existing positions"
+		}
+	} else if errors.Is(err, futuresdomain.ErrCompensationFailed) {
+		status, message = http.StatusInternalServerError, "A futures leg remains exposed; inspect both exchange positions immediately"
+	}
+	writeJSON(w, status, struct {
+		Error  string                        `json:"error"`
+		Result futuresdomain.ExecutionResult `json:"result"`
+	}{Error: message, Result: result})
+}
+
+func (s *apiServer) handleFuturesLive(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodGet) {
+		return
+	}
+	if s.futuresLive == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Futures live data unavailable"})
+		return
+	}
+	query := r.URL.Query()
+	notional, notionalErr := strconv.ParseFloat(query.Get("trade_notional"), 64)
+	minSpread, spreadErr := strconv.ParseFloat(query.Get("min_net_spread_pct"), 64)
+	input := futuresdomain.LiveRequest{
+		Contract:      strings.ToUpper(strings.TrimSpace(query.Get("contract"))),
+		Interval:      strings.TrimSpace(query.Get("interval")),
+		TradeNotional: notional, MinNetSpreadPct: minSpread,
+	}
+	if notionalErr != nil || spreadErr != nil || input.TradeNotional < 5 || input.TradeNotional > 1_000_000 ||
+		input.MinNetSpreadPct < 0 || input.MinNetSpreadPct > 100 {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid futures live request"})
+		return
+	}
+	snapshot, err := s.futuresLive.Live(r.Context(), input)
+	if err != nil {
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "Futures live market data unavailable"})
+		return
+	}
+	writeJSON(w, http.StatusOK, snapshot)
+}
+
+func decodeStrictJSON(w http.ResponseWriter, r *http.Request, target any) bool {
+	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(target); err != nil {
+		return false
+	}
+	return errors.Is(decoder.Decode(&struct{}{}), io.EOF)
+}
+
+func methodIs(w http.ResponseWriter, r *http.Request, allowed string) bool {
+	if r.Method == allowed {
+		return true
+	}
+	w.Header().Set("Allow", allowed)
+	writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+	return false
+}
+
+func (s *apiServer) handleFuturesContracts(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodGet) {
+		return
+	}
+	if s.futures == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Futures analysis unavailable"})
+		return
+	}
+	items, err := s.futures.Contracts(r.Context())
+	if err != nil {
+		log.Printf("Gate futures contracts failed: %v", err)
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "Gate futures market data temporarily unavailable; retry analysis"})
+		return
+	}
+	writeJSON(w, http.StatusOK, struct {
+		Items []futuresdomain.Contract `json:"items"`
+	}{Items: items})
+}
+
+func (s *apiServer) handleFuturesAnalyze(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodPost) {
+		return
+	}
+	if s.futures == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Futures analysis unavailable"})
+		return
+	}
+	var input futuresdomain.AnalyzeRequest
+	if !decodeStrictJSON(w, r, &input) || futuresdomain.ValidateAnalyzeRequest(input) != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid futures analysis request"})
+		return
+	}
+	analysis, err := s.futures.Analyze(r.Context(), input)
+	if err != nil {
+		log.Printf("Gate futures analysis failed for %s: %v", input.Contract, err)
+		writeJSON(w, http.StatusBadGateway, map[string]string{"error": "Gate futures market data temporarily unavailable; retry analysis"})
+		return
+	}
+	writeJSON(w, http.StatusOK, analysis)
+}
+
+func (s *apiServer) handlePaperPositions(w http.ResponseWriter, r *http.Request) {
+	if s.paper == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "paper trading unavailable"})
+		return
+	}
+	switch r.Method {
+	case http.MethodGet:
+		limit := 50
+		if raw := r.URL.Query().Get("limit"); raw != "" {
+			value, err := strconv.Atoi(raw)
+			if err != nil || value <= 0 {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid paper position limit"})
+				return
+			}
+			limit = min(value, 200)
+		}
+		items, err := s.paper.ListPaperPositions(r.Context(), limit)
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "paper positions unavailable"})
+			return
+		}
+		writeJSON(w, http.StatusOK, struct {
+			Items []storage.PaperPosition `json:"items"`
+		}{Items: items})
+	case http.MethodPost:
+		var input storage.PaperPositionInput
+		if !decodeStrictJSON(w, r, &input) || storage.ValidatePaperPositionInput(input) != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid paper position"})
+			return
+		}
+		item, err := s.paper.CreatePaperPosition(r.Context(), input, time.Now().UnixMilli())
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "could not create paper position"})
+			return
+		}
+		writeJSON(w, http.StatusCreated, item)
+	default:
+		w.Header().Set("Allow", "GET, POST")
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+	}
+}
+
+func (s *apiServer) handlePaperPosition(w http.ResponseWriter, r *http.Request) {
+	if !methodIs(w, r, http.MethodPut) {
+		return
+	}
+	if s.paper == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "paper trading unavailable"})
+		return
+	}
+	pathValue := strings.TrimPrefix(r.URL.Path, "/api/futures/paper-positions/")
+	parts := strings.Split(pathValue, "/")
+	if len(parts) != 2 || parts[1] != "close" {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "paper position not found"})
+		return
+	}
+	id, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil || id <= 0 {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "paper position not found"})
+		return
+	}
+	var input struct {
+		ExitPrice float64 `json:"exit_price"`
+	}
+	if !decodeStrictJSON(w, r, &input) || input.ExitPrice <= 0 || math.IsNaN(input.ExitPrice) || math.IsInf(input.ExitPrice, 0) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid paper close request"})
+		return
+	}
+	item, err := s.paper.ClosePaperPosition(r.Context(), id, input.ExitPrice, time.Now().UnixMilli())
+	if errors.Is(err, storage.ErrPaperPositionNotFound) {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "paper position not found"})
+		return
+	}
+	if errors.Is(err, storage.ErrPaperPositionClosed) {
+		writeJSON(w, http.StatusConflict, map[string]string{"error": "paper position already closed"})
+		return
+	}
+	if err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "could not close paper position"})
+		return
+	}
+	writeJSON(w, http.StatusOK, item)
 }
 
 func supportedNetworkAsset(asset string) bool {

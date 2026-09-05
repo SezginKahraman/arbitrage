@@ -5,11 +5,35 @@ import type { ScannerState } from '../../app/types';
 import type { MarketCatalogState } from '../../hooks/useMarketCatalog';
 import { AllOpportunitiesPage } from './AllOpportunitiesPage';
 
+const transferRoutes = {
+  status: 'ready' as const,
+  routes: {
+    'COTI:kucoin_spot:binance_spot': {
+      asset: 'COTI', source: 'kucoin_spot', destination: 'binance_spot', status: 'blocked' as const, reason: 'withdrawal disabled', checkedAt: 1,
+      networks: [], sourceNetworks: [], destinationNetworks: [],
+    },
+    'BTC:gate_spot:binance_spot': {
+      asset: 'BTC', source: 'gate_spot', destination: 'binance_spot', status: 'ready' as const, reason: 'verified common network available', checkedAt: 1,
+      networks: [], sourceNetworks: [], destinationNetworks: [],
+    },
+  },
+};
+
 const state: ScannerState = {
   connection: 'live',
   lastUpdatedAt: 20_000,
   prices: {},
-  quotes: {},
+  quotes: {
+    BTCUSDT: {
+      binance_futures: { symbol: 'BTCUSDT', source: 'binance_futures', bestBid: 100, bestAsk: 100.1, timestamp: 20_000 },
+      gate_futures: { symbol: 'BTCUSDT', source: 'gate_futures', bestBid: 101, bestAsk: 101.1, timestamp: 20_000 },
+      kucoin_futures: { symbol: 'BTCUSDT', source: 'kucoin_futures', bestBid: 100.5, bestAsk: 100.6, timestamp: 20_000 },
+    },
+    ETHUSDT: {
+      binance_futures: { symbol: 'ETHUSDT', source: 'binance_futures', bestBid: 200, bestAsk: 200.1, timestamp: 20_000 },
+      kucoin_futures: { symbol: 'ETHUSDT', source: 'kucoin_futures', bestBid: 201, bestAsk: 201.1, timestamp: 20_000 },
+    },
+  },
   spreads: {},
   history: {},
   alertTriggers: [],
@@ -36,21 +60,40 @@ const state: ScannerState = {
 };
 
 describe('AllOpportunitiesPage', () => {
-  it('lists live routes across every pair instead of one selected pair', () => {
-    render(<AllOpportunitiesPage now={20_000} state={state} />);
+  it('defaults the Spot desk to verified READY transfer routes only', () => {
+    render(<AllOpportunitiesPage now={20_000} state={state} transferRoutes={transferRoutes} />);
 
     const table = within(screen.getByRole('table'));
-    expect(table.getByText('COTI/USDT')).toBeInTheDocument();
     expect(table.getByText('BTC/USDT')).toBeInTheDocument();
-    expect(table.getByText('ETH/USDT')).toBeInTheDocument();
-    expect(table.getByText('SOL/USDT')).toBeInTheDocument();
-    expect(screen.getByText('4 live routes')).toBeInTheDocument();
+    expect(table.queryByText('COTI/USDT')).not.toBeInTheDocument();
+    expect(table.queryByText('ETH/USDT')).not.toBeInTheDocument();
+    expect(screen.getByText('1 live route')).toBeInTheDocument();
+  });
+
+  it('switches between Spot transfers, Futures convergence, and Strategies desks', () => {
+    render(<AllOpportunitiesPage now={20_000} state={state} transferRoutes={transferRoutes} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Futures convergence desk' }));
+    expect(screen.getByRole('heading', { name: 'Futures convergence' })).toBeInTheDocument();
+    expect(screen.getAllByText('LONG').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('SHORT').length).toBeGreaterThan(0);
+    expect(screen.getByText('Analyze supported')).toBeInTheDocument();
+    expect(screen.getByText('Public scan only')).toBeInTheDocument();
+    const futuresRows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+    expect(within(futuresRows[0]).getByText('BTC/USDT')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Strategies desk' }));
+    expect(screen.getByRole('heading', { name: 'Strategy registry' })).toBeInTheDocument();
+    expect(screen.getByText('Trend Pullback')).toBeInTheDocument();
+    expect(screen.getByText('Breakout')).toBeInTheDocument();
+    expect(screen.getByText('Mean Reversion')).toBeInTheDocument();
+    expect(screen.getByText('Adaptive Cross-Venue Convergence')).toBeInTheDocument();
   });
 
   it('filters routes by market type, search, exchange, and minimum spread', () => {
-    render(<AllOpportunitiesPage now={20_000} state={state} />);
+    render(<AllOpportunitiesPage now={20_000} state={state} transferRoutes={transferRoutes} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show spot to spot routes' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filter by transfer route' }), { target: { value: 'all' } });
     expect(screen.getByText('COTI/USDT')).toBeInTheDocument();
     expect(screen.getByText('BTC/USDT')).toBeInTheDocument();
     expect(screen.queryByText('ETH/USDT')).not.toBeInTheDocument();
@@ -65,7 +108,9 @@ describe('AllOpportunitiesPage', () => {
   });
 
   it('sorts the all-pair table by pair and spread', () => {
-    render(<AllOpportunitiesPage now={20_000} state={state} />);
+    render(<AllOpportunitiesPage now={20_000} state={state} transferRoutes={transferRoutes} />);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Filter by transfer route' }), { target: { value: 'all' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Sort by pair' }));
     const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
@@ -102,16 +147,7 @@ describe('AllOpportunitiesPage', () => {
     render(<AllOpportunitiesPage
       now={20_000}
       state={state}
-      transferRoutes={{ status: 'ready', routes: {
-        'COTI:kucoin_spot:binance_spot': {
-          asset: 'COTI', source: 'kucoin_spot', destination: 'binance_spot', status: 'blocked', reason: 'withdrawal disabled', checkedAt: 1,
-          networks: [], sourceNetworks: [], destinationNetworks: [],
-        },
-        'BTC:gate_spot:binance_spot': {
-          asset: 'BTC', source: 'gate_spot', destination: 'binance_spot', status: 'ready', reason: 'verified common network available', checkedAt: 1,
-          networks: [], sourceNetworks: [], destinationNetworks: [],
-        },
-      } }}
+      transferRoutes={transferRoutes}
     />);
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Filter by transfer route' }), { target: { value: 'common' } });
@@ -129,10 +165,11 @@ describe('AllOpportunitiesPage', () => {
       enabledSources={{ bybit_spot: false, bybit_futures: false }}
       now={20_000}
       state={{ ...state, opportunities: [...state.opportunities, bybitRoute] }}
+      transferRoutes={transferRoutes}
     />);
 
     expect(screen.queryByText('WAL/USDT')).not.toBeInTheDocument();
-    expect(screen.getByText('4 live routes')).toBeInTheDocument();
+    expect(screen.getByText('1 live route')).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Bybit Spot' })).not.toBeInTheDocument();
     expect(screen.queryByRole('option', { name: 'Bybit Futures' })).not.toBeInTheDocument();
   });

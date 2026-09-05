@@ -1,3 +1,5 @@
 .env
 *.log
 .DS_Store
+.local/edge-paper/
+scripts/__pycache__/

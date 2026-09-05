@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AppShell } from '../components/layout/AppShell';
 import { TopBar } from '../components/layout/TopBar';
 import { AlertsPage } from '../components/alerts/AlertsPage';
+import { FuturesPage } from '../components/futures/FuturesPage';
 import { AllOpportunitiesPage } from '../components/opportunities/AllOpportunitiesPage';
 import { ScannerDashboard } from '../components/scanner/ScannerDashboard';
 import { SettingsDrawer } from '../components/settings/SettingsDrawer';
@@ -47,7 +48,7 @@ export function App() {
     setPage(nextPage);
   }, []);
 
-  if (page === 'opportunities' || page === 'alerts') {
+  if (page === 'opportunities' || page === 'alerts' || page === 'futures') {
     return (
       <AppShell
         activePage={page}
@@ -67,7 +68,9 @@ export function App() {
       >
         {page === 'opportunities'
           ? <AllOpportunitiesPage enabledSources={preferences.enabledSources} marketCatalog={marketCatalog} state={scannerState} transferRoutes={transferRoutes} />
-          : <AlertsPage state={scannerState} symbols={activeSymbols} />}
+          : page === 'alerts'
+            ? <AlertsPage state={scannerState} symbols={activeSymbols} />
+            : <FuturesPage />}
         <SettingsDrawer
           onClose={() => setSettingsOpen(false)}
           onPreferencesChange={setPreferences}

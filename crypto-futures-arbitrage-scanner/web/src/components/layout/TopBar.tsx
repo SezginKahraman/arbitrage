@@ -68,7 +68,7 @@ export function TopBar({
 
       <div className="hidden items-center gap-2 text-xs text-slate-500 xl:flex">
         <span>Updated</span>
-        <time className="font-data text-slate-300">
+        <time className="font-data text-slate-600">
           {lastUpdatedAt ? new Date(lastUpdatedAt).toLocaleTimeString([], { hour12: false }) : '—'}
         </time>
         <RefreshCw aria-hidden="true" size={15} />

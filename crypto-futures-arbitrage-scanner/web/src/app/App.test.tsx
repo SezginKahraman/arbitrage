@@ -46,7 +46,7 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open opportunities' }));
 
     expect(screen.getByRole('heading', { name: 'Opportunities' })).toBeInTheDocument();
-    expect(screen.getByText('All live routes across every tracked pair.')).toBeInTheDocument();
+    expect(screen.getByText('Verified transfers, futures convergence, and strategy research in one tape.')).toBeInTheDocument();
   });
 
   it('navigates to the persisted alerts workspace', () => {

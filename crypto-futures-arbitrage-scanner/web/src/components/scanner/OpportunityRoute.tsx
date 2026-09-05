@@ -48,10 +48,10 @@ export function OpportunityRoute({
     : transferPresentation.tone === 'negative' ? CircleX : TriangleAlert;
   const transferToneClass = transferPresentation.tone === 'positive'
     ? 'text-signal-mint'
-    : transferPresentation.tone === 'negative' ? 'text-red-400' : transferPresentation.tone === 'neutral' ? 'text-slate-400' : 'text-signal-amber';
+    : transferPresentation.tone === 'negative' ? 'text-red-700' : transferPresentation.tone === 'neutral' ? 'text-slate-500' : 'text-signal-amber';
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-signal-mint/55 bg-[linear-gradient(115deg,rgba(39,229,140,0.055),rgba(12,23,29,0.88)_34%,rgba(12,23,29,0.98))] shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
+    <section className="overflow-hidden rounded-2xl border border-signal-mint/45 bg-[linear-gradient(115deg,rgba(8,122,76,0.08),rgba(255,255,255,0.96)_34%,rgba(247,250,249,0.99))] shadow-[0_18px_55px_rgba(29,62,51,0.10)]">
       <div className="grid min-h-40 items-center gap-6 p-5 lg:grid-cols-[minmax(220px,1.05fr)_minmax(180px,0.8fr)_auto_minmax(180px,0.8fr)_minmax(190px,0.85fr)] lg:p-6">
         <div className="space-y-4 lg:border-r lg:border-terminal-line lg:pr-6">
           <div className="flex items-center gap-3">

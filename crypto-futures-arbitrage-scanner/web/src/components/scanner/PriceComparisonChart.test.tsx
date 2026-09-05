@@ -53,6 +53,26 @@ describe('PriceComparisonChart', () => {
     expect(priceFormatForValue(0.01140723)).toEqual({ type: 'price', precision: 8, minMove: 0.00000001 });
   });
 
+  it('uses the light analytical chart palette', () => {
+    render(
+      <PriceComparisonChart
+        enabledSources={{ binance_spot: true }}
+        history={{ binance_spot: [{ time: 1_000_000, value: 0.01140723 }] }}
+        onRangeChange={() => undefined}
+        range="15m"
+      />,
+    );
+
+    expect(chartMocks.createChart).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      layout: expect.objectContaining({ textColor: '#52645d' }),
+      grid: {
+        vertLines: { color: 'rgba(15, 56, 45, 0.09)' },
+        horzLines: { color: 'rgba(15, 56, 45, 0.09)' },
+      },
+      rightPriceScale: { borderColor: '#d5e0dc' },
+    }));
+  });
+
   it('creates enabled source series, changes range, and removes the chart on unmount', () => {
     const onRangeChange = vi.fn();
     const { rerender, unmount } = render(

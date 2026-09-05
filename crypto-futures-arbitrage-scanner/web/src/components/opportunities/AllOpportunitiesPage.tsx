@@ -26,8 +26,12 @@ import type { MarketCatalogState } from '../../hooks/useMarketCatalog';
 import { transferRouteKey, type TransferRoutesState } from '../../hooks/useTransferRoutes';
 import { formatPrice } from '../../lib/format';
 import { FRESHNESS_WINDOW_MS } from '../../lib/market-state';
+import { buildFuturesConvergenceCandidates } from '../../lib/opportunity-desks';
 import { SOURCES, sourceMeta } from '../../lib/sources';
 import { SourceMark } from '../shared/SourceMark';
+import { FuturesConvergenceDesk } from './FuturesConvergenceDesk';
+import { OpportunityDeskSwitcher, type OpportunityDesk } from './OpportunityDeskSwitcher';
+import { StrategiesDesk } from './StrategiesDesk';
 
 type MarketFilter = 'all' | 'spot' | 'mixed' | 'futures';
 type RouteFilter = 'all' | 'common' | 'ready' | 'check' | 'blocked' | 'unknown';
@@ -43,13 +47,6 @@ interface AllOpportunitiesPageProps {
 }
 
 const pageSize = 10;
-
-const marketFilters: Array<{ key: MarketFilter; label: string; aria: string }> = [
-  { key: 'all', label: 'All', aria: 'Show all market routes' },
-  { key: 'spot', label: 'Spot ↔ Spot', aria: 'Show spot to spot routes' },
-  { key: 'mixed', label: 'Spot ↔ Futures', aria: 'Show spot to futures routes' },
-  { key: 'futures', label: 'Futures ↔ Futures', aria: 'Show futures to futures routes' },
-];
 
 const routeFilterLabels: Record<RouteFilter, string> = {
   all: 'All route states',
@@ -126,8 +123,8 @@ const routeStyles: Record<TransferRouteStatus, string> = {
   ready: 'border-signal-mint/35 bg-signal-mint/10 text-signal-mint',
   check: 'border-signal-amber/35 bg-signal-amber/10 text-signal-amber',
   blocked: 'border-red-400/30 bg-red-400/10 text-red-300',
-  unknown: 'border-terminal-line bg-white/[0.025] text-slate-400',
-  not_applicable: 'border-terminal-line bg-white/[0.025] text-slate-500',
+  unknown: 'border-terminal-line bg-slate-900/[0.025] text-slate-500',
+  not_applicable: 'border-terminal-line bg-slate-900/[0.025] text-slate-500',
 };
 
 function RouteIcon({ status }: { status: TransferRouteStatus }) {
@@ -147,7 +144,7 @@ function RouteDetails({ route }: { route: TransferRouteEvaluation }) {
     <div className="grid gap-3 p-4 md:grid-cols-[minmax(220px,0.6fr)_1fr]">
       <div>
         <p className="font-data text-[10px] uppercase tracking-[0.18em] text-slate-500">Directional transfer check</p>
-        <p className="mt-2 text-sm text-slate-300">{route.reason}</p>
+        <p className="mt-2 text-sm text-slate-700">{route.reason}</p>
         <p className="mt-2 font-data text-xs text-slate-500">
           {sourceMeta(route.source).label} → {sourceMeta(route.destination).label}
         </p>
@@ -178,10 +175,10 @@ function RouteDetails({ route }: { route: TransferRouteEvaluation }) {
 
 export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, enabledSources = {}, now }: AllOpportunitiesPageProps) {
   const [clock, setClock] = useState(() => now ?? Date.now());
+  const [desk, setDesk] = useState<OpportunityDesk>('spot');
   const [query, setQuery] = useState('');
-  const [market, setMarket] = useState<MarketFilter>('all');
   const [exchange, setExchange] = useState('all');
-  const [routeFilter, setRouteFilter] = useState<RouteFilter>('all');
+  const [routeFilter, setRouteFilter] = useState<RouteFilter>('ready');
   const [minimumSpread, setMinimumSpread] = useState('0.05');
   const [sortField, setSortField] = useState<SortField>('spread');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -197,6 +194,10 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
   }, [now]);
 
   const currentTime = now ?? clock;
+  const futuresCandidates = useMemo(
+    () => buildFuturesConvergenceCandidates(state.quotes, enabledSources, currentTime),
+    [currentTime, enabledSources, state.quotes],
+  );
   const routeMap = transferRoutes?.routes ?? {};
   const minimum = Number(minimumSpread);
   const normalizedQuery = query.trim().toLowerCase();
@@ -215,7 +216,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
     () => enabledRoutes
       .filter((item) => {
         if (Number.isFinite(minimum) && item.profitPct < minimum) return false;
-        if (market !== 'all' && routeMarket(item) !== market) return false;
+        if (routeMarket(item) !== 'spot') return false;
         if (exchange !== 'all' && item.buySource !== exchange && item.sellSource !== exchange) return false;
         if (!matchesRouteFilter(routeFor(item, routeMap).status, routeFilter)) return false;
         if (!normalizedQuery) return true;
@@ -223,17 +224,17 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
           .join(' ').toLowerCase().includes(normalizedQuery);
       })
       .sort((left, right) => compare(left, right, sortField, sortDirection)),
-    [enabledRoutes, exchange, market, minimum, normalizedQuery, routeFilter, routeMap, sortDirection, sortField],
+    [enabledRoutes, exchange, minimum, normalizedQuery, routeFilter, routeMap, sortDirection, sortField],
   );
 
-  useEffect(() => setPage(1), [exchange, market, minimumSpread, normalizedQuery, routeFilter]);
+  useEffect(() => setPage(1), [exchange, minimumSpread, normalizedQuery, routeFilter]);
   useEffect(() => {
     if (exchange !== 'all' && enabledSources[exchange] === false) setExchange('all');
   }, [enabledSources, exchange]);
 
   const statusCounts = useMemo(() => {
     const counts = { ready: 0, check: 0, blocked: 0, unknown: 0 };
-    for (const opportunity of enabledRoutes) {
+    for (const opportunity of enabledRoutes.filter((item) => routeMarket(item) === 'spot')) {
       const status = routeFor(opportunity, routeMap).status;
       if (status === 'ready') counts.ready++;
       else if (status === 'check') counts.check++;
@@ -284,13 +285,15 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
         <div>
           <p className="font-data text-[11px] uppercase tracking-[0.22em] text-signal-mint">Market-wide tape</p>
           <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">Opportunities</h1>
-          <p className="mt-1 text-sm text-slate-400">All live routes across every tracked pair.</p>
+          <p className="mt-1 text-sm text-slate-500">Verified transfers, futures convergence, and strategy research in one tape.</p>
         </div>
         <div className="flex items-center gap-2 rounded-full border border-signal-mint/20 bg-signal-mint/[0.07] px-3 py-1.5 font-data text-xs text-signal-mint">
           <span className="size-1.5 animate-pulse rounded-full bg-signal-mint" />
-          {opportunities.length} live routes
+          {desk === 'spot' ? opportunities.length : desk === 'futures' ? futuresCandidates.length : 4} {desk === 'strategies' ? 'engines' : opportunities.length === 1 && desk === 'spot' ? 'live route' : 'live routes'}
         </div>
       </header>
+
+      <OpportunityDeskSwitcher active={desk} futuresCount={futuresCandidates.length} onChange={setDesk} spotCount={opportunities.length} />
 
       {marketCatalog ? (
         <section aria-label="Market watchlist" className="rounded-xl border border-terminal-line bg-terminal-panel/65 p-4">
@@ -307,7 +310,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
             </div>
             <button
               aria-expanded={addingMarket}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-signal-mint/60 bg-signal-mint px-3 text-xs font-medium text-terminal-ink transition hover:bg-emerald-300 disabled:opacity-40"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-signal-mint/60 bg-signal-mint px-3 text-xs font-medium text-white transition hover:bg-[#06653f] disabled:opacity-40"
               disabled={marketCatalog.saving || marketCatalog.watchlist.length >= marketCatalog.limit}
               onClick={() => setAddingMarket((value) => !value)}
               type="button"
@@ -393,6 +396,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
         </section>
       ) : null}
 
+      {desk === 'spot' ? <>
       <section aria-label="Route status summary" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {([
           ['ready', 'Executable', statusCounts.ready, 'text-signal-mint'],
@@ -413,22 +417,17 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
       </section>
 
       <section aria-label="Opportunity filters" className="rounded-xl border border-terminal-line bg-terminal-panel/65 p-3">
-        <div className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_auto_minmax(160px,0.42fr)_minmax(170px,0.42fr)_150px]">
+        <div className="grid gap-3 xl:grid-cols-[minmax(220px,1fr)_minmax(160px,0.42fr)_minmax(170px,0.42fr)_150px]">
           <label className="relative">
             <span className="sr-only">Search opportunities</span>
             <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
             <input aria-label="Search opportunities" className="h-11 w-full rounded-lg border border-terminal-line bg-terminal-ink/70 pl-10 pr-3 text-sm placeholder:text-slate-600" onChange={(event) => setQuery(event.target.value)} placeholder="Search pair or exchange" type="search" value={query} />
           </label>
-          <div aria-label="Opportunity market type" className="flex overflow-x-auto rounded-lg border border-terminal-line bg-terminal-ink/70 p-1" role="group">
-            {marketFilters.map((filter) => (
-              <button aria-label={filter.aria} aria-pressed={market === filter.key} className={`shrink-0 rounded-md px-3 py-2 text-xs transition ${market === filter.key ? 'bg-signal-mint/12 text-signal-mint shadow-[inset_0_0_0_1px_rgba(39,229,140,0.2)]' : 'text-slate-500 hover:text-terminal-text'}`} key={filter.key} onClick={() => setMarket(filter.key)} type="button">{filter.label}</button>
-            ))}
-          </div>
           <label>
             <span className="sr-only">Filter by exchange</span>
             <select aria-label="Filter by exchange" className="h-11 w-full rounded-lg border border-terminal-line bg-terminal-ink/70 px-3 text-sm" onChange={(event) => setExchange(event.target.value)} value={exchange}>
               <option value="all">All exchanges</option>
-              {SOURCES.filter((source) => source.market !== 'oracle' && enabledSources[source.key] !== false).map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}
+              {SOURCES.filter((source) => source.market === 'spot' && enabledSources[source.key] !== false).map((source) => <option key={source.key} value={source.key}>{source.label}</option>)}
             </select>
           </label>
           <label>
@@ -476,7 +475,7 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
                 const expanded = expandedRoute === opportunity.id;
                 return (
                   <Fragment key={opportunity.id}>
-                    <tr className="group border-b border-terminal-line/70 hover:bg-white/[0.025]">
+                    <tr className="group border-b border-terminal-line/70 hover:bg-slate-900/[0.025]">
                       <td className="px-4 py-4 text-center font-data text-xs text-slate-600">{(visiblePage - 1) * pageSize + index + 1}</td>
                       <td className="px-4 py-4 font-data font-medium">{opportunity.symbol.replace('USDT', '/USDT')}</td>
                       <td className="px-4 py-4"><SourceMark source={opportunity.buySource} /><p className="mt-1 font-data text-xs text-slate-400">${formatPrice(opportunity.buyPrice)}</p></td>
@@ -508,6 +507,11 @@ export function AllOpportunitiesPage({ state, marketCatalog, transferRoutes, ena
           </div>
         </footer>
       </section>
+      </> : desk === 'futures' ? (
+        <FuturesConvergenceDesk candidates={futuresCandidates} now={currentTime} />
+      ) : (
+        <StrategiesDesk candidates={futuresCandidates} history={state.history} />
+      )}
     </div>
   );
 }

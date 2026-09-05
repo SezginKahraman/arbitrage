@@ -11,7 +11,7 @@ interface MetricStripProps {
 }
 
 const metricClass =
-  'min-w-[220px] flex-1 rounded-xl border border-terminal-line bg-terminal-panel/65 px-5 py-4 shadow-[inset_0_1px_rgba(255,255,255,0.025)]';
+  'min-w-[220px] flex-1 rounded-xl border border-terminal-line bg-terminal-panel/90 px-5 py-4 shadow-[0_1px_2px_rgba(15,56,45,0.04)]';
 
 export function MetricStrip({ activeOpportunities, bestSpread, connectedFeeds, totalFeeds, freshBooks, totalBooks, minSpread }: MetricStripProps) {
   return (

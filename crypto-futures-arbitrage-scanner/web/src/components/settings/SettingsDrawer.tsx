@@ -72,7 +72,7 @@ export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange
           </button>
         </div>
 
-        <label className="mt-8 block text-sm text-slate-300">
+        <label className="mt-8 block text-sm text-slate-700">
           Trading pair
           <select
             className="mt-2 h-11 w-full rounded-lg border border-terminal-line bg-terminal-ink px-3"
@@ -83,7 +83,7 @@ export function SettingsDrawer({ open, preferences, onClose, onPreferencesChange
           </select>
         </label>
 
-        <label className="mt-5 block text-sm text-slate-300">
+        <label className="mt-5 block text-sm text-slate-700">
           Minimum spread (%)
           <input
             className="mt-2 h-11 w-full rounded-lg border border-terminal-line bg-terminal-ink px-3 font-data"

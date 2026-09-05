@@ -1,5 +1,71 @@
 # Arbitrage Tools Setup
 
+## Binance + Gate Live Order Access
+
+- [x] Add sanitized read-only futures account preflight reports for Binance and Gate.
+- [x] Add explicit-confirmation, minimum-size post-only order probes with immediate cancellation.
+- [x] Make every probe fail closed and verify that no open order or position remains.
+- [x] Keep paired market execution unchanged and never use it for an access-only test.
+- [x] Run RED/GREEN tests, full verification, deploy the exact scanner, and perform the authorized live probes.
+
+### Binance + Gate Live Order Access Review
+
+- Official exchange contracts were rechecked before live access: Binance USD-M
+  uses signed `GTX` limit orders and Gate USDT Futures uses `poc`; both expose
+  single-order cancellation. Probe planning is exchange-rule-aware and capped
+  at 10 USDT; concurrent probes for the same venue and contract are rejected.
+- Read-only H/USDT preflight authenticated on both venues. Gate had sufficient
+  available Futures margin and was flat. Binance reported `canTrade=true` but
+  insufficient available Futures USDT, so no real Binance order was sent.
+- Gate accepted one 1-contract H/USDT post-only buy probe at 0.13097 USDT
+  (about 1.3097 USDT notional). It filled zero contracts and was immediately
+  cancelled. A separate signed verification found the order finished as
+  cancelled, zero open H orders, and zero H position size.
+- Binance's signed `/fapi/v1/order/test` accepted a valid 39 H post-only order
+  payload with HTTP 200 and, by endpoint contract, did not submit it to the
+  matching engine. A separate signed verification found zero open H orders
+  and zero non-zero H positions.
+- Final verification passed Go race tests, vet, build, 25 frontend test files / 107
+  tests, TypeScript checking, Vite production build, and `git diff --check`.
+  The exact scanner container is healthy/live with zero restarts. No paired
+  market execution was invoked and no position was left open.
+
+## Gate Futures Analysis Workspace
+
+- [x] Add a public Gate USDT perpetual analysis engine with deterministic long/short scenarios.
+- [x] Add a validated Futures API and SQLite paper-position ledger without live order endpoints.
+- [x] Add `/futures` navigation, typed data hooks, and the candlestick decision workspace.
+- [x] Verify Go, React, Docker, live public Gate analysis, and the paper-only safety boundary.
+
+### Gate Futures Review
+
+- The existing Scanner, Opportunities, and Alerts workspaces remain intact. The
+  new `/futures` workspace loads Gate.io USDT perpetual contracts and performs
+  analysis only after an explicit user action.
+- The deterministic engine uses only closed candles and produces independent
+  `ready`, `watch`, or `no_trade` long and short plans from EMA20/EMA50,
+  ATR14, RSI14, recent ranges, funding, contract constraints, and visible
+  order-book walls.
+- Paper positions are validated and persisted in SQLite. The production API
+  contains no live-order handler; `POST /api/futures/orders` returned 404 and
+  a focused source scan found no Gate credentials, environment access, or
+  futures order path in the new module.
+- Fresh verification passed with `go test -race ./... -count=1`, `go vet
+  ./...`, and `go build ./...`. React passed 22 test files / 94 tests, strict
+  TypeScript checking, and the Vite production build.
+- Docker built the frontend and Go binary from source. The exact
+  `arbitrage-scanner` container was replaced while retaining the named SQLite
+  volume and read-only `.env` mount. It is running with zero restarts; health,
+  database, and scanner all report healthy.
+- Live public Gate verification returned 903 trading contracts. A COTI 15m
+  request returned 199 closed candles, funding/mark/index values, five bid and
+  five ask walls, and distinct long/short plans. No paper record was inserted
+  during the smoke test.
+- No browser was connected to the in-app browser runtime, so automated
+  screenshot/pixel inspection could not be completed. Component behavior,
+  responsive source structure, focus styles, production assets, and live HTTP
+  delivery were verified.
+
 ## Plan
 
 - [x] Protect `.env` and ignore the three independent upstream repositories.
@@ -454,3 +520,99 @@ exact running container ID.
 - Settings now states that source choices apply across Scanner, charts, and Opportunities; both Scanner source chips and Settings checkboxes remain reversible.
 - WAL live metadata reports its only Binance SUI network with deposit and withdrawal closed, so Gate/KuCoin to Binance is correctly blocked after Bybit is hidden.
 - Frontend verification passed 18 files and 85 tests, TypeScript typecheck, Vite production build, Docker build, and the deployed health check.
+
+## Live Futures Cross-Venue Execution
+
+- [x] Reproduce the frozen Futures chart with a failing live-update test.
+- [x] Stream the selected Gate candle plus Binance/Gate Futures executable quotes and spread.
+- [x] Add a contract-safe, depth/fees/funding-aware Binance ↔ Gate neutral-route analyzer.
+- [x] Add signed Binance and Gate Futures clients behind an explicit server kill switch.
+- [x] Execute both legs only after a fresh server-side revalidation and explicit UI click.
+- [x] Compensate a one-leg fill immediately and return a sanitized execution result.
+- [x] Replace the paper-position UI with live route status and an execution confirmation control while preserving existing local paper data.
+- [x] Run focused RED/GREEN tests, full race/frontend/build verification, and a public-data Docker smoke without sending live orders.
+
+### Review
+
+- The Futures chart now refreshes the selected Gate candle and Binance/Gate route every two seconds after an explicit analysis.
+- Neutral-route sizing matches Gate contract multipliers to Binance base quantity, rejects index collisions, walks executable depth, and subtracts four taker fees; next funding is shown separately.
+- Live entry remains behind `LIVE_FUTURES_TRADING_ENABLED`, an explicit button, venue preflight, a second immediate book revalidation, and a per-contract duplicate-execution lock.
+- A failed or partial leg triggers concurrent reduce-only compensation; an unclosed exposure returns a sanitized emergency result with venue order IDs.
+- Read-only production checks authenticated both futures accounts. Gate has positive available USDT; Binance can trade but currently has no available Futures USDT, so the preflight blocks all orders until Binance margin is funded.
+- COTI public-data smoke returned 199 candles and two advancing live timestamps; no `/api/futures/execute` request was sent during verification.
+- Go race tests, vet, build, 22 frontend test files with 96 tests, TypeScript typecheck, Vite/Docker builds, and the deployed health check passed.
+- Scanner container was replaced with preserved SQLite volume and `.env` mount; Hummingbot remained unchanged.
+
+## Gate Futures Resilience And Light Theme
+
+- [x] Reproduce transient Gate failures and duplicate public calls with failing tests.
+- [x] Retry transient Gate responses and reuse short-lived contract/order-book snapshots.
+- [x] Keep upstream diagnostics server-side while returning an actionable sanitized UI error.
+- [x] Convert the application shell and Futures workspace to a crisp light trading-terminal palette.
+- [x] Verify responsive contrast, frontend/backend regressions, Docker deployment, and live Gate analysis.
+
+### Review
+
+- Gate analysis now retries one transient public failure and shares ten-second contract plus one-second order-book snapshots across the composed analysis, removing the duplicate Gate contract/book requests.
+- Sanitized client errors now suggest retrying while the upstream diagnostic remains in the server log.
+- The application uses an off-white/white, dark-ink, emerald-accent palette; chart axes and grids were updated with it, while the live feed remains a deliberately dark embedded market tape.
+- Backend tests and vet passed; the frontend passed 23 files and 99 tests, typecheck, production build, and two 1600×1000 visual checks.
+- Eight consecutive live Gate/Binance analyses across COTI, BTC, ETH, and SOL returned HTTP 200 in 1.47–2.21 seconds. The deployed container is healthy, and no execution endpoint was called.
+
+## Route-Ready Opportunities And Strategy Desks
+
+- [x] Make Spot opportunities default to verified `READY` transfer routes while retaining explicit diagnostic filters.
+- [x] Add a Futures desk that ranks Binance, Gate, and KuCoin long/short convergence routes from fresh streamed quotes every second.
+- [x] Estimate futures net convergence after round-trip fees and expose freshness, direction, and execution eligibility.
+- [x] Add a pluggable Strategies desk with Trend Pullback, Breakout, Mean Reversion, and Adaptive Cross-Venue Convergence.
+- [x] Keep live execution limited to the already protected Binance ↔ Gate route; KuCoin remains public-data-only.
+- [x] Verify backend/frontend regressions, responsive UI, Docker deployment, and live public-market behavior without sending orders.
+
+### Review
+
+- Opportunities now opens on a Spot-transfer desk filtered to verified `READY`
+  routes. `CHECK`, `BLOCKED`, `UNKNOWN`, common-network, and all-state views
+  remain available as explicit diagnostics.
+- The Futures desk recomputes once per UI second from fresh executable asks and
+  bids across Binance, Gate, and KuCoin, subtracts conservative four-fill fee
+  assumptions, sorts estimated net convergence descending, and distinguishes
+  Binance/Gate analysis support from KuCoin public scan-only coverage.
+- The Strategies desk provides a modular registry for Trend Pullback,
+  Breakout, Mean Reversion, and Adaptive Cross-Venue Convergence. The adaptive
+  research signal compares the current executable spread with a one-hour,
+  720-sample rolling median and robust z-score; it refuses to qualify before
+  the history gate is complete.
+- Single-character base assets are now valid end-to-end. `HUSDT` is present in
+  the live catalog on Binance, Gate, and KuCoin Futures, was added to the
+  persisted watchlist, and produced fresh bid/ask messages from all three.
+- The Futures desk link now preselects the requested Gate contract in Futures
+  Lab. It does not analyze or trade until the user presses the existing
+  explicit action; no execution endpoint was called during verification.
+- Final verification passed 25 frontend files / 107 tests, strict TypeScript,
+  Vite production build, Go race tests, vet, build, Docker build, and diff
+  checks. The deployed scanner is healthy with zero restarts and preserved
+  SQLite state. In-app browser inspection was unavailable in this session;
+  production asset labels, HTTP delivery, WebSocket feeds, and responsive
+  component tests were verified instead.
+
+## 2026-09-05 Cross-venue strategy research
+
+- [x] Inspect existing research/execution capabilities and limitations.
+- [x] Compare public Binance, Gate, and KuCoin market snapshots for candidate coins.
+- [x] Compare convergence, funding, hybrid, and alternative hedged strategies with execution risks.
+- [x] Document a paper-trial specification, evidence, and unresolved profitability questions.
+
+Scope: research and public read-only measurement; no real orders or deployment. Snapshot data cannot establish historical profitability.
+
+### Review
+
+Public snapshots identified 457 preliminary common candidates and sampled 24 order books for eight coins across three venues. All 72 size-specific theoretical depth costs were independently recalculated with Decimal. Research and the proposed paper-trial specification are in `docs/research/2026-09-05-hedged-arbitrage-research.md`. Current code estimates full convergence rather than executable paired exit value; automatic profit exit remains future implementation work. No product code, deployment, credentials, or live trading endpoints were changed or invoked. Continuous paper trading and historical profitability were not tested.
+
+## 2026-09-05 Five-minute edge experiment
+
+- [ ] Research falsifiable funding/basis/convergence hypotheses across the three venues.
+- [ ] Implement and test an isolated public-only paper engine with durable positions and honest costs.
+- [ ] Start a bounded 24-hour experiment at 300-second intervals with persistent local scheduling.
+- [ ] Verify initial and subsequent real cycles, document results, monitoring and stop instructions.
+
+Design: separate strategy ledgers, matched underlying quantity, conservative fees and book VWAP; no trading credentials. Five-minute sampling cannot validate subsecond opportunities. New research runner only; preserve existing uncommitted application changes.

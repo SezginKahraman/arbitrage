@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 const toneClasses = {
   positive: 'border-signal-mint/25 bg-signal-mint/10 text-signal-mint',
   warning: 'border-signal-amber/25 bg-signal-amber/10 text-signal-amber',
-  neutral: 'border-terminal-line bg-white/[0.035] text-slate-300',
+  neutral: 'border-terminal-line bg-slate-900/[0.035] text-slate-600',
 };
 
 export function StatusBadge({ children, tone = 'neutral' }: StatusBadgeProps) {

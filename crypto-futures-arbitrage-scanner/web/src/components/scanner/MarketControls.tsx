@@ -36,7 +36,7 @@ export function MarketControls({
   return (
     <section
       aria-label="Market comparison controls"
-      className="rounded-xl border border-terminal-line bg-terminal-panel/65 p-3 shadow-[inset_0_1px_rgba(255,255,255,0.025)]"
+      className="rounded-xl border border-terminal-line bg-terminal-panel/90 p-3 shadow-[0_1px_2px_rgba(15,56,45,0.04)]"
     >
       <div className="flex flex-wrap items-center gap-3">
         <div aria-label="Comparison mode" className="flex rounded-lg border border-terminal-line bg-terminal-ink/70 p-1" role="group">
@@ -44,7 +44,7 @@ export function MarketControls({
             <button
               aria-label={aria}
               aria-pressed={comparisonMode === key}
-              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition ${comparisonMode === key ? 'bg-signal-mint/12 text-signal-mint shadow-[inset_0_0_0_1px_rgba(39,229,140,0.22)]' : 'text-slate-500 hover:bg-white/[0.035] hover:text-terminal-text'}`}
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition ${comparisonMode === key ? 'bg-signal-mint/10 text-signal-mint shadow-[inset_0_0_0_1px_rgba(8,122,76,0.22)]' : 'text-slate-500 hover:bg-slate-900/[0.04] hover:text-terminal-text'}`}
               key={key}
               onClick={() => onComparisonModeChange(key)}
               type="button"
@@ -64,7 +64,7 @@ export function MarketControls({
               <button
                 aria-label={`${enabled ? 'Disable' : 'Enable'} ${source.label}`}
                 aria-pressed={enabled}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${enabled ? 'border-terminal-line bg-white/[0.045] text-terminal-text' : 'border-transparent bg-black/15 text-slate-600'}`}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${enabled ? 'border-terminal-line bg-slate-900/[0.035] text-terminal-text' : 'border-transparent bg-black/[0.04] text-slate-500'}`}
                 key={source.key}
                 onClick={() => onSourceToggle(source.key)}
                 type="button"
@@ -80,7 +80,7 @@ export function MarketControls({
           <button
             aria-label="Show table and chart side by side"
             aria-pressed={dashboardLayout === 'split'}
-            className={`grid size-8 place-items-center rounded-md ${dashboardLayout === 'split' ? 'bg-white/10 text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
+            className={`grid size-8 place-items-center rounded-md ${dashboardLayout === 'split' ? 'bg-slate-900/[0.07] text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
             onClick={() => onDashboardLayoutChange('split')}
             title="Side by side"
             type="button"
@@ -90,7 +90,7 @@ export function MarketControls({
           <button
             aria-label="Stack table and chart"
             aria-pressed={dashboardLayout === 'stacked'}
-            className={`grid size-8 place-items-center rounded-md ${dashboardLayout === 'stacked' ? 'bg-white/10 text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
+            className={`grid size-8 place-items-center rounded-md ${dashboardLayout === 'stacked' ? 'bg-slate-900/[0.07] text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
             onClick={() => onDashboardLayoutChange('stacked')}
             title="Stacked"
             type="button"

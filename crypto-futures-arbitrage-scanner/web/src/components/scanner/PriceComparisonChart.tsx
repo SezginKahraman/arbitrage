@@ -69,18 +69,18 @@ export function PriceComparisonChart({ history, enabledSources, range, onRangeCh
       height: 310,
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#8a9aa3',
+        textColor: '#52645d',
         fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
         fontSize: 11,
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: 'rgba(27,43,51,0.72)' },
-        horzLines: { color: 'rgba(27,43,51,0.72)' },
+        vertLines: { color: 'rgba(15, 56, 45, 0.09)' },
+        horzLines: { color: 'rgba(15, 56, 45, 0.09)' },
       },
-      rightPriceScale: { borderColor: '#1b2b33' },
-      timeScale: { borderColor: '#1b2b33', timeVisible: true, secondsVisible: false },
-      crosshair: { vertLine: { color: '#56666e' }, horzLine: { color: '#56666e' } },
+      rightPriceScale: { borderColor: '#d5e0dc' },
+      timeScale: { borderColor: '#d5e0dc', timeVisible: true, secondsVisible: false },
+      crosshair: { vertLine: { color: '#82938d' }, horzLine: { color: '#82938d' } },
     });
 
     chartRef.current = chart;
@@ -139,7 +139,7 @@ export function PriceComparisonChart({ history, enabledSources, range, onRangeCh
             <button
               aria-label={RANGE_LABELS[chartRange]}
               aria-pressed={range === chartRange}
-              className={`rounded-md px-3 py-1.5 font-data text-xs ${range === chartRange ? 'bg-white/10 text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
+              className={`rounded-md px-3 py-1.5 font-data text-xs ${range === chartRange ? 'bg-slate-900/[0.07] text-terminal-text' : 'text-slate-500 hover:text-terminal-text'}`}
               key={chartRange}
               onClick={() => onRangeChange(chartRange)}
               type="button"

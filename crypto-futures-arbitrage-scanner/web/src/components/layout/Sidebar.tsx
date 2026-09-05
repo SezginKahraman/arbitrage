@@ -1,4 +1,4 @@
-import { Activity, Bell, ScanSearch, Settings, Target } from 'lucide-react';
+import { Activity, Bell, CandlestickChart, ScanSearch, Settings, Target } from 'lucide-react';
 
 import type { AppPage } from '../../app/navigation';
 
@@ -10,6 +10,7 @@ interface SidebarProps {
 
 const navigation: Array<{ page: AppPage; label: string; aria: string; icon: typeof ScanSearch }> = [
   { page: 'scanner', label: 'Scanner', aria: 'Open scanner', icon: ScanSearch },
+  { page: 'futures', label: 'Futures', aria: 'Open futures analysis', icon: CandlestickChart },
   { page: 'opportunities', label: 'Opportunities', aria: 'Open opportunities', icon: Target },
   { page: 'alerts', label: 'Alerts', aria: 'Open alerts', icon: Bell },
 ];
@@ -30,7 +31,7 @@ export function Sidebar({ onOpenSettings, activePage = 'scanner', onNavigate = (
             <button
               aria-current={active ? 'page' : undefined}
               aria-label={aria}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 border-t-2 px-2 py-3 transition lg:w-full lg:flex-none lg:gap-2 lg:border-l-2 lg:border-t-0 lg:py-4 ${active ? 'border-signal-mint bg-signal-mint/[0.06] text-signal-mint' : 'border-transparent text-slate-400 hover:bg-white/[0.035] hover:text-terminal-text'}`}
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1 border-t-2 px-2 py-3 transition lg:w-full lg:flex-none lg:gap-2 lg:border-l-2 lg:border-t-0 lg:py-4 ${active ? 'border-signal-mint bg-signal-mint/[0.06] text-signal-mint' : 'border-transparent text-slate-500 hover:bg-slate-900/[0.04] hover:text-terminal-text'}`}
               key={page}
               onClick={() => onNavigate(page)}
               type="button"
@@ -42,7 +43,7 @@ export function Sidebar({ onOpenSettings, activePage = 'scanner', onNavigate = (
         })}
         <button
           aria-label="Open settings"
-          className="flex min-w-0 flex-1 flex-col items-center gap-1 border-t-2 border-transparent px-2 py-3 text-slate-400 transition hover:bg-white/[0.035] hover:text-terminal-text lg:mt-auto lg:w-full lg:flex-none lg:gap-2 lg:border-0 lg:py-4"
+          className="flex min-w-0 flex-1 flex-col items-center gap-1 border-t-2 border-transparent px-2 py-3 text-slate-500 transition hover:bg-slate-900/[0.04] hover:text-terminal-text lg:mt-auto lg:w-full lg:flex-none lg:gap-2 lg:border-0 lg:py-4"
           onClick={onOpenSettings}
           type="button"
         >

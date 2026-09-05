@@ -93,3 +93,39 @@
   continue ranking that source. Treat venue visibility as one workspace-wide
   preference and apply it before hero selection, counts, tables, charts, and
   filter options.
+- An on-demand market-analysis snapshot must not be presented as a live chart.
+  Either label it explicitly as a timestamped snapshot or attach a bounded
+  stream lifecycle and verify that candle/quote timestamps advance after the
+  initial analysis.
+- When the user chooses real two-venue execution instead of paper simulation,
+  keep the intent boundary explicit: analysis never sends orders, and only the
+  dedicated execution action may invoke trading endpoints after a fresh
+  server-side spread, sizing, credential, and kill-switch check.
+- A two-venue neutral strategy is not executable merely because both API keys
+  authenticate. Verify positive margin and no conflicting position on both
+  venues before either order, expose the failing venue with a sanitized reason,
+  and treat partial fills as failures that must unwind every filled leg.
+- A composed live analysis must not independently refetch the same slow public
+  contract and order-book resources for each sub-analysis. Reuse short-lived
+  immutable snapshots and retry only transient responses before surfacing a
+  concise, actionable error to the UI.
+- A theme change is a system change, not a page background swap. Update semantic
+  tokens, native browser theme metadata, chart primitives, interactive states,
+  and alert/error contrast together; keep dark surfaces only when they have a
+  deliberate role such as an embedded live market tape.
+- Do not infer a venue integration from an example strategy transcript. Confirm
+  the user's actual accounts first; for this workspace, Bitget is out of scope
+  and cross-venue scanning stays on Binance, Gate, and KuCoin.
+- Asset validators must be tested against real symbol edge cases. A minimum
+  two-character base silently excludes valid markets such as `H/USDT` across
+  discovery, streaming, analysis, and execution validation.
+- Gate Futures can return HTTP 400 with the exact label `POSITION_NOT_FOUND`
+  when an account is valid and simply has no position for a contract. Parse
+  only that typed label as a flat position; every other 4xx must remain a
+  fail-closed private-access error.
+- A futures test order must satisfy minimum notional at its submitted limit
+  price, not at an earlier book snapshot. Quantize the post-only price first,
+  then ceil quantity to the venue step and recheck the final notional before
+  calling even a non-matching-engine test endpoint.
+
+- When the user rejects a static arbitrage shortlist and explicitly requests recurring simulation, move to falsifiable hypotheses and a running, verified paper experiment. Do not repeat the same coin recommendations or imply that a profitable edge must exist. Distinguish signal forecasts, modeled fills, settled funding evidence, and observed performance.
